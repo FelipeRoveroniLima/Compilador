@@ -15,4 +15,13 @@ tokens = (
    
 )
 
+t_ID = r'[a-zA-Z_]'
+t_NUMBER = r'[0-9]'
+t_OP = r'[+,-]'
+
+def t_error(t): 
+    print("Cabou-se ")
+    t.lexer.skip(1) 
+lexer = lex.lex() 
+
 
