@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
 
-print("")
 
 # Cimplificado
 # Usando a ferramenta py.lex
 
 import ply.lex as lex
+
 
 tokens = (
    'ID', # identificador
@@ -42,25 +42,22 @@ t_NOT = r'!'
 
 # Ignora espaço e quebra de linha
 t_ignore = ' \t\n'
-
 def t_error(t): 
     print("Cabou-se, deu erro em", t)
     t.lexer.skip(1) 
-lexer = lex.lex() 
 
 
 
 
 
 def testes():
+    lexer = lex.lex()     
     # Declarar variavel 
     data = "aaaaa = 1" 
     lexer.input(data) 
-    print(lexer.token())
+    tokens = [tok.type for tok in lexer]
+    assert tokens == ['ID', 'EQUALS', 'NUMBER']
 
-
-    for tok in lexer:
-        print(tok.type)
 
 
 testes()
