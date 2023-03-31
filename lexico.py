@@ -16,30 +16,30 @@ tokens = (
    'TIMES', # *
    'DIVIDE', # /
    'EQUALS', # declarar
-   'LESS_THAN',
-   'LESS_THAN_EQUAL', 
-   'GREATER_THAN',
-   'GREATER_THAN_EQUAL',
-   'AND',
-   'OR',
-   'NOT',
-   'RIGHT_PAREN',
-   'LEFT_PAREN',
-   'RIGHT_BRACE',
-   'LEFT_BRACE',
-   'RIGHT_BRACKET',
-   'LEFT_BRACKET',
-   'COMMA',
-   'SEMICOLON'
+   'LESS_THAN', # <
+   'LESS_THAN_EQUAL', # <= 
+   'GREATER_THAN', # >
+   'GREATER_THAN_EQUAL', # >=
+   'AND', # &&
+   'OR', # ||
+   'NOT', # !
+   'RIGHT_PAREN', # (
+   'LEFT_PAREN', # )
+   'RIGHT_BRACE', # [
+   'LEFT_BRACE', # ]
+   'RIGHT_BRACKET', # {
+   'LEFT_BRACKET', # }
+   'COMMA', # ,
+   'SEMICOLON' # ;
    
 )
 
 reserved = {
-   'if' : 'IF',
-   'then' : 'THEN',
-   'else' : 'ELSE',
-   'while' : 'WHILE',
-   'print' : 'PRINT'
+   'if' : 'if',
+   'then' : 'then',
+   'else' : 'else',
+   'while' : 'while',
+   'print' : 'print'
 }
 
 
