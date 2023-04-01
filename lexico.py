@@ -8,7 +8,7 @@
 import ply.lex as lex
 
 
-tokens = (
+tokens = [
    'ID', # identificador
    'NUMBER', # constantes numéricas   
    'PLUS', # +
@@ -32,18 +32,19 @@ tokens = (
    'COMMA',
    'SEMICOLON'
    
-)
+]
 
 reserved = {
-   'if' : 'IF',
-   'then' : 'THEN',
-   'else' : 'ELSE',
-   'while' : 'WHILE',
-   'print' : 'PRINT'
+    'if': 'IF',
+    'then': 'THEN',
+    'else': 'ELSE',
+    'while': 'WHILE',
+    'print': 'PRINT'
 }
+tokens += reserved.values()
 
 
-t_ID = r'[a-zA-Z_][a-zA-Z0-9_]*'
+#t_ID = r'[a-zA-Z_][a-zA-Z0-9_]*'
 t_NUMBER= r'\d+' 
 t_PLUS = r'\+'
 t_MINUS = r'-'
@@ -67,6 +68,12 @@ t_COMMA = r','
 t_SEMICOLON = r';'
 # Ignora espaço e quebra de linha
 t_ignore = ' \t\n'
+
+def t_ID(t):
+    r'[a-zA-Z_][a-zA-Z0-9_]*'
+    t.type = reserved.get(t.value, 'ID')
+    return t
+
 
 def t_error(t): 
     print("Cabou-se, deu erro em", t)
@@ -187,5 +194,25 @@ def testes():
     tokens = [tok.type for tok in lexer]
     assert tokens == ['SEMICOLON']
 
+    data = "if"
+    lexer.input(data)
+    tokens = [tok.type for tok in lexer]
+    assert tokens == ['IF']
 
-testes()
+    data = "then"
+    lexer.input(data)
+    tokens = [tok.type for tok in lexer]
+    assert tokens == ['THEN']
+
+    data = "while"
+    lexer.input(data)
+    tokens = [tok.type for tok in lexer]
+    assert tokens == ['WHILE']
+
+    data = "print"
+    lexer.input(data)
+    tokens = [tok.type for tok in lexer]
+    assert tokens == ['PRINT']
+
+
+print(testes())
