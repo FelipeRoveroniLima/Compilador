@@ -20,15 +20,15 @@ tokens = (
    'LESS_THAN_EQUAL', 
    'GREATER_THAN',
    'GREATER_THAN_EQUAL',
-   'AND',
-   'OR',
-   'NOT',
-   'RIGHT_PAREN',
-   'LEFT_PAREN',
-   'RIGHT_BRACE',
-   'LEFT_BRACE',
-   'RIGHT_BRACKET',
-   'LEFT_BRACKET',
+   'AND', # &&
+   'OR', # ||
+   'NOT', # !
+   'RIGHT_PAREN', # )
+   'LEFT_PAREN', # (
+   'RIGHT_BRACE', # }
+   'LEFT_BRACE', # {
+   'RIGHT_BRACKET', # ]
+   'LEFT_BRACKET', # [
    'COMMA',
    'SEMICOLON'
    
