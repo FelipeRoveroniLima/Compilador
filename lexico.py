@@ -73,32 +73,35 @@ class Lexico:
     # Ignora espaço e quebra de linha
     t_ignore = ' \t\n'
     
-    def t_STRING(t):
+    def __init__(self):
+        self.lexico = lex.lex(module=self)
+    
+    def t_STRING(self, t):
         r'"([^\\\n]|(\\.))*?"'
         t.value = t.value[1:-1] 
         return t
     
-    def t_ID(t):
+    def t_ID(self, t):
         r'[a-zA-Z_][a-zA-Z0-9_]*'
-        t.type = reserved.get(t.value, 'ID')
+        t.type = self.reserved.get(t.value, 'ID')
         return t
     
     
-    def t_error(t): 
+    def t_error(self, t): 
         print("Cabou-se, deu erro em", t)
         t.lexer.skip(1) 
     
     
-    def p_expression_number(p):
+    def p_expression_number(self, p):
         'expression : NUMBER'
         p[0] = int(p[1])
         
-    def p_error(p):
+    def p_error(self, p):
         print("Errou '%s'" % p.value)
         
 
     
-    def testes_lex():
+    def testes_lex(self):
         lexer = lex.lex()     
         # Declarar variavel 
         data = "aaaaa" 
@@ -236,5 +239,5 @@ class Lexico:
         tokens = [tok.type for tok in lexer]
         assert tokens == ['PRINT']
 
-aa = Lexico()
-aa.testes_lex
+#aa = Lexico()
+#aa.testes_lex

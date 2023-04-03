@@ -6,9 +6,9 @@ _tabversion = '3.10'
 
 _lr_method = 'LALR'
 
-_lr_signature = 'AND COMMA DIVIDE ELSE EQUALS FALSE GREATER_THAN GREATER_THAN_EQUAL ID IF LEFT_BRACE LEFT_BRACKET LEFT_PAREN LESS_THAN LESS_THAN_EQUAL MINUS NOT NUMBER OR PLUS PRINT RIGHT_BRACE RIGHT_BRACKET RIGHT_PAREN SEMICOLON STRING THEN TIMES TRUE WHILEexpression : NUMBER'
+_lr_signature = 'AND COMMA DIVIDE ELSE EQUALS FALSE GREATER_THAN GREATER_THAN_EQUAL ID IF LEFT_BRACE LEFT_BRACKET LEFT_PAREN LESS_THAN LESS_THAN_EQUAL MINUS NOT NUMBER OR PLUS PRINT RIGHT_BRACE RIGHT_BRACKET RIGHT_PAREN SEMICOLON STRING THEN TIMES TRUE WHILEstatement : ID EQUALS expr SEMICOLONexpr : expr PLUS expr\n                | expr MINUS expr\n                | expr TIMES expr\n                | expr DIVIDE exprexpr : expr LESS_THAN expr\n                | expr LESS_THAN_EQUAL expr\n                | expr GREATER_THAN expr\n                | expr GREATER_THAN_EQUAL exprexpr : expr AND expr\n                | expr OR expr\n                | NOT exprexpr : LEFT_PAREN expr RIGHT_PARENexpr : IDexpr : NUMBER'
     
-_lr_action_items = {'NUMBER':([0,],[2,]),'$end':([1,2,],[0,-1,]),}
+_lr_action_items = {'ID':([0,3,6,7,10,11,12,13,14,15,16,17,18,19,],[2,4,4,4,4,4,4,4,4,4,4,4,4,4,]),'$end':([1,9,],[0,-1,]),'EQUALS':([2,],[3,]),'NOT':([3,6,7,10,11,12,13,14,15,16,17,18,19,],[6,6,6,6,6,6,6,6,6,6,6,6,6,]),'LEFT_PAREN':([3,6,7,10,11,12,13,14,15,16,17,18,19,],[7,7,7,7,7,7,7,7,7,7,7,7,7,]),'NUMBER':([3,6,7,10,11,12,13,14,15,16,17,18,19,],[8,8,8,8,8,8,8,8,8,8,8,8,8,]),'SEMICOLON':([4,5,8,20,22,23,24,25,26,27,28,29,30,31,32,],[-14,9,-15,-12,-2,-3,-4,-5,-6,-7,-8,-9,-10,-11,-13,]),'PLUS':([4,5,8,20,21,22,23,24,25,26,27,28,29,30,31,32,],[-14,10,-15,10,10,10,10,10,10,10,10,10,10,10,10,-13,]),'MINUS':([4,5,8,20,21,22,23,24,25,26,27,28,29,30,31,32,],[-14,11,-15,11,11,11,11,11,11,11,11,11,11,11,11,-13,]),'TIMES':([4,5,8,20,21,22,23,24,25,26,27,28,29,30,31,32,],[-14,12,-15,12,12,12,12,12,12,12,12,12,12,12,12,-13,]),'DIVIDE':([4,5,8,20,21,22,23,24,25,26,27,28,29,30,31,32,],[-14,13,-15,13,13,13,13,13,13,13,13,13,13,13,13,-13,]),'LESS_THAN':([4,5,8,20,21,22,23,24,25,26,27,28,29,30,31,32,],[-14,14,-15,14,14,14,14,14,14,14,14,14,14,14,14,-13,]),'LESS_THAN_EQUAL':([4,5,8,20,21,22,23,24,25,26,27,28,29,30,31,32,],[-14,15,-15,15,15,15,15,15,15,15,15,15,15,15,15,-13,]),'GREATER_THAN':([4,5,8,20,21,22,23,24,25,26,27,28,29,30,31,32,],[-14,16,-15,16,16,16,16,16,16,16,16,16,16,16,16,-13,]),'GREATER_THAN_EQUAL':([4,5,8,20,21,22,23,24,25,26,27,28,29,30,31,32,],[-14,17,-15,17,17,17,17,17,17,17,17,17,17,17,17,-13,]),'AND':([4,5,8,20,21,22,23,24,25,26,27,28,29,30,31,32,],[-14,18,-15,18,18,18,18,18,18,18,18,18,18,18,18,-13,]),'OR':([4,5,8,20,21,22,23,24,25,26,27,28,29,30,31,32,],[-14,19,-15,19,19,19,19,19,19,19,19,19,19,19,19,-13,]),'RIGHT_PAREN':([4,8,20,21,22,23,24,25,26,27,28,29,30,31,32,],[-14,-15,-12,32,-2,-3,-4,-5,-6,-7,-8,-9,-10,-11,-13,]),}
 
 _lr_action = {}
 for _k, _v in _lr_action_items.items():
@@ -17,7 +17,7 @@ for _k, _v in _lr_action_items.items():
       _lr_action[_x][_k] = _y
 del _lr_action_items
 
-_lr_goto_items = {'expression':([0,],[1,]),}
+_lr_goto_items = {'statement':([0,],[1,]),'expr':([3,6,7,10,11,12,13,14,15,16,17,18,19,],[5,20,21,22,23,24,25,26,27,28,29,30,31,]),}
 
 _lr_goto = {}
 for _k, _v in _lr_goto_items.items():
@@ -26,6 +26,20 @@ for _k, _v in _lr_goto_items.items():
        _lr_goto[_x][_k] = _y
 del _lr_goto_items
 _lr_productions = [
-  ("S' -> expression","S'",1,None,None,None),
-  ('expression -> NUMBER','expression',1,'p_expression_number','lexico.py',93),
+  ("S' -> statement","S'",1,None,None,None),
+  ('statement -> ID EQUALS expr SEMICOLON','statement',4,'p_statement_assign','Sintatico.py',19),
+  ('expr -> expr PLUS expr','expr',3,'p_expr_binop','Sintatico.py',22),
+  ('expr -> expr MINUS expr','expr',3,'p_expr_binop','Sintatico.py',23),
+  ('expr -> expr TIMES expr','expr',3,'p_expr_binop','Sintatico.py',24),
+  ('expr -> expr DIVIDE expr','expr',3,'p_expr_binop','Sintatico.py',25),
+  ('expr -> expr LESS_THAN expr','expr',3,'p_expr_relational','Sintatico.py',28),
+  ('expr -> expr LESS_THAN_EQUAL expr','expr',3,'p_expr_relational','Sintatico.py',29),
+  ('expr -> expr GREATER_THAN expr','expr',3,'p_expr_relational','Sintatico.py',30),
+  ('expr -> expr GREATER_THAN_EQUAL expr','expr',3,'p_expr_relational','Sintatico.py',31),
+  ('expr -> expr AND expr','expr',3,'p_expr_logical','Sintatico.py',34),
+  ('expr -> expr OR expr','expr',3,'p_expr_logical','Sintatico.py',35),
+  ('expr -> NOT expr','expr',2,'p_expr_logical','Sintatico.py',36),
+  ('expr -> LEFT_PAREN expr RIGHT_PAREN','expr',3,'p_expr_group','Sintatico.py',39),
+  ('expr -> ID','expr',1,'p_expr_id','Sintatico.py',42),
+  ('expr -> NUMBER','expr',1,'p_expr_num','Sintatico.py',45),
 ]
