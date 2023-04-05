@@ -49,7 +49,7 @@ class Lexico:
     
     
     #t_ID = r'[a-zA-Z_][a-zA-Z0-9_]*'
-    t_NUMBER= r'\d+' 
+    t_NUMBER = r'\d+(\.\d+)?' 
     t_PLUS = r'\+'
     t_MINUS = r'-'
     t_TIMES = r'\*'

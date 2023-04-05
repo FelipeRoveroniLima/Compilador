@@ -3,6 +3,7 @@
 import ply.lex as lex
 import ply.yacc as yacc
 from lexico import Lexico
+import re
 
 class Parser:
     def __init__(self):
@@ -13,6 +14,7 @@ class Parser:
     def p_statement_assign(self, p):
         'statement : ID EQUALS expr SEMICOLON'
         p[0] = p[3]
+        return p[0]
     
     def p_expr_binop(self, p):
         '''expr : expr PLUS expr
@@ -56,7 +58,15 @@ class Parser:
     
     def p_expr_num(self, p):
         'expr : NUMBER'
-        p[0] = int(p[1])
+        # Verifica se o número é um float
+        if re.match(r'^\d+\.\d+$', p[1]):
+            p[0] = float(p[1])
+        # Se não for float, verifica se é um int
+        elif re.match(r'^\d+$', p[1]):
+            p[0] = int(p[1])
+        # Se não for nenhum dos dois, lança um erro de sintaxe
+        else:
+            raise ValueError('Invalid number syntax')
     
     def p_error(self, p):
         print("Syntax error in input!")
@@ -65,11 +75,11 @@ class Parser:
         return self.parser.parse(texto, lexer=self.lexico.lexico)
     
 p = Parser()
-result = p.parser.parse("x = 3 + 4;", lexer=p.lexico.lexico) # 7
+result = p.parser.parse("x = 3.5 + 4.2;", lexer=p.lexico.lexico) # 7
 print()
 print(result)
 print()
-result = p.parser.parse("x = (3 * 2) + 4;", lexer=p.lexico.lexico) # 10
+result = p.parser.parse("x = (3 * 2) + (4 / (4-2));", lexer=p.lexico.lexico) # 10
 print(result)
 print()
 result = p.parser.parse("x = 1 && 2;", lexer=p.lexico.lexico) # ('LOGICAL_OP', '&&', 1, 2)
