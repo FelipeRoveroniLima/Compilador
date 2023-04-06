@@ -13,7 +13,8 @@ class Parser:
         
     def p_statement_assign(self, p):
         '''statement : ID EQUALS expr SEMICOLON 
-                    | expr'''
+                     | expr
+                     | ID EQUALS expr SEMICOLON statement'''
         if len(p) > 3 :
             p[0] = p[3]
         else:
@@ -109,7 +110,7 @@ print()
 result = p.parser.parse("if (x > y){a = 1;}", lexer=p.lexico.lexico) 
 print(result)
 print()
-result = p.parser.parse("while (x > y){a = 1;}", lexer=p.lexico.lexico) 
+result = p.parser.parse("while (x > y){a = 1; b = 1; c = 2;}", lexer=p.lexico.lexico) 
 print(result)
 print()
 result = p.parser.parse("printf(\"aaa\");", lexer=p.lexico.lexico) 
