@@ -38,10 +38,9 @@ class Lexico:
     
     reserved = {
         'if': 'IF',
-        'then': 'THEN',
         'else': 'ELSE',
         'while': 'WHILE',
-        'print': 'PRINT',
+        'printf': 'PRINTF',
         'true' : 'TRUE',
         'false' : 'FALSE',
     }
