@@ -38,9 +38,12 @@ Rule 25    expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRA
 Rule 26    expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE ELSE LEFT_BRACE statement RIGHT_BRACE
 Rule 27    expr -> WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE
 Rule 28    expr -> PRINTF LEFT_PAREN expr RIGHT_PAREN SEMICOLON
+Rule 29    p_expr_call -> ID ( p_arglist_opt )
 
 Terminals, with rules where they appear
 
+(                    : 29
+)                    : 29
 AND                  : 18
 COMMA                : 6 9
 DIVIDE               : 13
@@ -49,7 +52,7 @@ EQUALS               : 1 3
 FALSE                : 
 GREATER_THAN         : 16
 GREATER_THAN_EQUAL   : 17
-ID                   : 1 3 4 5 6 7 22
+ID                   : 1 3 4 5 6 7 22 29
 IF                   : 25 26
 LEFT_BRACE           : 4 25 26 26 27
 LEFT_BRACKET         : 
@@ -76,19 +79,14 @@ Nonterminals, with rules where they appear
 
 args                 : 7 9
 expr                 : 1 2 3 8 9 10 10 11 11 12 12 13 13 14 14 15 15 16 16 17 17 18 18 19 19 20 21 25 26 27 28
+p_arglist_opt        : 29
+p_expr_call          : 
 parameters           : 4 6
 statement            : 3 4 25 26 26 27 0
 
-Parsing method: LALR
-
-state 0
-
-    (0) S' -> . statement
-    (1) statement -> . ID EQUALS expr SEMICOLON
-    (2) statement -> . expr
-    (3) statement -> . ID EQUALS expr SEMICOLON statement
-    (4) statement -> . ID LEFT_PAREN parameters RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE
-    (7) statement -> . ID LEFT_PAREN args RIGHT_PAREN SEMICOLON
+rogram
+    (4) program -> . ID LEFT_PAREN parameters RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
+    (5) program -> . ID LEFT_PAREN args RIGHT_PAREN SEMICOLON
     (10) expr -> . expr PLUS expr
     (11) expr -> . expr MINUS expr
     (12) expr -> . expr TIMES expr
@@ -104,9 +102,9 @@ state 0
     (22) expr -> . ID
     (23) expr -> . NUMBER
     (24) expr -> . STRING
-    (25) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE
-    (26) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE ELSE LEFT_BRACE statement RIGHT_BRACE
-    (27) expr -> . WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE
+    (25) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
+    (26) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE
+    (27) expr -> . WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
     (28) expr -> . PRINTF LEFT_PAREN expr RIGHT_PAREN SEMICOLON
 
     ID              shift and go to state 2
@@ -118,21 +116,21 @@ state 0
     WHILE           shift and go to state 9
     PRINTF          shift and go to state 10
 
-    statement                      shift and go to state 1
+    program                        shift and go to state 1
     expr                           shift and go to state 3
 
 state 1
 
-    (0) S' -> statement .
+    (0) S' -> program .
 
 
 
 state 2
 
-    (1) statement -> ID . EQUALS expr SEMICOLON
-    (3) statement -> ID . EQUALS expr SEMICOLON statement
-    (4) statement -> ID . LEFT_PAREN parameters RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE
-    (7) statement -> ID . LEFT_PAREN args RIGHT_PAREN SEMICOLON
+    (1) program -> ID . EQUALS expr SEMICOLON
+    (3) program -> ID . EQUALS expr SEMICOLON program
+    (4) program -> ID . LEFT_PAREN parameters RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
+    (5) program -> ID . LEFT_PAREN args RIGHT_PAREN SEMICOLON
     (22) expr -> ID .
 
     EQUALS          shift and go to state 11
@@ -153,7 +151,7 @@ state 2
 
 state 3
 
-    (2) statement -> expr .
+    (2) program -> expr .
     (10) expr -> expr . PLUS expr
     (11) expr -> expr . MINUS expr
     (12) expr -> expr . TIMES expr
@@ -165,8 +163,8 @@ state 3
     (18) expr -> expr . AND expr
     (19) expr -> expr . OR expr
 
-    $end            reduce using rule 2 (statement -> expr .)
-    RIGHT_BRACE     reduce using rule 2 (statement -> expr .)
+    $end            reduce using rule 2 (program -> expr .)
+    RIGHT_BRACE     reduce using rule 2 (program -> expr .)
     PLUS            shift and go to state 13
     MINUS           shift and go to state 14
     TIMES           shift and go to state 15
@@ -197,9 +195,9 @@ state 4
     (22) expr -> . ID
     (23) expr -> . NUMBER
     (24) expr -> . STRING
-    (25) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE
-    (26) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE ELSE LEFT_BRACE statement RIGHT_BRACE
-    (27) expr -> . WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE
+    (25) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
+    (26) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE
+    (27) expr -> . WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
     (28) expr -> . PRINTF LEFT_PAREN expr RIGHT_PAREN SEMICOLON
 
     NOT             shift and go to state 5
@@ -231,9 +229,9 @@ state 5
     (22) expr -> . ID
     (23) expr -> . NUMBER
     (24) expr -> . STRING
-    (25) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE
-    (26) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE ELSE LEFT_BRACE statement RIGHT_BRACE
-    (27) expr -> . WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE
+    (25) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
+    (26) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE
+    (27) expr -> . WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
     (28) expr -> . PRINTF LEFT_PAREN expr RIGHT_PAREN SEMICOLON
 
     NOT             shift and go to state 5
@@ -291,15 +289,15 @@ state 7
 
 state 8
 
-    (25) expr -> IF . LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE
-    (26) expr -> IF . LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE ELSE LEFT_BRACE statement RIGHT_BRACE
+    (25) expr -> IF . LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
+    (26) expr -> IF . LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE
 
     LEFT_PAREN      shift and go to state 26
 
 
 state 9
 
-    (27) expr -> WHILE . LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE
+    (27) expr -> WHILE . LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
 
     LEFT_PAREN      shift and go to state 27
 
@@ -313,8 +311,8 @@ state 10
 
 state 11
 
-    (1) statement -> ID EQUALS . expr SEMICOLON
-    (3) statement -> ID EQUALS . expr SEMICOLON statement
+    (1) program -> ID EQUALS . expr SEMICOLON
+    (3) program -> ID EQUALS . expr SEMICOLON program
     (10) expr -> . expr PLUS expr
     (11) expr -> . expr MINUS expr
     (12) expr -> . expr TIMES expr
@@ -330,9 +328,9 @@ state 11
     (22) expr -> . ID
     (23) expr -> . NUMBER
     (24) expr -> . STRING
-    (25) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE
-    (26) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE ELSE LEFT_BRACE statement RIGHT_BRACE
-    (27) expr -> . WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE
+    (25) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
+    (26) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE
+    (27) expr -> . WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
     (28) expr -> . PRINTF LEFT_PAREN expr RIGHT_PAREN SEMICOLON
 
     NOT             shift and go to state 5
@@ -348,10 +346,10 @@ state 11
 
 state 12
 
-    (4) statement -> ID LEFT_PAREN . parameters RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE
-    (7) statement -> ID LEFT_PAREN . args RIGHT_PAREN SEMICOLON
-    (5) parameters -> . ID
-    (6) parameters -> . parameters COMMA ID
+    (4) program -> ID LEFT_PAREN . parameters RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
+    (5) program -> ID LEFT_PAREN . args RIGHT_PAREN SEMICOLON
+    (6) parameters -> . ID
+    (7) parameters -> . parameters COMMA ID
     (8) args -> . expr
     (9) args -> . args COMMA expr
     (10) expr -> . expr PLUS expr
@@ -369,9 +367,9 @@ state 12
     (22) expr -> . ID
     (23) expr -> . NUMBER
     (24) expr -> . STRING
-    (25) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE
-    (26) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE ELSE LEFT_BRACE statement RIGHT_BRACE
-    (27) expr -> . WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE
+    (25) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
+    (26) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE
+    (27) expr -> . WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
     (28) expr -> . PRINTF LEFT_PAREN expr RIGHT_PAREN SEMICOLON
 
     ID              shift and go to state 30
@@ -405,9 +403,9 @@ state 13
     (22) expr -> . ID
     (23) expr -> . NUMBER
     (24) expr -> . STRING
-    (25) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE
-    (26) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE ELSE LEFT_BRACE statement RIGHT_BRACE
-    (27) expr -> . WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE
+    (25) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
+    (26) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE
+    (27) expr -> . WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
     (28) expr -> . PRINTF LEFT_PAREN expr RIGHT_PAREN SEMICOLON
 
     NOT             shift and go to state 5
@@ -439,9 +437,9 @@ state 14
     (22) expr -> . ID
     (23) expr -> . NUMBER
     (24) expr -> . STRING
-    (25) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE
-    (26) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE ELSE LEFT_BRACE statement RIGHT_BRACE
-    (27) expr -> . WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE
+    (25) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
+    (26) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE
+    (27) expr -> . WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
     (28) expr -> . PRINTF LEFT_PAREN expr RIGHT_PAREN SEMICOLON
 
     NOT             shift and go to state 5
@@ -473,9 +471,9 @@ state 15
     (22) expr -> . ID
     (23) expr -> . NUMBER
     (24) expr -> . STRING
-    (25) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE
-    (26) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE ELSE LEFT_BRACE statement RIGHT_BRACE
-    (27) expr -> . WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE
+    (25) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
+    (26) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE
+    (27) expr -> . WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
     (28) expr -> . PRINTF LEFT_PAREN expr RIGHT_PAREN SEMICOLON
 
     NOT             shift and go to state 5
@@ -507,9 +505,9 @@ state 16
     (22) expr -> . ID
     (23) expr -> . NUMBER
     (24) expr -> . STRING
-    (25) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE
-    (26) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE ELSE LEFT_BRACE statement RIGHT_BRACE
-    (27) expr -> . WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE
+    (25) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
+    (26) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE
+    (27) expr -> . WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
     (28) expr -> . PRINTF LEFT_PAREN expr RIGHT_PAREN SEMICOLON
 
     NOT             shift and go to state 5
@@ -541,9 +539,9 @@ state 17
     (22) expr -> . ID
     (23) expr -> . NUMBER
     (24) expr -> . STRING
-    (25) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE
-    (26) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE ELSE LEFT_BRACE statement RIGHT_BRACE
-    (27) expr -> . WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE
+    (25) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
+    (26) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE
+    (27) expr -> . WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
     (28) expr -> . PRINTF LEFT_PAREN expr RIGHT_PAREN SEMICOLON
 
     NOT             shift and go to state 5
@@ -575,9 +573,9 @@ state 18
     (22) expr -> . ID
     (23) expr -> . NUMBER
     (24) expr -> . STRING
-    (25) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE
-    (26) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE ELSE LEFT_BRACE statement RIGHT_BRACE
-    (27) expr -> . WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE
+    (25) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
+    (26) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE
+    (27) expr -> . WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
     (28) expr -> . PRINTF LEFT_PAREN expr RIGHT_PAREN SEMICOLON
 
     NOT             shift and go to state 5
@@ -609,9 +607,9 @@ state 19
     (22) expr -> . ID
     (23) expr -> . NUMBER
     (24) expr -> . STRING
-    (25) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE
-    (26) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE ELSE LEFT_BRACE statement RIGHT_BRACE
-    (27) expr -> . WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE
+    (25) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
+    (26) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE
+    (27) expr -> . WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
     (28) expr -> . PRINTF LEFT_PAREN expr RIGHT_PAREN SEMICOLON
 
     NOT             shift and go to state 5
@@ -643,9 +641,9 @@ state 20
     (22) expr -> . ID
     (23) expr -> . NUMBER
     (24) expr -> . STRING
-    (25) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE
-    (26) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE ELSE LEFT_BRACE statement RIGHT_BRACE
-    (27) expr -> . WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE
+    (25) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
+    (26) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE
+    (27) expr -> . WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
     (28) expr -> . PRINTF LEFT_PAREN expr RIGHT_PAREN SEMICOLON
 
     NOT             shift and go to state 5
@@ -677,9 +675,9 @@ state 21
     (22) expr -> . ID
     (23) expr -> . NUMBER
     (24) expr -> . STRING
-    (25) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE
-    (26) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE ELSE LEFT_BRACE statement RIGHT_BRACE
-    (27) expr -> . WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE
+    (25) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
+    (26) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE
+    (27) expr -> . WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
     (28) expr -> . PRINTF LEFT_PAREN expr RIGHT_PAREN SEMICOLON
 
     NOT             shift and go to state 5
@@ -711,9 +709,9 @@ state 22
     (22) expr -> . ID
     (23) expr -> . NUMBER
     (24) expr -> . STRING
-    (25) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE
-    (26) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE ELSE LEFT_BRACE statement RIGHT_BRACE
-    (27) expr -> . WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE
+    (25) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
+    (26) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE
+    (27) expr -> . WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
     (28) expr -> . PRINTF LEFT_PAREN expr RIGHT_PAREN SEMICOLON
 
     NOT             shift and go to state 5
@@ -829,8 +827,8 @@ state 25
 
 state 26
 
-    (25) expr -> IF LEFT_PAREN . expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE
-    (26) expr -> IF LEFT_PAREN . expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE ELSE LEFT_BRACE statement RIGHT_BRACE
+    (25) expr -> IF LEFT_PAREN . expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
+    (26) expr -> IF LEFT_PAREN . expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE
     (10) expr -> . expr PLUS expr
     (11) expr -> . expr MINUS expr
     (12) expr -> . expr TIMES expr
@@ -846,9 +844,9 @@ state 26
     (22) expr -> . ID
     (23) expr -> . NUMBER
     (24) expr -> . STRING
-    (25) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE
-    (26) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE ELSE LEFT_BRACE statement RIGHT_BRACE
-    (27) expr -> . WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE
+    (25) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
+    (26) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE
+    (27) expr -> . WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
     (28) expr -> . PRINTF LEFT_PAREN expr RIGHT_PAREN SEMICOLON
 
     NOT             shift and go to state 5
@@ -864,7 +862,7 @@ state 26
 
 state 27
 
-    (27) expr -> WHILE LEFT_PAREN . expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE
+    (27) expr -> WHILE LEFT_PAREN . expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
     (10) expr -> . expr PLUS expr
     (11) expr -> . expr MINUS expr
     (12) expr -> . expr TIMES expr
@@ -880,9 +878,9 @@ state 27
     (22) expr -> . ID
     (23) expr -> . NUMBER
     (24) expr -> . STRING
-    (25) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE
-    (26) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE ELSE LEFT_BRACE statement RIGHT_BRACE
-    (27) expr -> . WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE
+    (25) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
+    (26) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE
+    (27) expr -> . WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
     (28) expr -> . PRINTF LEFT_PAREN expr RIGHT_PAREN SEMICOLON
 
     NOT             shift and go to state 5
@@ -914,9 +912,9 @@ state 28
     (22) expr -> . ID
     (23) expr -> . NUMBER
     (24) expr -> . STRING
-    (25) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE
-    (26) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE ELSE LEFT_BRACE statement RIGHT_BRACE
-    (27) expr -> . WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE
+    (25) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
+    (26) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE
+    (27) expr -> . WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
     (28) expr -> . PRINTF LEFT_PAREN expr RIGHT_PAREN SEMICOLON
 
     NOT             shift and go to state 5
@@ -932,8 +930,8 @@ state 28
 
 state 29
 
-    (1) statement -> ID EQUALS expr . SEMICOLON
-    (3) statement -> ID EQUALS expr . SEMICOLON statement
+    (1) program -> ID EQUALS expr . SEMICOLON
+    (3) program -> ID EQUALS expr . SEMICOLON program
     (10) expr -> expr . PLUS expr
     (11) expr -> expr . MINUS expr
     (12) expr -> expr . TIMES expr
@@ -960,13 +958,13 @@ state 29
 
 state 30
 
-    (5) parameters -> ID .
+    (6) parameters -> ID .
     (22) expr -> ID .
 
-  ! reduce/reduce conflict for RIGHT_PAREN resolved using rule 5 (parameters -> ID .)
-  ! reduce/reduce conflict for COMMA resolved using rule 5 (parameters -> ID .)
-    RIGHT_PAREN     reduce using rule 5 (parameters -> ID .)
-    COMMA           reduce using rule 5 (parameters -> ID .)
+  ! reduce/reduce conflict for RIGHT_PAREN resolved using rule 6 (parameters -> ID .)
+  ! reduce/reduce conflict for COMMA resolved using rule 6 (parameters -> ID .)
+    RIGHT_PAREN     reduce using rule 6 (parameters -> ID .)
+    COMMA           reduce using rule 6 (parameters -> ID .)
     PLUS            reduce using rule 22 (expr -> ID .)
     MINUS           reduce using rule 22 (expr -> ID .)
     TIMES           reduce using rule 22 (expr -> ID .)
@@ -984,8 +982,8 @@ state 30
 
 state 31
 
-    (4) statement -> ID LEFT_PAREN parameters . RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE
-    (6) parameters -> parameters . COMMA ID
+    (4) program -> ID LEFT_PAREN parameters . RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
+    (7) parameters -> parameters . COMMA ID
 
     RIGHT_PAREN     shift and go to state 49
     COMMA           shift and go to state 50
@@ -993,7 +991,7 @@ state 31
 
 state 32
 
-    (7) statement -> ID LEFT_PAREN args . RIGHT_PAREN SEMICOLON
+    (5) program -> ID LEFT_PAREN args . RIGHT_PAREN SEMICOLON
     (9) args -> args . COMMA expr
 
     RIGHT_PAREN     shift and go to state 51
@@ -1571,8 +1569,8 @@ state 44
 
 state 45
 
-    (25) expr -> IF LEFT_PAREN expr . RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE
-    (26) expr -> IF LEFT_PAREN expr . RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE ELSE LEFT_BRACE statement RIGHT_BRACE
+    (25) expr -> IF LEFT_PAREN expr . RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
+    (26) expr -> IF LEFT_PAREN expr . RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE
     (10) expr -> expr . PLUS expr
     (11) expr -> expr . MINUS expr
     (12) expr -> expr . TIMES expr
@@ -1599,7 +1597,7 @@ state 45
 
 state 46
 
-    (27) expr -> WHILE LEFT_PAREN expr . RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE
+    (27) expr -> WHILE LEFT_PAREN expr . RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
     (10) expr -> expr . PLUS expr
     (11) expr -> expr . MINUS expr
     (12) expr -> expr . TIMES expr
@@ -1653,13 +1651,13 @@ state 47
 
 state 48
 
-    (1) statement -> ID EQUALS expr SEMICOLON .
-    (3) statement -> ID EQUALS expr SEMICOLON . statement
-    (1) statement -> . ID EQUALS expr SEMICOLON
-    (2) statement -> . expr
-    (3) statement -> . ID EQUALS expr SEMICOLON statement
-    (4) statement -> . ID LEFT_PAREN parameters RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE
-    (7) statement -> . ID LEFT_PAREN args RIGHT_PAREN SEMICOLON
+    (1) program -> ID EQUALS expr SEMICOLON .
+    (3) program -> ID EQUALS expr SEMICOLON . program
+    (1) program -> . ID EQUALS expr SEMICOLON
+    (2) program -> . expr
+    (3) program -> . ID EQUALS expr SEMICOLON program
+    (4) program -> . ID LEFT_PAREN parameters RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
+    (5) program -> . ID LEFT_PAREN args RIGHT_PAREN SEMICOLON
     (10) expr -> . expr PLUS expr
     (11) expr -> . expr MINUS expr
     (12) expr -> . expr TIMES expr
@@ -1675,13 +1673,13 @@ state 48
     (22) expr -> . ID
     (23) expr -> . NUMBER
     (24) expr -> . STRING
-    (25) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE
-    (26) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE ELSE LEFT_BRACE statement RIGHT_BRACE
-    (27) expr -> . WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE
+    (25) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
+    (26) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE
+    (27) expr -> . WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
     (28) expr -> . PRINTF LEFT_PAREN expr RIGHT_PAREN SEMICOLON
 
-    $end            reduce using rule 1 (statement -> ID EQUALS expr SEMICOLON .)
-    RIGHT_BRACE     reduce using rule 1 (statement -> ID EQUALS expr SEMICOLON .)
+    $end            reduce using rule 1 (program -> ID EQUALS expr SEMICOLON .)
+    RIGHT_BRACE     reduce using rule 1 (program -> ID EQUALS expr SEMICOLON .)
     ID              shift and go to state 2
     NOT             shift and go to state 5
     LEFT_PAREN      shift and go to state 4
@@ -1692,25 +1690,25 @@ state 48
     PRINTF          shift and go to state 10
 
     expr                           shift and go to state 3
-    statement                      shift and go to state 56
+    program                        shift and go to state 56
 
 state 49
 
-    (4) statement -> ID LEFT_PAREN parameters RIGHT_PAREN . LEFT_BRACE statement RIGHT_BRACE
+    (4) program -> ID LEFT_PAREN parameters RIGHT_PAREN . LEFT_BRACE program RIGHT_BRACE
 
     LEFT_BRACE      shift and go to state 57
 
 
 state 50
 
-    (6) parameters -> parameters COMMA . ID
+    (7) parameters -> parameters COMMA . ID
 
     ID              shift and go to state 58
 
 
 state 51
 
-    (7) statement -> ID LEFT_PAREN args RIGHT_PAREN . SEMICOLON
+    (5) program -> ID LEFT_PAREN args RIGHT_PAREN . SEMICOLON
 
     SEMICOLON       shift and go to state 59
 
@@ -1733,9 +1731,9 @@ state 52
     (22) expr -> . ID
     (23) expr -> . NUMBER
     (24) expr -> . STRING
-    (25) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE
-    (26) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE ELSE LEFT_BRACE statement RIGHT_BRACE
-    (27) expr -> . WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE
+    (25) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
+    (26) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE
+    (27) expr -> . WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
     (28) expr -> . PRINTF LEFT_PAREN expr RIGHT_PAREN SEMICOLON
 
     NOT             shift and go to state 5
@@ -1751,15 +1749,15 @@ state 52
 
 state 53
 
-    (25) expr -> IF LEFT_PAREN expr RIGHT_PAREN . LEFT_BRACE statement RIGHT_BRACE
-    (26) expr -> IF LEFT_PAREN expr RIGHT_PAREN . LEFT_BRACE statement RIGHT_BRACE ELSE LEFT_BRACE statement RIGHT_BRACE
+    (25) expr -> IF LEFT_PAREN expr RIGHT_PAREN . LEFT_BRACE program RIGHT_BRACE
+    (26) expr -> IF LEFT_PAREN expr RIGHT_PAREN . LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE
 
     LEFT_BRACE      shift and go to state 61
 
 
 state 54
 
-    (27) expr -> WHILE LEFT_PAREN expr RIGHT_PAREN . LEFT_BRACE statement RIGHT_BRACE
+    (27) expr -> WHILE LEFT_PAREN expr RIGHT_PAREN . LEFT_BRACE program RIGHT_BRACE
 
     LEFT_BRACE      shift and go to state 62
 
@@ -1773,20 +1771,20 @@ state 55
 
 state 56
 
-    (3) statement -> ID EQUALS expr SEMICOLON statement .
+    (3) program -> ID EQUALS expr SEMICOLON program .
 
-    $end            reduce using rule 3 (statement -> ID EQUALS expr SEMICOLON statement .)
-    RIGHT_BRACE     reduce using rule 3 (statement -> ID EQUALS expr SEMICOLON statement .)
+    $end            reduce using rule 3 (program -> ID EQUALS expr SEMICOLON program .)
+    RIGHT_BRACE     reduce using rule 3 (program -> ID EQUALS expr SEMICOLON program .)
 
 
 state 57
 
-    (4) statement -> ID LEFT_PAREN parameters RIGHT_PAREN LEFT_BRACE . statement RIGHT_BRACE
-    (1) statement -> . ID EQUALS expr SEMICOLON
-    (2) statement -> . expr
-    (3) statement -> . ID EQUALS expr SEMICOLON statement
-    (4) statement -> . ID LEFT_PAREN parameters RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE
-    (7) statement -> . ID LEFT_PAREN args RIGHT_PAREN SEMICOLON
+    (4) program -> ID LEFT_PAREN parameters RIGHT_PAREN LEFT_BRACE . program RIGHT_BRACE
+    (1) program -> . ID EQUALS expr SEMICOLON
+    (2) program -> . expr
+    (3) program -> . ID EQUALS expr SEMICOLON program
+    (4) program -> . ID LEFT_PAREN parameters RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
+    (5) program -> . ID LEFT_PAREN args RIGHT_PAREN SEMICOLON
     (10) expr -> . expr PLUS expr
     (11) expr -> . expr MINUS expr
     (12) expr -> . expr TIMES expr
@@ -1802,9 +1800,9 @@ state 57
     (22) expr -> . ID
     (23) expr -> . NUMBER
     (24) expr -> . STRING
-    (25) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE
-    (26) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE ELSE LEFT_BRACE statement RIGHT_BRACE
-    (27) expr -> . WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE
+    (25) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
+    (26) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE
+    (27) expr -> . WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
     (28) expr -> . PRINTF LEFT_PAREN expr RIGHT_PAREN SEMICOLON
 
     ID              shift and go to state 2
@@ -1816,23 +1814,23 @@ state 57
     WHILE           shift and go to state 9
     PRINTF          shift and go to state 10
 
-    statement                      shift and go to state 64
+    program                        shift and go to state 64
     expr                           shift and go to state 3
 
 state 58
 
-    (6) parameters -> parameters COMMA ID .
+    (7) parameters -> parameters COMMA ID .
 
-    RIGHT_PAREN     reduce using rule 6 (parameters -> parameters COMMA ID .)
-    COMMA           reduce using rule 6 (parameters -> parameters COMMA ID .)
+    RIGHT_PAREN     reduce using rule 7 (parameters -> parameters COMMA ID .)
+    COMMA           reduce using rule 7 (parameters -> parameters COMMA ID .)
 
 
 state 59
 
-    (7) statement -> ID LEFT_PAREN args RIGHT_PAREN SEMICOLON .
+    (5) program -> ID LEFT_PAREN args RIGHT_PAREN SEMICOLON .
 
-    $end            reduce using rule 7 (statement -> ID LEFT_PAREN args RIGHT_PAREN SEMICOLON .)
-    RIGHT_BRACE     reduce using rule 7 (statement -> ID LEFT_PAREN args RIGHT_PAREN SEMICOLON .)
+    $end            reduce using rule 5 (program -> ID LEFT_PAREN args RIGHT_PAREN SEMICOLON .)
+    RIGHT_BRACE     reduce using rule 5 (program -> ID LEFT_PAREN args RIGHT_PAREN SEMICOLON .)
 
 
 state 60
@@ -1865,13 +1863,13 @@ state 60
 
 state 61
 
-    (25) expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE . statement RIGHT_BRACE
-    (26) expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE . statement RIGHT_BRACE ELSE LEFT_BRACE statement RIGHT_BRACE
-    (1) statement -> . ID EQUALS expr SEMICOLON
-    (2) statement -> . expr
-    (3) statement -> . ID EQUALS expr SEMICOLON statement
-    (4) statement -> . ID LEFT_PAREN parameters RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE
-    (7) statement -> . ID LEFT_PAREN args RIGHT_PAREN SEMICOLON
+    (25) expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE . program RIGHT_BRACE
+    (26) expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE . program RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE
+    (1) program -> . ID EQUALS expr SEMICOLON
+    (2) program -> . expr
+    (3) program -> . ID EQUALS expr SEMICOLON program
+    (4) program -> . ID LEFT_PAREN parameters RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
+    (5) program -> . ID LEFT_PAREN args RIGHT_PAREN SEMICOLON
     (10) expr -> . expr PLUS expr
     (11) expr -> . expr MINUS expr
     (12) expr -> . expr TIMES expr
@@ -1887,9 +1885,9 @@ state 61
     (22) expr -> . ID
     (23) expr -> . NUMBER
     (24) expr -> . STRING
-    (25) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE
-    (26) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE ELSE LEFT_BRACE statement RIGHT_BRACE
-    (27) expr -> . WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE
+    (25) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
+    (26) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE
+    (27) expr -> . WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
     (28) expr -> . PRINTF LEFT_PAREN expr RIGHT_PAREN SEMICOLON
 
     ID              shift and go to state 2
@@ -1902,16 +1900,16 @@ state 61
     PRINTF          shift and go to state 10
 
     expr                           shift and go to state 3
-    statement                      shift and go to state 65
+    program                        shift and go to state 65
 
 state 62
 
-    (27) expr -> WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE . statement RIGHT_BRACE
-    (1) statement -> . ID EQUALS expr SEMICOLON
-    (2) statement -> . expr
-    (3) statement -> . ID EQUALS expr SEMICOLON statement
-    (4) statement -> . ID LEFT_PAREN parameters RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE
-    (7) statement -> . ID LEFT_PAREN args RIGHT_PAREN SEMICOLON
+    (27) expr -> WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE . program RIGHT_BRACE
+    (1) program -> . ID EQUALS expr SEMICOLON
+    (2) program -> . expr
+    (3) program -> . ID EQUALS expr SEMICOLON program
+    (4) program -> . ID LEFT_PAREN parameters RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
+    (5) program -> . ID LEFT_PAREN args RIGHT_PAREN SEMICOLON
     (10) expr -> . expr PLUS expr
     (11) expr -> . expr MINUS expr
     (12) expr -> . expr TIMES expr
@@ -1927,9 +1925,9 @@ state 62
     (22) expr -> . ID
     (23) expr -> . NUMBER
     (24) expr -> . STRING
-    (25) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE
-    (26) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE ELSE LEFT_BRACE statement RIGHT_BRACE
-    (27) expr -> . WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE
+    (25) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
+    (26) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE
+    (27) expr -> . WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
     (28) expr -> . PRINTF LEFT_PAREN expr RIGHT_PAREN SEMICOLON
 
     ID              shift and go to state 2
@@ -1942,7 +1940,7 @@ state 62
     PRINTF          shift and go to state 10
 
     expr                           shift and go to state 3
-    statement                      shift and go to state 66
+    program                        shift and go to state 66
 
 state 63
 
@@ -1967,93 +1965,93 @@ state 63
 
 state 64
 
-    (4) statement -> ID LEFT_PAREN parameters RIGHT_PAREN LEFT_BRACE statement . RIGHT_BRACE
+    (4) program -> ID LEFT_PAREN parameters RIGHT_PAREN LEFT_BRACE program . RIGHT_BRACE
 
     RIGHT_BRACE     shift and go to state 67
 
 
 state 65
 
-    (25) expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement . RIGHT_BRACE
-    (26) expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement . RIGHT_BRACE ELSE LEFT_BRACE statement RIGHT_BRACE
+    (25) expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program . RIGHT_BRACE
+    (26) expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program . RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE
 
     RIGHT_BRACE     shift and go to state 68
 
 
 state 66
 
-    (27) expr -> WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement . RIGHT_BRACE
+    (27) expr -> WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program . RIGHT_BRACE
 
     RIGHT_BRACE     shift and go to state 69
 
 
 state 67
 
-    (4) statement -> ID LEFT_PAREN parameters RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE .
+    (4) program -> ID LEFT_PAREN parameters RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE .
 
-    $end            reduce using rule 4 (statement -> ID LEFT_PAREN parameters RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE .)
-    RIGHT_BRACE     reduce using rule 4 (statement -> ID LEFT_PAREN parameters RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE .)
+    $end            reduce using rule 4 (program -> ID LEFT_PAREN parameters RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE .)
+    RIGHT_BRACE     reduce using rule 4 (program -> ID LEFT_PAREN parameters RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE .)
 
 
 state 68
 
-    (25) expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE .
-    (26) expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE . ELSE LEFT_BRACE statement RIGHT_BRACE
+    (25) expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE .
+    (26) expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE . ELSE LEFT_BRACE program RIGHT_BRACE
 
-    PLUS            reduce using rule 25 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE .)
-    MINUS           reduce using rule 25 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE .)
-    TIMES           reduce using rule 25 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE .)
-    DIVIDE          reduce using rule 25 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE .)
-    LESS_THAN       reduce using rule 25 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE .)
-    LESS_THAN_EQUAL reduce using rule 25 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE .)
-    GREATER_THAN    reduce using rule 25 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE .)
-    GREATER_THAN_EQUAL reduce using rule 25 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE .)
-    AND             reduce using rule 25 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE .)
-    OR              reduce using rule 25 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE .)
-    $end            reduce using rule 25 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE .)
-    RIGHT_PAREN     reduce using rule 25 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE .)
-    SEMICOLON       reduce using rule 25 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE .)
-    COMMA           reduce using rule 25 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE .)
-    RIGHT_BRACE     reduce using rule 25 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE .)
+    PLUS            reduce using rule 25 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE .)
+    MINUS           reduce using rule 25 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE .)
+    TIMES           reduce using rule 25 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE .)
+    DIVIDE          reduce using rule 25 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE .)
+    LESS_THAN       reduce using rule 25 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE .)
+    LESS_THAN_EQUAL reduce using rule 25 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE .)
+    GREATER_THAN    reduce using rule 25 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE .)
+    GREATER_THAN_EQUAL reduce using rule 25 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE .)
+    AND             reduce using rule 25 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE .)
+    OR              reduce using rule 25 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE .)
+    $end            reduce using rule 25 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE .)
+    RIGHT_PAREN     reduce using rule 25 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE .)
+    SEMICOLON       reduce using rule 25 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE .)
+    COMMA           reduce using rule 25 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE .)
+    RIGHT_BRACE     reduce using rule 25 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE .)
     ELSE            shift and go to state 70
 
 
 state 69
 
-    (27) expr -> WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE .
+    (27) expr -> WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE .
 
-    PLUS            reduce using rule 27 (expr -> WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE .)
-    MINUS           reduce using rule 27 (expr -> WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE .)
-    TIMES           reduce using rule 27 (expr -> WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE .)
-    DIVIDE          reduce using rule 27 (expr -> WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE .)
-    LESS_THAN       reduce using rule 27 (expr -> WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE .)
-    LESS_THAN_EQUAL reduce using rule 27 (expr -> WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE .)
-    GREATER_THAN    reduce using rule 27 (expr -> WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE .)
-    GREATER_THAN_EQUAL reduce using rule 27 (expr -> WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE .)
-    AND             reduce using rule 27 (expr -> WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE .)
-    OR              reduce using rule 27 (expr -> WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE .)
-    $end            reduce using rule 27 (expr -> WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE .)
-    RIGHT_PAREN     reduce using rule 27 (expr -> WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE .)
-    SEMICOLON       reduce using rule 27 (expr -> WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE .)
-    COMMA           reduce using rule 27 (expr -> WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE .)
-    RIGHT_BRACE     reduce using rule 27 (expr -> WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE .)
+    PLUS            reduce using rule 27 (expr -> WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE .)
+    MINUS           reduce using rule 27 (expr -> WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE .)
+    TIMES           reduce using rule 27 (expr -> WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE .)
+    DIVIDE          reduce using rule 27 (expr -> WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE .)
+    LESS_THAN       reduce using rule 27 (expr -> WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE .)
+    LESS_THAN_EQUAL reduce using rule 27 (expr -> WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE .)
+    GREATER_THAN    reduce using rule 27 (expr -> WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE .)
+    GREATER_THAN_EQUAL reduce using rule 27 (expr -> WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE .)
+    AND             reduce using rule 27 (expr -> WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE .)
+    OR              reduce using rule 27 (expr -> WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE .)
+    $end            reduce using rule 27 (expr -> WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE .)
+    RIGHT_PAREN     reduce using rule 27 (expr -> WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE .)
+    SEMICOLON       reduce using rule 27 (expr -> WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE .)
+    COMMA           reduce using rule 27 (expr -> WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE .)
+    RIGHT_BRACE     reduce using rule 27 (expr -> WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE .)
 
 
 state 70
 
-    (26) expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE ELSE . LEFT_BRACE statement RIGHT_BRACE
+    (26) expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE . LEFT_BRACE program RIGHT_BRACE
 
     LEFT_BRACE      shift and go to state 71
 
 
 state 71
 
-    (26) expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE ELSE LEFT_BRACE . statement RIGHT_BRACE
-    (1) statement -> . ID EQUALS expr SEMICOLON
-    (2) statement -> . expr
-    (3) statement -> . ID EQUALS expr SEMICOLON statement
-    (4) statement -> . ID LEFT_PAREN parameters RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE
-    (7) statement -> . ID LEFT_PAREN args RIGHT_PAREN SEMICOLON
+    (26) expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE . program RIGHT_BRACE
+    (1) program -> . ID EQUALS expr SEMICOLON
+    (2) program -> . expr
+    (3) program -> . ID EQUALS expr SEMICOLON program
+    (4) program -> . ID LEFT_PAREN parameters RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
+    (5) program -> . ID LEFT_PAREN args RIGHT_PAREN SEMICOLON
     (10) expr -> . expr PLUS expr
     (11) expr -> . expr MINUS expr
     (12) expr -> . expr TIMES expr
@@ -2069,9 +2067,9 @@ state 71
     (22) expr -> . ID
     (23) expr -> . NUMBER
     (24) expr -> . STRING
-    (25) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE
-    (26) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE ELSE LEFT_BRACE statement RIGHT_BRACE
-    (27) expr -> . WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE
+    (25) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
+    (26) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE
+    (27) expr -> . WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
     (28) expr -> . PRINTF LEFT_PAREN expr RIGHT_PAREN SEMICOLON
 
     ID              shift and go to state 2
@@ -2084,34 +2082,34 @@ state 71
     PRINTF          shift and go to state 10
 
     expr                           shift and go to state 3
-    statement                      shift and go to state 72
+    program                        shift and go to state 72
 
 state 72
 
-    (26) expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE ELSE LEFT_BRACE statement . RIGHT_BRACE
+    (26) expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE program . RIGHT_BRACE
 
     RIGHT_BRACE     shift and go to state 73
 
 
 state 73
 
-    (26) expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE ELSE LEFT_BRACE statement RIGHT_BRACE .
+    (26) expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE .
 
-    PLUS            reduce using rule 26 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE ELSE LEFT_BRACE statement RIGHT_BRACE .)
-    MINUS           reduce using rule 26 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE ELSE LEFT_BRACE statement RIGHT_BRACE .)
-    TIMES           reduce using rule 26 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE ELSE LEFT_BRACE statement RIGHT_BRACE .)
-    DIVIDE          reduce using rule 26 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE ELSE LEFT_BRACE statement RIGHT_BRACE .)
-    LESS_THAN       reduce using rule 26 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE ELSE LEFT_BRACE statement RIGHT_BRACE .)
-    LESS_THAN_EQUAL reduce using rule 26 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE ELSE LEFT_BRACE statement RIGHT_BRACE .)
-    GREATER_THAN    reduce using rule 26 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE ELSE LEFT_BRACE statement RIGHT_BRACE .)
-    GREATER_THAN_EQUAL reduce using rule 26 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE ELSE LEFT_BRACE statement RIGHT_BRACE .)
-    AND             reduce using rule 26 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE ELSE LEFT_BRACE statement RIGHT_BRACE .)
-    OR              reduce using rule 26 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE ELSE LEFT_BRACE statement RIGHT_BRACE .)
-    $end            reduce using rule 26 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE ELSE LEFT_BRACE statement RIGHT_BRACE .)
-    RIGHT_PAREN     reduce using rule 26 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE ELSE LEFT_BRACE statement RIGHT_BRACE .)
-    SEMICOLON       reduce using rule 26 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE ELSE LEFT_BRACE statement RIGHT_BRACE .)
-    COMMA           reduce using rule 26 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE ELSE LEFT_BRACE statement RIGHT_BRACE .)
-    RIGHT_BRACE     reduce using rule 26 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE ELSE LEFT_BRACE statement RIGHT_BRACE .)
+    PLUS            reduce using rule 26 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE .)
+    MINUS           reduce using rule 26 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE .)
+    TIMES           reduce using rule 26 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE .)
+    DIVIDE          reduce using rule 26 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE .)
+    LESS_THAN       reduce using rule 26 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE .)
+    LESS_THAN_EQUAL reduce using rule 26 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE .)
+    GREATER_THAN    reduce using rule 26 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE .)
+    GREATER_THAN_EQUAL reduce using rule 26 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE .)
+    AND             reduce using rule 26 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE .)
+    OR              reduce using rule 26 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE .)
+    $end            reduce using rule 26 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE .)
+    RIGHT_PAREN     reduce using rule 26 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE .)
+    SEMICOLON       reduce using rule 26 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE .)
+    COMMA           reduce using rule 26 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE .)
+    RIGHT_BRACE     reduce using rule 26 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE .)
 
 WARNING: 
 WARNING: Conflicts:

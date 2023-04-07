@@ -3,5 +3,9 @@
 main(x){
     x = 0;
     x = 3.5 + 4.2;
-    printf("aaaaaa");
+    if(x > 0){
+        printf("aaaaaa");
+
+    }
+
 }

@@ -5,24 +5,30 @@ import ply.yacc as yacc
 from lexico import Lexico
 import re
 
+
 class Parser:
     def __init__(self):
         self.lexico = Lexico()
         self.tokens = self.lexico.tokens
         self.parser = yacc.yacc(module=self)
         
-    def p_statement_assign(self, p):
-        '''statement : ID EQUALS expr SEMICOLON 
+    def p_program_assign(self, p):
+        '''program : ID EQUALS expr SEMICOLON 
                      | expr
-                     | ID EQUALS expr SEMICOLON statement'''
+                     | ID EQUALS expr SEMICOLON program'''
         if len(p) > 3 :
             p[0] = p[3]
         else:
            p[0] = p[1]
-           
-    def p_statement_function(self, p):
-        'statement : ID LEFT_PAREN parameters RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE'
-        p[0] = ('FUNCTION', p[1], p[3], p[6])
+     
+    def p_program_function(self, p):
+        'program : ID LEFT_PAREN parameters RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE'
+        p[0] = ('FUNCTION', p[1], p[3])
+    
+    
+    def p_program_function_call(self, p):
+        'program : ID LEFT_PAREN args RIGHT_PAREN SEMICOLON'
+        p[0] = ('FUNCTION_CALL', p[1], p[3])    
     
     def p_parameters(self, p):
         '''parameters : ID
@@ -31,10 +37,7 @@ class Parser:
             p[0] =  p[1] + [(p[3])]
         else:
             p[0] = [(p[1])]
-    
-    def p_statement_function_call(self, p):
-        'statement : ID LEFT_PAREN args RIGHT_PAREN SEMICOLON'
-        p[0] = ('FUNCTION_CALL', p[1], p[3])
+
     
     def p_args(self, p):
         '''args : expr
@@ -101,20 +104,22 @@ class Parser:
         p[0] = p[1]
     
     def p_expr_if(self, p):
-        'expr : IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE '
+        'expr : IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE '
         p[0] = ('IF', p[3])
         
-    def p_expr_else(self, p):
-        'expr : IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE ELSE LEFT_BRACE statement RIGHT_BRACE'
+    def p_expr_if_else(self, p):
+        'expr : IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE'
         p[0] = ('ELSE', p[3])
         
     def p_expr_while(self, p):
-        'expr : WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE statement RIGHT_BRACE '
+        'expr : WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE '
         p[0] = ('WHILE', p[3])
 
     def p_expr_printf(self, p):
         'expr : PRINTF LEFT_PAREN expr RIGHT_PAREN SEMICOLON'
-        p[0] = ('PRINTF', p[3])        
+        p[0] = ('PRINTF', p[3])    
+        
+
     def p_error(self, p):
         print("Erro de sintaxe!")
         
@@ -148,9 +153,13 @@ print()
 result = p.parser.parse("printf(\"aaa\");", lexer=p.lexico.lexico) 
 print(result)
 print()
-result = p.parser.parse("main(x, y, z){x = 0;}", lexer=p.lexico.lexico) 
+result = p.parser.parse("main(x, y, z){x = 0; printf(\"aaa\");}", lexer=p.lexico.lexico) 
 print(result)
 print()
+
+input_string = "main(x, y, z){x = 0; printf(\"aaa\");}"
+result = p.parser.parse(input_string, lexer=p.lexico.lexico)
+print(result)
 
 with open('entrada.txt', 'r') as file:
     file_content = file.read()
