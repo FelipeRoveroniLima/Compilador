@@ -29,10 +29,9 @@ class Lexico:
        'LEFT_PAREN', # (
        'RIGHT_BRACE', # }
        'LEFT_BRACE', # {
-       'RIGHT_BRACKET', # ]
-       'LEFT_BRACKET', # [
        'COMMA', # ,
-       'SEMICOLON' # ;
+       'SEMICOLON', # ;
+       'COMMENT'
        
     ]
     
@@ -47,7 +46,6 @@ class Lexico:
     tokens += list(reserved.values())
     
     
-    #t_ID = r'[a-zA-Z_][a-zA-Z0-9_]*'
     t_NUMBER = r'\d+(\.\d+)?' 
     t_PLUS = r'\+'
     t_MINUS = r'-'
@@ -65,8 +63,6 @@ class Lexico:
     t_LEFT_PAREN = r'\('
     t_RIGHT_BRACE = r'\}'
     t_LEFT_BRACE = r'\{'
-    t_RIGHT_BRACKET = r'\]'
-    t_LEFT_BRACKET = r'\['
     t_COMMA = r','
     t_SEMICOLON = r';'
     # Ignora espaço e quebra de linha
@@ -94,7 +90,10 @@ class Lexico:
     def p_expression_number(self, p):
         'expression : NUMBER'
         p[0] = int(p[1])
-        
+
+    def t_COMMENT(self, t):
+        r'✍️.*'
+        pass        
     def p_error(self, p):
         print("Errou '%s'" % p.value)
         
