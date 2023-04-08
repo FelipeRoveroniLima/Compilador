@@ -89,7 +89,8 @@ class Parser:
             p[0] = ('DIV', p[1], p[3])
     
     def p_expr_relational(self, p):
-        '''expr : expr LESS_THAN expr
+        '''expr : expr EQUALS_EQUALS expr
+                | expr LESS_THAN expr
                 | expr LESS_THAN_EQUAL expr
                 | expr GREATER_THAN expr
                 | expr GREATER_THAN_EQUAL expr'''

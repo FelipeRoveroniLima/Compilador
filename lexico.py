@@ -18,6 +18,7 @@ class Lexico:
        'TIMES', # *
        'DIVIDE', # /
        'EQUALS', # declarar
+       'EQUALS_EQUALS' # == 
        'LESS_THAN',
        'LESS_THAN_EQUAL', 
        'GREATER_THAN',
@@ -36,10 +37,10 @@ class Lexico:
     ]
     
     reserved = {
-        'if': 'IF',
+        '🤔': 'IF',
         'else': 'ELSE',
-        'while': 'WHILE',
-        'printf': 'PRINTF',
+        '🔄': 'WHILE',
+        '🖨️': 'PRINTF',
         'true' : 'TRUE',
         'false' : 'FALSE',
     }
@@ -51,20 +52,21 @@ class Lexico:
     t_MINUS = r'-'
     t_TIMES = r'\*'
     t_DIVIDE = r'/'
-    t_EQUALS = r'='
+    t_EQUALS = r'💨'
+    t_EQUALS_EQUALS = r'💨💨'
     t_LESS_THAN = r'<'
     t_GREATER_THAN = r'>'
     t_LESS_THAN_EQUAL = r'<='
     t_GREATER_THAN_EQUAL = r'>='
     t_AND = r'&&'
     t_OR = r'\|\|'
-    t_NOT = r'!'
-    t_RIGHT_PAREN = r'\)'
-    t_LEFT_PAREN = r'\('
-    t_RIGHT_BRACE = r'\}'
-    t_LEFT_BRACE = r'\{'
+    t_NOT = r'👎'
+    t_RIGHT_PAREN = r'🤛'
+    t_LEFT_PAREN = r'🤜'
+    t_RIGHT_BRACE = r'👈'
+    t_LEFT_BRACE = r'👉'
     t_COMMA = r','
-    t_SEMICOLON = r';'
+    t_SEMICOLON = r'🛑'
     # Ignora espaço e quebra de linha
     t_ignore = ' \t\n'
     
@@ -72,7 +74,7 @@ class Lexico:
         self.lexico = lex.lex(module=self)
     
     def t_STRING(self, t):
-        r'"([^\\\n]|(\\.))*?"'
+        r'📝([^\\\n]|(\\.))*?📝'
         t.value = t.value[1:-1] 
         return t
     
@@ -81,7 +83,20 @@ class Lexico:
         t.type = self.reserved.get(t.value, 'ID')
         return t
     
+    def t_PRINTF(self, t):
+        r'🖨️'
+        return t    
     
+    def t_IF(self, t):
+        r'🤔'
+        return t    
+
+    def t_ELSE(self, t):
+        r'😶'
+        return t    
+    def t_WHILE(self, t):
+        r'🔄'
+        return t        
     def t_error(self, t): 
         print("Cabou-se, deu erro em", t)
         t.lexer.skip(1) 
