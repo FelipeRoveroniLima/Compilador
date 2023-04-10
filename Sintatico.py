@@ -4,6 +4,7 @@ import ply.lex as lex
 import ply.yacc as yacc
 from lexico import Lexico
 import re
+import pprint
 
 
 class Parser:
@@ -165,16 +166,47 @@ class Parser:
     def p_error(self, p):
         print("Erro de sintaxe!")
 
-
-        
+       
     def testes(self, texto):
         return self.parser.parse(texto, lexer=self.lexico.lexico)
-"""   
-p = Parser()
 
-result = p.parser.parse("x = 3.5;", lexer=p.lexico.lexico) # 7
-print(result)
-print()
+
+
+class TreeNode:
+    def __init__(self, node_type, value=None):
+        self.type = node_type
+        self.value = value
+        self.children = []
+
+def parse_tuple_to_tree(tup):
+    print(tup)
+    if len(tup) > 3:
+        node_type, value, children_lst = tup[0], (tup[1], tup[2]), tup[3] 
+    elif len(tup) == 3:
+        node_type, value, children_lst = tup[0], tup[1], tup[2] 
+    else:
+        node_type, value, children_lst = tup[0], tup[1], None
+    node = TreeNode(node_type, value)
+    if isinstance(children_lst, list):
+        for child_lst in children_lst:        
+            child = parse_tuple_to_tree(child_lst)
+            if child:
+                node.children.append(child)
+    return node
+
+def print_tree(node, level=0):
+    print(' ' * level * 4 + f'{node.type}: {node.value}')
+    for child in node.children:
+        print_tree(child, level+1)
+
+
+a = ('FUNCTION', 'main', ['x', 'y', 'z'], [('ATRIBUITION', 'x', 1), ('IF', ('COMPARE', '>', 'x', 1), [('PRINTF', 'aaa')]), ('ATRIBUITION', 'aaa', 'b')])
+
+tree = parse_tuple_to_tree(a)
+print_tree(tree)
+print("\n\n\n")
+
+"""
 result = p.parser.parse("x = (3 * 2) + (4 / (4-2));", lexer=p.lexico.lexico) # 10
 print(result)
 print()
@@ -200,8 +232,8 @@ print()
 result = p.parser.parse("main(x, y, z){x = 1; printf(\"aaa\"); aaa = b;}", lexer=p.lexico.lexico) 
 print(result)
 print()
-
 """
+p = Parser()
 
 with open('entrada.txt', 'r', encoding='utf-8') as file:
     file_content = file.read()
@@ -209,3 +241,6 @@ with open('entrada.txt', 'r', encoding='utf-8') as file:
 p = Parser()
 result = p.parser.parse(file_content, lexer=p.lexico.lexico)
 print(result)
+
+tree = parse_tuple_to_tree(result[0])
+print_tree(tree)
