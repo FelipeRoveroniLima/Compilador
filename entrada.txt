@@ -1,19 +1,15 @@
 
-
 main(x){
     x = 0;
-    x = 3.5 + 4.2;
+    x = 3.5 + 4.2 - 1.1;
     if(x > 0){
         printf("aaaaaa");
     }
-    else{
-        printf("fon");
-    }
+
     while (1){
-        fon(2);
+        if(x < 1){
+            printf("bbbbb");		
+	    }
     }
     ✍️ adwadwad
 }
-aa = teste(2);
-
-xx = "awdadwad";
