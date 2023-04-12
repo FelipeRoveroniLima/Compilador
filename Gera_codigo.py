@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Apr 12 04:17:45 2023
-
-@author: sergi
-"""
-
 from Semantic import Semantico
 from Sintatico import parse_tuple_to_tree, print_tree, TreeNode, Parser
 
@@ -35,7 +28,7 @@ class Code_generator():
                 op_str = " / "
             return left_str + op_str + right_str
     def generate(self, node, level=0):
-        if node.type == "FUNCTION":
+        if node.type in ["FUNCTION", "WHILE", "IF", "ELSE"]:
             if len(node.value) > 1:   
                 variaveis = node.value[1]  
                 variables_str = ", ".join(variaveis)  
@@ -51,8 +44,10 @@ class Code_generator():
                 operacoes = node.children[0].value
                 operacoes = self.tuple_to_string(operacoes)
                 self.code += ' ' * level * 4 + f"{node.value[0]} = {operacoes}\n"
+
         if node.type == "PRINTF":
-                self.code += ' ' * level * 4 + f"print(\"{node.value}\")\n"
+            self.code += ' ' * level * 4 + f"print(\"{node.value}\")\n"
+
         # if
         # while
         # else

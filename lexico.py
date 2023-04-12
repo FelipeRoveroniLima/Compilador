@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
-
-# Cimplificado
-# Usando a ferramenta py.lex
-
 import ply.lex as lex
 import ply.yacc as yacc
 

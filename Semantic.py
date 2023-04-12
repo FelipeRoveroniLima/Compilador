@@ -1,13 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Apr 11 20:07:49 2023
-
-@author: sergi
-"""
-
 from Sintatico import parse_tuple_to_tree, print_tree, TreeNode, Parser
-
-
 
 class Semantico():
     def __init__(self, tree):
@@ -30,6 +21,7 @@ class Semantico():
         elif expression[0] == 'DIV':
             return self.resolve_conta(expression[1]) / self.resolve_conta(expression[2])
         return expression
+    
     def verifica_tabela_simbolo(self, node):
         if node.type == "ATRIBUITION":
             if node.children == []:
@@ -75,7 +67,6 @@ class Semantico():
                     if not node.value[3] in self.tabela_simbolo:
                         raise ValueError(f"Variavel não declarada {node.value[3]}")            
                 
-            
         if node.type in {"WHILE"}:
             if isinstance(node.value, str) and node.value not in ("true", "false"):
                 if not node.value in self.tabela_simbolo:
@@ -100,8 +91,6 @@ class Semantico():
             self.verifica_existencia(child)
             self.walk_tree(child, level+1)
     
-
-
 p = Parser()
 with open('entrada.txt', 'r', encoding='utf-8') as file:
     file_content = file.read()
