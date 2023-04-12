@@ -11,6 +11,15 @@ class Parser:
         self.tokens = self.lexico.tokens
         self.parser = yacc.yacc(module=self)
         
+        
+    def p_start(self, p):
+        'start : ID LEFT_PAREN parameters RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE program'
+        if p[8] != None:
+            p[0] = [('FUNCTION', p[1], p[3], p[6])] + p[8]
+        else:
+            p[0] = [('FUNCTION', p[1], p[3], p[6])]     
+            
+            
     def p_program(self, p):
         '''program : ID EQUALS expr SEMICOLON program
                      | ID EQUALS function_call SEMICOLON program
@@ -44,12 +53,7 @@ class Parser:
          
         
          
-    def p_program_function(self, p):
-        'program : ID LEFT_PAREN parameters RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE program'
-        if p[8] != None:
-            p[0] = [('FUNCTION', p[1], p[3], p[6])] + p[8]
-        else:
-            p[0] = [('FUNCTION', p[1], p[3], p[6])]
+
 
             
     def p_function_call(self, p):
@@ -280,10 +284,10 @@ print()
 result = p.parser.parse("main(x, y, z){x = 1; printf(\"aaa\"); aaa = b;}", lexer=p.lexico.lexico) 
 print(result)
 print()
-
+"""
 p = Parser()
 
-with open('entrada.txt', 'r', encoding='utf-8') as file:
+with open('entrada_emoji.txt', 'r', encoding='utf-8') as file:
     file_content = file.read()
 
 p = Parser()
@@ -293,4 +297,3 @@ print()
 
 tree = parse_tuple_to_tree(result[0])
 print_tree(tree)
-"""

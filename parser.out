@@ -6,13 +6,13 @@ Unused terminals:
 
 Grammar
 
-Rule 0     S' -> program
-Rule 1     program -> ID EQUALS expr SEMICOLON program
-Rule 2     program -> ID EQUALS function_call SEMICOLON program
-Rule 3     program -> function_call SEMICOLON program
-Rule 4     program -> expr program
-Rule 5     program -> lambda
-Rule 6     program -> ID LEFT_PAREN parameters RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE program
+Rule 0     S' -> start
+Rule 1     start -> ID LEFT_PAREN parameters RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE program
+Rule 2     program -> ID EQUALS expr SEMICOLON program
+Rule 3     program -> ID EQUALS function_call SEMICOLON program
+Rule 4     program -> function_call SEMICOLON program
+Rule 5     program -> expr program
+Rule 6     program -> lambda
 Rule 7     function_call -> ID LEFT_PAREN args RIGHT_PAREN
 Rule 8     parameters -> ID
 Rule 9     parameters -> parameters COMMA ID
@@ -58,15 +58,15 @@ COMMA                : 9 20
 COMMENT              : 
 DIVIDE               : 14 24
 ELSE                 : 40
-EQUALS               : 1 2
+EQUALS               : 2 3
 EQUALS_EQUALS        : 25
 FALSE                : 38
 GREATER_THAN         : 28
 GREATER_THAN_EQUAL   : 29
-ID                   : 1 2 6 7 8 9 17 34
+ID                   : 1 2 3 7 8 9 17 34
 IF                   : 39 40
-LEFT_BRACE           : 6 39 40 40 41
-LEFT_PAREN           : 6 7 18 33 39 40 41 42
+LEFT_BRACE           : 1 39 40 40 41
+LEFT_PAREN           : 1 7 18 33 39 40 41 42
 LESS_THAN            : 26
 LESS_THAN_EQUAL      : 27
 MINUS                : 11 22
@@ -75,9 +75,9 @@ NUMBER               : 16 35
 OR                   : 31
 PLUS                 : 10 21
 PRINTF               : 42
-RIGHT_BRACE          : 6 39 40 40 41
-RIGHT_PAREN          : 6 7 18 33 39 40 41 42
-SEMICOLON            : 1 2 3 42
+RIGHT_BRACE          : 1 39 40 40 41
+RIGHT_PAREN          : 1 7 18 33 39 40 41 42
+SEMICOLON            : 2 3 4 42
 STRING               : 36
 TIMES                : 13 23
 TRUE                 : 37
@@ -87,25 +87,88 @@ error                :
 Nonterminals, with rules where they appear
 
 args                 : 7 20
-expr                 : 1 4 10 11 18 19 20 21 21 22 22 23 23 24 24 25 25 26 26 27 27 28 28 29 29 30 30 31 31 32 33 39 40 41 42
+expr                 : 2 5 10 11 18 19 20 21 21 22 22 23 23 24 24 25 25 26 26 27 27 28 28 29 29 30 30 31 31 32 33 39 40 41 42
 factor               : 13 14 15
-function_call        : 2 3
-lambda               : 5
-parameters           : 6 9
-program              : 1 2 3 4 6 6 39 40 40 41 0
+function_call        : 3 4
+lambda               : 6
+parameters           : 1 9
+program              : 1 1 2 3 4 5 39 40 40 41
+start                : 0
 term                 : 10 11 12 13 14
 
 Parsing method: LALR
 
 state 0
 
-    (0) S' -> . program
-    (1) program -> . ID EQUALS expr SEMICOLON program
-    (2) program -> . ID EQUALS function_call SEMICOLON program
-    (3) program -> . function_call SEMICOLON program
-    (4) program -> . expr program
-    (5) program -> . lambda
-    (6) program -> . ID LEFT_PAREN parameters RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE program
+    (0) S' -> . start
+    (1) start -> . ID LEFT_PAREN parameters RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE program
+
+    ID              shift and go to state 2
+
+    start                          shift and go to state 1
+
+state 1
+
+    (0) S' -> start .
+
+
+
+state 2
+
+    (1) start -> ID . LEFT_PAREN parameters RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE program
+
+    LEFT_PAREN      shift and go to state 3
+
+
+state 3
+
+    (1) start -> ID LEFT_PAREN . parameters RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE program
+    (8) parameters -> . ID
+    (9) parameters -> . parameters COMMA ID
+
+    ID              shift and go to state 4
+
+    parameters                     shift and go to state 5
+
+state 4
+
+    (8) parameters -> ID .
+
+    RIGHT_PAREN     reduce using rule 8 (parameters -> ID .)
+    COMMA           reduce using rule 8 (parameters -> ID .)
+
+
+state 5
+
+    (1) start -> ID LEFT_PAREN parameters . RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE program
+    (9) parameters -> parameters . COMMA ID
+
+    RIGHT_PAREN     shift and go to state 6
+    COMMA           shift and go to state 7
+
+
+state 6
+
+    (1) start -> ID LEFT_PAREN parameters RIGHT_PAREN . LEFT_BRACE program RIGHT_BRACE program
+
+    LEFT_BRACE      shift and go to state 8
+
+
+state 7
+
+    (9) parameters -> parameters COMMA . ID
+
+    ID              shift and go to state 9
+
+
+state 8
+
+    (1) start -> ID LEFT_PAREN parameters RIGHT_PAREN LEFT_BRACE . program RIGHT_BRACE program
+    (2) program -> . ID EQUALS expr SEMICOLON program
+    (3) program -> . ID EQUALS function_call SEMICOLON program
+    (4) program -> . function_call SEMICOLON program
+    (5) program -> . expr program
+    (6) program -> . lambda
     (7) function_call -> . ID LEFT_PAREN args RIGHT_PAREN
     (10) expr -> . expr PLUS term
     (11) expr -> . expr MINUS term
@@ -140,36 +203,37 @@ state 0
     (17) factor -> . ID
     (18) factor -> . LEFT_PAREN expr RIGHT_PAREN
 
-    ID              shift and go to state 2
-    NOT             shift and go to state 8
-    LEFT_PAREN      shift and go to state 6
-    NUMBER          shift and go to state 9
-    STRING          shift and go to state 10
-    TRUE            shift and go to state 11
-    FALSE           shift and go to state 12
-    IF              shift and go to state 13
-    WHILE           shift and go to state 14
-    PRINTF          shift and go to state 15
-    $end            reduce using rule 43 (lambda -> .)
+    ID              shift and go to state 10
+    NOT             shift and go to state 17
+    LEFT_PAREN      shift and go to state 11
+    NUMBER          shift and go to state 18
+    STRING          shift and go to state 19
+    TRUE            shift and go to state 20
+    FALSE           shift and go to state 21
+    IF              shift and go to state 22
+    WHILE           shift and go to state 23
+    PRINTF          shift and go to state 24
+    RIGHT_BRACE     reduce using rule 43 (lambda -> .)
 
-    program                        shift and go to state 1
-    expr                           shift and go to state 3
-    function_call                  shift and go to state 4
-    lambda                         shift and go to state 5
-    term                           shift and go to state 7
-    factor                         shift and go to state 16
+    program                        shift and go to state 12
+    expr                           shift and go to state 13
+    function_call                  shift and go to state 14
+    lambda                         shift and go to state 15
+    term                           shift and go to state 16
+    factor                         shift and go to state 25
 
-state 1
+state 9
 
-    (0) S' -> program .
+    (9) parameters -> parameters COMMA ID .
+
+    RIGHT_PAREN     reduce using rule 9 (parameters -> parameters COMMA ID .)
+    COMMA           reduce using rule 9 (parameters -> parameters COMMA ID .)
 
 
+state 10
 
-state 2
-
-    (1) program -> ID . EQUALS expr SEMICOLON program
-    (2) program -> ID . EQUALS function_call SEMICOLON program
-    (6) program -> ID . LEFT_PAREN parameters RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE program
+    (2) program -> ID . EQUALS expr SEMICOLON program
+    (3) program -> ID . EQUALS function_call SEMICOLON program
     (7) function_call -> ID . LEFT_PAREN args RIGHT_PAREN
     (34) expr -> ID .
     (17) factor -> ID .
@@ -196,10 +260,10 @@ state 2
   ! reduce/reduce conflict for IF resolved using rule 17 (factor -> ID .)
   ! reduce/reduce conflict for WHILE resolved using rule 17 (factor -> ID .)
   ! reduce/reduce conflict for PRINTF resolved using rule 17 (factor -> ID .)
-  ! reduce/reduce conflict for $end resolved using rule 17 (factor -> ID .)
   ! reduce/reduce conflict for RIGHT_BRACE resolved using rule 17 (factor -> ID .)
-    EQUALS          shift and go to state 17
-    LEFT_PAREN      shift and go to state 18
+  ! reduce/reduce conflict for $end resolved using rule 17 (factor -> ID .)
+    EQUALS          shift and go to state 26
+    LEFT_PAREN      shift and go to state 27
     TIMES           reduce using rule 17 (factor -> ID .)
     DIVIDE          reduce using rule 17 (factor -> ID .)
     PLUS            reduce using rule 17 (factor -> ID .)
@@ -220,8 +284,8 @@ state 2
     IF              reduce using rule 17 (factor -> ID .)
     WHILE           reduce using rule 17 (factor -> ID .)
     PRINTF          reduce using rule 17 (factor -> ID .)
-    $end            reduce using rule 17 (factor -> ID .)
     RIGHT_BRACE     reduce using rule 17 (factor -> ID .)
+    $end            reduce using rule 17 (factor -> ID .)
 
   ! PLUS            [ reduce using rule 34 (expr -> ID .) ]
   ! MINUS           [ reduce using rule 34 (expr -> ID .) ]
@@ -244,114 +308,12 @@ state 2
   ! IF              [ reduce using rule 34 (expr -> ID .) ]
   ! WHILE           [ reduce using rule 34 (expr -> ID .) ]
   ! PRINTF          [ reduce using rule 34 (expr -> ID .) ]
-  ! $end            [ reduce using rule 34 (expr -> ID .) ]
   ! RIGHT_BRACE     [ reduce using rule 34 (expr -> ID .) ]
+  ! $end            [ reduce using rule 34 (expr -> ID .) ]
   ! LEFT_PAREN      [ reduce using rule 17 (factor -> ID .) ]
 
 
-state 3
-
-    (4) program -> expr . program
-    (10) expr -> expr . PLUS term
-    (11) expr -> expr . MINUS term
-    (21) expr -> expr . PLUS expr
-    (22) expr -> expr . MINUS expr
-    (23) expr -> expr . TIMES expr
-    (24) expr -> expr . DIVIDE expr
-    (25) expr -> expr . EQUALS_EQUALS expr
-    (26) expr -> expr . LESS_THAN expr
-    (27) expr -> expr . LESS_THAN_EQUAL expr
-    (28) expr -> expr . GREATER_THAN expr
-    (29) expr -> expr . GREATER_THAN_EQUAL expr
-    (30) expr -> expr . AND expr
-    (31) expr -> expr . OR expr
-    (1) program -> . ID EQUALS expr SEMICOLON program
-    (2) program -> . ID EQUALS function_call SEMICOLON program
-    (3) program -> . function_call SEMICOLON program
-    (4) program -> . expr program
-    (5) program -> . lambda
-    (6) program -> . ID LEFT_PAREN parameters RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE program
-    (7) function_call -> . ID LEFT_PAREN args RIGHT_PAREN
-    (10) expr -> . expr PLUS term
-    (11) expr -> . expr MINUS term
-    (12) expr -> . term
-    (21) expr -> . expr PLUS expr
-    (22) expr -> . expr MINUS expr
-    (23) expr -> . expr TIMES expr
-    (24) expr -> . expr DIVIDE expr
-    (25) expr -> . expr EQUALS_EQUALS expr
-    (26) expr -> . expr LESS_THAN expr
-    (27) expr -> . expr LESS_THAN_EQUAL expr
-    (28) expr -> . expr GREATER_THAN expr
-    (29) expr -> . expr GREATER_THAN_EQUAL expr
-    (30) expr -> . expr AND expr
-    (31) expr -> . expr OR expr
-    (32) expr -> . NOT expr
-    (33) expr -> . LEFT_PAREN expr RIGHT_PAREN
-    (34) expr -> . ID
-    (35) expr -> . NUMBER
-    (36) expr -> . STRING
-    (37) expr -> . TRUE
-    (38) expr -> . FALSE
-    (39) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
-    (40) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE
-    (41) expr -> . WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
-    (42) expr -> . PRINTF LEFT_PAREN expr RIGHT_PAREN SEMICOLON
-    (43) lambda -> .
-    (13) term -> . term TIMES factor
-    (14) term -> . term DIVIDE factor
-    (15) term -> . factor
-    (16) factor -> . NUMBER
-    (17) factor -> . ID
-    (18) factor -> . LEFT_PAREN expr RIGHT_PAREN
-
-    PLUS            shift and go to state 20
-    MINUS           shift and go to state 21
-    TIMES           shift and go to state 22
-    DIVIDE          shift and go to state 23
-    EQUALS_EQUALS   shift and go to state 24
-    LESS_THAN       shift and go to state 25
-    LESS_THAN_EQUAL shift and go to state 26
-    GREATER_THAN    shift and go to state 27
-    GREATER_THAN_EQUAL shift and go to state 28
-    AND             shift and go to state 29
-    OR              shift and go to state 30
-    ID              shift and go to state 2
-    NOT             shift and go to state 8
-    LEFT_PAREN      shift and go to state 6
-    NUMBER          shift and go to state 9
-    STRING          shift and go to state 10
-    TRUE            shift and go to state 11
-    FALSE           shift and go to state 12
-    IF              shift and go to state 13
-    WHILE           shift and go to state 14
-    PRINTF          shift and go to state 15
-    $end            reduce using rule 43 (lambda -> .)
-    RIGHT_BRACE     reduce using rule 43 (lambda -> .)
-
-    expr                           shift and go to state 3
-    program                        shift and go to state 19
-    term                           shift and go to state 7
-    function_call                  shift and go to state 4
-    lambda                         shift and go to state 5
-    factor                         shift and go to state 16
-
-state 4
-
-    (3) program -> function_call . SEMICOLON program
-
-    SEMICOLON       shift and go to state 31
-
-
-state 5
-
-    (5) program -> lambda .
-
-    $end            reduce using rule 5 (program -> lambda .)
-    RIGHT_BRACE     reduce using rule 5 (program -> lambda .)
-
-
-state 6
+state 11
 
     (33) expr -> LEFT_PAREN . expr RIGHT_PAREN
     (18) factor -> LEFT_PAREN . expr RIGHT_PAREN
@@ -387,22 +349,130 @@ state 6
     (17) factor -> . ID
     (18) factor -> . LEFT_PAREN expr RIGHT_PAREN
 
-    NOT             shift and go to state 8
-    LEFT_PAREN      shift and go to state 6
-    ID              shift and go to state 33
-    NUMBER          shift and go to state 9
-    STRING          shift and go to state 10
-    TRUE            shift and go to state 11
-    FALSE           shift and go to state 12
-    IF              shift and go to state 13
-    WHILE           shift and go to state 14
-    PRINTF          shift and go to state 15
+    NOT             shift and go to state 17
+    LEFT_PAREN      shift and go to state 11
+    ID              shift and go to state 29
+    NUMBER          shift and go to state 18
+    STRING          shift and go to state 19
+    TRUE            shift and go to state 20
+    FALSE           shift and go to state 21
+    IF              shift and go to state 22
+    WHILE           shift and go to state 23
+    PRINTF          shift and go to state 24
 
-    expr                           shift and go to state 32
-    term                           shift and go to state 7
-    factor                         shift and go to state 16
+    expr                           shift and go to state 28
+    term                           shift and go to state 16
+    factor                         shift and go to state 25
 
-state 7
+state 12
+
+    (1) start -> ID LEFT_PAREN parameters RIGHT_PAREN LEFT_BRACE program . RIGHT_BRACE program
+
+    RIGHT_BRACE     shift and go to state 30
+
+
+state 13
+
+    (5) program -> expr . program
+    (10) expr -> expr . PLUS term
+    (11) expr -> expr . MINUS term
+    (21) expr -> expr . PLUS expr
+    (22) expr -> expr . MINUS expr
+    (23) expr -> expr . TIMES expr
+    (24) expr -> expr . DIVIDE expr
+    (25) expr -> expr . EQUALS_EQUALS expr
+    (26) expr -> expr . LESS_THAN expr
+    (27) expr -> expr . LESS_THAN_EQUAL expr
+    (28) expr -> expr . GREATER_THAN expr
+    (29) expr -> expr . GREATER_THAN_EQUAL expr
+    (30) expr -> expr . AND expr
+    (31) expr -> expr . OR expr
+    (2) program -> . ID EQUALS expr SEMICOLON program
+    (3) program -> . ID EQUALS function_call SEMICOLON program
+    (4) program -> . function_call SEMICOLON program
+    (5) program -> . expr program
+    (6) program -> . lambda
+    (7) function_call -> . ID LEFT_PAREN args RIGHT_PAREN
+    (10) expr -> . expr PLUS term
+    (11) expr -> . expr MINUS term
+    (12) expr -> . term
+    (21) expr -> . expr PLUS expr
+    (22) expr -> . expr MINUS expr
+    (23) expr -> . expr TIMES expr
+    (24) expr -> . expr DIVIDE expr
+    (25) expr -> . expr EQUALS_EQUALS expr
+    (26) expr -> . expr LESS_THAN expr
+    (27) expr -> . expr LESS_THAN_EQUAL expr
+    (28) expr -> . expr GREATER_THAN expr
+    (29) expr -> . expr GREATER_THAN_EQUAL expr
+    (30) expr -> . expr AND expr
+    (31) expr -> . expr OR expr
+    (32) expr -> . NOT expr
+    (33) expr -> . LEFT_PAREN expr RIGHT_PAREN
+    (34) expr -> . ID
+    (35) expr -> . NUMBER
+    (36) expr -> . STRING
+    (37) expr -> . TRUE
+    (38) expr -> . FALSE
+    (39) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
+    (40) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE
+    (41) expr -> . WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
+    (42) expr -> . PRINTF LEFT_PAREN expr RIGHT_PAREN SEMICOLON
+    (43) lambda -> .
+    (13) term -> . term TIMES factor
+    (14) term -> . term DIVIDE factor
+    (15) term -> . factor
+    (16) factor -> . NUMBER
+    (17) factor -> . ID
+    (18) factor -> . LEFT_PAREN expr RIGHT_PAREN
+
+    PLUS            shift and go to state 32
+    MINUS           shift and go to state 33
+    TIMES           shift and go to state 34
+    DIVIDE          shift and go to state 35
+    EQUALS_EQUALS   shift and go to state 36
+    LESS_THAN       shift and go to state 37
+    LESS_THAN_EQUAL shift and go to state 38
+    GREATER_THAN    shift and go to state 39
+    GREATER_THAN_EQUAL shift and go to state 40
+    AND             shift and go to state 41
+    OR              shift and go to state 42
+    ID              shift and go to state 10
+    NOT             shift and go to state 17
+    LEFT_PAREN      shift and go to state 11
+    NUMBER          shift and go to state 18
+    STRING          shift and go to state 19
+    TRUE            shift and go to state 20
+    FALSE           shift and go to state 21
+    IF              shift and go to state 22
+    WHILE           shift and go to state 23
+    PRINTF          shift and go to state 24
+    RIGHT_BRACE     reduce using rule 43 (lambda -> .)
+    $end            reduce using rule 43 (lambda -> .)
+
+    expr                           shift and go to state 13
+    program                        shift and go to state 31
+    term                           shift and go to state 16
+    function_call                  shift and go to state 14
+    lambda                         shift and go to state 15
+    factor                         shift and go to state 25
+
+state 14
+
+    (4) program -> function_call . SEMICOLON program
+
+    SEMICOLON       shift and go to state 43
+
+
+state 15
+
+    (6) program -> lambda .
+
+    RIGHT_BRACE     reduce using rule 6 (program -> lambda .)
+    $end            reduce using rule 6 (program -> lambda .)
+
+
+state 16
 
     (12) expr -> term .
     (13) term -> term . TIMES factor
@@ -429,19 +499,19 @@ state 7
     IF              reduce using rule 12 (expr -> term .)
     WHILE           reduce using rule 12 (expr -> term .)
     PRINTF          reduce using rule 12 (expr -> term .)
-    $end            reduce using rule 12 (expr -> term .)
     RIGHT_BRACE     reduce using rule 12 (expr -> term .)
     RIGHT_PAREN     reduce using rule 12 (expr -> term .)
+    $end            reduce using rule 12 (expr -> term .)
     SEMICOLON       reduce using rule 12 (expr -> term .)
     COMMA           reduce using rule 12 (expr -> term .)
-    TIMES           shift and go to state 34
-    DIVIDE          shift and go to state 35
+    TIMES           shift and go to state 44
+    DIVIDE          shift and go to state 45
 
   ! TIMES           [ reduce using rule 12 (expr -> term .) ]
   ! DIVIDE          [ reduce using rule 12 (expr -> term .) ]
 
 
-state 8
+state 17
 
     (32) expr -> NOT . expr
     (10) expr -> . expr PLUS term
@@ -476,22 +546,22 @@ state 8
     (17) factor -> . ID
     (18) factor -> . LEFT_PAREN expr RIGHT_PAREN
 
-    NOT             shift and go to state 8
-    LEFT_PAREN      shift and go to state 6
-    ID              shift and go to state 33
-    NUMBER          shift and go to state 9
-    STRING          shift and go to state 10
-    TRUE            shift and go to state 11
-    FALSE           shift and go to state 12
-    IF              shift and go to state 13
-    WHILE           shift and go to state 14
-    PRINTF          shift and go to state 15
+    NOT             shift and go to state 17
+    LEFT_PAREN      shift and go to state 11
+    ID              shift and go to state 29
+    NUMBER          shift and go to state 18
+    STRING          shift and go to state 19
+    TRUE            shift and go to state 20
+    FALSE           shift and go to state 21
+    IF              shift and go to state 22
+    WHILE           shift and go to state 23
+    PRINTF          shift and go to state 24
 
-    expr                           shift and go to state 36
-    term                           shift and go to state 7
-    factor                         shift and go to state 16
+    expr                           shift and go to state 46
+    term                           shift and go to state 16
+    factor                         shift and go to state 25
 
-state 9
+state 18
 
     (35) expr -> NUMBER .
     (16) factor -> NUMBER .
@@ -517,9 +587,9 @@ state 9
   ! reduce/reduce conflict for IF resolved using rule 16 (factor -> NUMBER .)
   ! reduce/reduce conflict for WHILE resolved using rule 16 (factor -> NUMBER .)
   ! reduce/reduce conflict for PRINTF resolved using rule 16 (factor -> NUMBER .)
-  ! reduce/reduce conflict for $end resolved using rule 16 (factor -> NUMBER .)
   ! reduce/reduce conflict for RIGHT_BRACE resolved using rule 16 (factor -> NUMBER .)
   ! reduce/reduce conflict for RIGHT_PAREN resolved using rule 16 (factor -> NUMBER .)
+  ! reduce/reduce conflict for $end resolved using rule 16 (factor -> NUMBER .)
   ! reduce/reduce conflict for SEMICOLON resolved using rule 16 (factor -> NUMBER .)
   ! reduce/reduce conflict for COMMA resolved using rule 16 (factor -> NUMBER .)
     TIMES           reduce using rule 16 (factor -> NUMBER .)
@@ -543,9 +613,9 @@ state 9
     IF              reduce using rule 16 (factor -> NUMBER .)
     WHILE           reduce using rule 16 (factor -> NUMBER .)
     PRINTF          reduce using rule 16 (factor -> NUMBER .)
-    $end            reduce using rule 16 (factor -> NUMBER .)
     RIGHT_BRACE     reduce using rule 16 (factor -> NUMBER .)
     RIGHT_PAREN     reduce using rule 16 (factor -> NUMBER .)
+    $end            reduce using rule 16 (factor -> NUMBER .)
     SEMICOLON       reduce using rule 16 (factor -> NUMBER .)
     COMMA           reduce using rule 16 (factor -> NUMBER .)
 
@@ -570,14 +640,14 @@ state 9
   ! IF              [ reduce using rule 35 (expr -> NUMBER .) ]
   ! WHILE           [ reduce using rule 35 (expr -> NUMBER .) ]
   ! PRINTF          [ reduce using rule 35 (expr -> NUMBER .) ]
-  ! $end            [ reduce using rule 35 (expr -> NUMBER .) ]
   ! RIGHT_BRACE     [ reduce using rule 35 (expr -> NUMBER .) ]
   ! RIGHT_PAREN     [ reduce using rule 35 (expr -> NUMBER .) ]
+  ! $end            [ reduce using rule 35 (expr -> NUMBER .) ]
   ! SEMICOLON       [ reduce using rule 35 (expr -> NUMBER .) ]
   ! COMMA           [ reduce using rule 35 (expr -> NUMBER .) ]
 
 
-state 10
+state 19
 
     (36) expr -> STRING .
 
@@ -602,14 +672,14 @@ state 10
     IF              reduce using rule 36 (expr -> STRING .)
     WHILE           reduce using rule 36 (expr -> STRING .)
     PRINTF          reduce using rule 36 (expr -> STRING .)
-    $end            reduce using rule 36 (expr -> STRING .)
     RIGHT_BRACE     reduce using rule 36 (expr -> STRING .)
     RIGHT_PAREN     reduce using rule 36 (expr -> STRING .)
+    $end            reduce using rule 36 (expr -> STRING .)
     SEMICOLON       reduce using rule 36 (expr -> STRING .)
     COMMA           reduce using rule 36 (expr -> STRING .)
 
 
-state 11
+state 20
 
     (37) expr -> TRUE .
 
@@ -634,14 +704,14 @@ state 11
     IF              reduce using rule 37 (expr -> TRUE .)
     WHILE           reduce using rule 37 (expr -> TRUE .)
     PRINTF          reduce using rule 37 (expr -> TRUE .)
-    $end            reduce using rule 37 (expr -> TRUE .)
     RIGHT_BRACE     reduce using rule 37 (expr -> TRUE .)
     RIGHT_PAREN     reduce using rule 37 (expr -> TRUE .)
+    $end            reduce using rule 37 (expr -> TRUE .)
     SEMICOLON       reduce using rule 37 (expr -> TRUE .)
     COMMA           reduce using rule 37 (expr -> TRUE .)
 
 
-state 12
+state 21
 
     (38) expr -> FALSE .
 
@@ -666,36 +736,36 @@ state 12
     IF              reduce using rule 38 (expr -> FALSE .)
     WHILE           reduce using rule 38 (expr -> FALSE .)
     PRINTF          reduce using rule 38 (expr -> FALSE .)
-    $end            reduce using rule 38 (expr -> FALSE .)
     RIGHT_BRACE     reduce using rule 38 (expr -> FALSE .)
     RIGHT_PAREN     reduce using rule 38 (expr -> FALSE .)
+    $end            reduce using rule 38 (expr -> FALSE .)
     SEMICOLON       reduce using rule 38 (expr -> FALSE .)
     COMMA           reduce using rule 38 (expr -> FALSE .)
 
 
-state 13
+state 22
 
     (39) expr -> IF . LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
     (40) expr -> IF . LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE
 
-    LEFT_PAREN      shift and go to state 37
+    LEFT_PAREN      shift and go to state 47
 
 
-state 14
+state 23
 
     (41) expr -> WHILE . LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
 
-    LEFT_PAREN      shift and go to state 38
+    LEFT_PAREN      shift and go to state 48
 
 
-state 15
+state 24
 
     (42) expr -> PRINTF . LEFT_PAREN expr RIGHT_PAREN SEMICOLON
 
-    LEFT_PAREN      shift and go to state 39
+    LEFT_PAREN      shift and go to state 49
 
 
-state 16
+state 25
 
     (15) term -> factor .
 
@@ -720,17 +790,17 @@ state 16
     IF              reduce using rule 15 (term -> factor .)
     WHILE           reduce using rule 15 (term -> factor .)
     PRINTF          reduce using rule 15 (term -> factor .)
-    $end            reduce using rule 15 (term -> factor .)
     RIGHT_BRACE     reduce using rule 15 (term -> factor .)
     RIGHT_PAREN     reduce using rule 15 (term -> factor .)
+    $end            reduce using rule 15 (term -> factor .)
     SEMICOLON       reduce using rule 15 (term -> factor .)
     COMMA           reduce using rule 15 (term -> factor .)
 
 
-state 17
+state 26
 
-    (1) program -> ID EQUALS . expr SEMICOLON program
-    (2) program -> ID EQUALS . function_call SEMICOLON program
+    (2) program -> ID EQUALS . expr SEMICOLON program
+    (3) program -> ID EQUALS . function_call SEMICOLON program
     (10) expr -> . expr PLUS term
     (11) expr -> . expr MINUS term
     (12) expr -> . term
@@ -764,28 +834,25 @@ state 17
     (17) factor -> . ID
     (18) factor -> . LEFT_PAREN expr RIGHT_PAREN
 
-    NOT             shift and go to state 8
-    LEFT_PAREN      shift and go to state 6
-    ID              shift and go to state 40
-    NUMBER          shift and go to state 9
-    STRING          shift and go to state 10
-    TRUE            shift and go to state 11
-    FALSE           shift and go to state 12
-    IF              shift and go to state 13
-    WHILE           shift and go to state 14
-    PRINTF          shift and go to state 15
+    NOT             shift and go to state 17
+    LEFT_PAREN      shift and go to state 11
+    ID              shift and go to state 50
+    NUMBER          shift and go to state 18
+    STRING          shift and go to state 19
+    TRUE            shift and go to state 20
+    FALSE           shift and go to state 21
+    IF              shift and go to state 22
+    WHILE           shift and go to state 23
+    PRINTF          shift and go to state 24
 
-    expr                           shift and go to state 41
-    function_call                  shift and go to state 42
-    term                           shift and go to state 7
-    factor                         shift and go to state 16
+    expr                           shift and go to state 51
+    function_call                  shift and go to state 52
+    term                           shift and go to state 16
+    factor                         shift and go to state 25
 
-state 18
+state 27
 
-    (6) program -> ID LEFT_PAREN . parameters RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE program
     (7) function_call -> ID LEFT_PAREN . args RIGHT_PAREN
-    (8) parameters -> . ID
-    (9) parameters -> . parameters COMMA ID
     (19) args -> . expr
     (20) args -> . args COMMA expr
     (10) expr -> . expr PLUS term
@@ -820,32 +887,210 @@ state 18
     (17) factor -> . ID
     (18) factor -> . LEFT_PAREN expr RIGHT_PAREN
 
-    ID              shift and go to state 43
-    NOT             shift and go to state 8
-    LEFT_PAREN      shift and go to state 6
-    NUMBER          shift and go to state 9
-    STRING          shift and go to state 10
-    TRUE            shift and go to state 11
-    FALSE           shift and go to state 12
-    IF              shift and go to state 13
-    WHILE           shift and go to state 14
-    PRINTF          shift and go to state 15
+    NOT             shift and go to state 17
+    LEFT_PAREN      shift and go to state 11
+    ID              shift and go to state 29
+    NUMBER          shift and go to state 18
+    STRING          shift and go to state 19
+    TRUE            shift and go to state 20
+    FALSE           shift and go to state 21
+    IF              shift and go to state 22
+    WHILE           shift and go to state 23
+    PRINTF          shift and go to state 24
 
-    parameters                     shift and go to state 44
-    args                           shift and go to state 45
-    expr                           shift and go to state 46
-    term                           shift and go to state 7
-    factor                         shift and go to state 16
+    args                           shift and go to state 53
+    expr                           shift and go to state 54
+    term                           shift and go to state 16
+    factor                         shift and go to state 25
 
-state 19
+state 28
 
-    (4) program -> expr program .
+    (33) expr -> LEFT_PAREN expr . RIGHT_PAREN
+    (18) factor -> LEFT_PAREN expr . RIGHT_PAREN
+    (10) expr -> expr . PLUS term
+    (11) expr -> expr . MINUS term
+    (21) expr -> expr . PLUS expr
+    (22) expr -> expr . MINUS expr
+    (23) expr -> expr . TIMES expr
+    (24) expr -> expr . DIVIDE expr
+    (25) expr -> expr . EQUALS_EQUALS expr
+    (26) expr -> expr . LESS_THAN expr
+    (27) expr -> expr . LESS_THAN_EQUAL expr
+    (28) expr -> expr . GREATER_THAN expr
+    (29) expr -> expr . GREATER_THAN_EQUAL expr
+    (30) expr -> expr . AND expr
+    (31) expr -> expr . OR expr
 
-    $end            reduce using rule 4 (program -> expr program .)
-    RIGHT_BRACE     reduce using rule 4 (program -> expr program .)
+    RIGHT_PAREN     shift and go to state 55
+    PLUS            shift and go to state 32
+    MINUS           shift and go to state 33
+    TIMES           shift and go to state 34
+    DIVIDE          shift and go to state 35
+    EQUALS_EQUALS   shift and go to state 36
+    LESS_THAN       shift and go to state 37
+    LESS_THAN_EQUAL shift and go to state 38
+    GREATER_THAN    shift and go to state 39
+    GREATER_THAN_EQUAL shift and go to state 40
+    AND             shift and go to state 41
+    OR              shift and go to state 42
 
 
-state 20
+state 29
+
+    (34) expr -> ID .
+    (17) factor -> ID .
+
+  ! reduce/reduce conflict for TIMES resolved using rule 17 (factor -> ID .)
+  ! reduce/reduce conflict for DIVIDE resolved using rule 17 (factor -> ID .)
+  ! reduce/reduce conflict for RIGHT_PAREN resolved using rule 17 (factor -> ID .)
+  ! reduce/reduce conflict for PLUS resolved using rule 17 (factor -> ID .)
+  ! reduce/reduce conflict for MINUS resolved using rule 17 (factor -> ID .)
+  ! reduce/reduce conflict for EQUALS_EQUALS resolved using rule 17 (factor -> ID .)
+  ! reduce/reduce conflict for LESS_THAN resolved using rule 17 (factor -> ID .)
+  ! reduce/reduce conflict for LESS_THAN_EQUAL resolved using rule 17 (factor -> ID .)
+  ! reduce/reduce conflict for GREATER_THAN resolved using rule 17 (factor -> ID .)
+  ! reduce/reduce conflict for GREATER_THAN_EQUAL resolved using rule 17 (factor -> ID .)
+  ! reduce/reduce conflict for AND resolved using rule 17 (factor -> ID .)
+  ! reduce/reduce conflict for OR resolved using rule 17 (factor -> ID .)
+  ! reduce/reduce conflict for ID resolved using rule 17 (factor -> ID .)
+  ! reduce/reduce conflict for NOT resolved using rule 17 (factor -> ID .)
+  ! reduce/reduce conflict for LEFT_PAREN resolved using rule 17 (factor -> ID .)
+  ! reduce/reduce conflict for NUMBER resolved using rule 17 (factor -> ID .)
+  ! reduce/reduce conflict for STRING resolved using rule 17 (factor -> ID .)
+  ! reduce/reduce conflict for TRUE resolved using rule 17 (factor -> ID .)
+  ! reduce/reduce conflict for FALSE resolved using rule 17 (factor -> ID .)
+  ! reduce/reduce conflict for IF resolved using rule 17 (factor -> ID .)
+  ! reduce/reduce conflict for WHILE resolved using rule 17 (factor -> ID .)
+  ! reduce/reduce conflict for PRINTF resolved using rule 17 (factor -> ID .)
+  ! reduce/reduce conflict for RIGHT_BRACE resolved using rule 17 (factor -> ID .)
+  ! reduce/reduce conflict for $end resolved using rule 17 (factor -> ID .)
+  ! reduce/reduce conflict for SEMICOLON resolved using rule 17 (factor -> ID .)
+  ! reduce/reduce conflict for COMMA resolved using rule 17 (factor -> ID .)
+    TIMES           reduce using rule 17 (factor -> ID .)
+    DIVIDE          reduce using rule 17 (factor -> ID .)
+    RIGHT_PAREN     reduce using rule 17 (factor -> ID .)
+    PLUS            reduce using rule 17 (factor -> ID .)
+    MINUS           reduce using rule 17 (factor -> ID .)
+    EQUALS_EQUALS   reduce using rule 17 (factor -> ID .)
+    LESS_THAN       reduce using rule 17 (factor -> ID .)
+    LESS_THAN_EQUAL reduce using rule 17 (factor -> ID .)
+    GREATER_THAN    reduce using rule 17 (factor -> ID .)
+    GREATER_THAN_EQUAL reduce using rule 17 (factor -> ID .)
+    AND             reduce using rule 17 (factor -> ID .)
+    OR              reduce using rule 17 (factor -> ID .)
+    ID              reduce using rule 17 (factor -> ID .)
+    NOT             reduce using rule 17 (factor -> ID .)
+    LEFT_PAREN      reduce using rule 17 (factor -> ID .)
+    NUMBER          reduce using rule 17 (factor -> ID .)
+    STRING          reduce using rule 17 (factor -> ID .)
+    TRUE            reduce using rule 17 (factor -> ID .)
+    FALSE           reduce using rule 17 (factor -> ID .)
+    IF              reduce using rule 17 (factor -> ID .)
+    WHILE           reduce using rule 17 (factor -> ID .)
+    PRINTF          reduce using rule 17 (factor -> ID .)
+    RIGHT_BRACE     reduce using rule 17 (factor -> ID .)
+    $end            reduce using rule 17 (factor -> ID .)
+    SEMICOLON       reduce using rule 17 (factor -> ID .)
+    COMMA           reduce using rule 17 (factor -> ID .)
+
+  ! RIGHT_PAREN     [ reduce using rule 34 (expr -> ID .) ]
+  ! PLUS            [ reduce using rule 34 (expr -> ID .) ]
+  ! MINUS           [ reduce using rule 34 (expr -> ID .) ]
+  ! TIMES           [ reduce using rule 34 (expr -> ID .) ]
+  ! DIVIDE          [ reduce using rule 34 (expr -> ID .) ]
+  ! EQUALS_EQUALS   [ reduce using rule 34 (expr -> ID .) ]
+  ! LESS_THAN       [ reduce using rule 34 (expr -> ID .) ]
+  ! LESS_THAN_EQUAL [ reduce using rule 34 (expr -> ID .) ]
+  ! GREATER_THAN    [ reduce using rule 34 (expr -> ID .) ]
+  ! GREATER_THAN_EQUAL [ reduce using rule 34 (expr -> ID .) ]
+  ! AND             [ reduce using rule 34 (expr -> ID .) ]
+  ! OR              [ reduce using rule 34 (expr -> ID .) ]
+  ! ID              [ reduce using rule 34 (expr -> ID .) ]
+  ! NOT             [ reduce using rule 34 (expr -> ID .) ]
+  ! LEFT_PAREN      [ reduce using rule 34 (expr -> ID .) ]
+  ! NUMBER          [ reduce using rule 34 (expr -> ID .) ]
+  ! STRING          [ reduce using rule 34 (expr -> ID .) ]
+  ! TRUE            [ reduce using rule 34 (expr -> ID .) ]
+  ! FALSE           [ reduce using rule 34 (expr -> ID .) ]
+  ! IF              [ reduce using rule 34 (expr -> ID .) ]
+  ! WHILE           [ reduce using rule 34 (expr -> ID .) ]
+  ! PRINTF          [ reduce using rule 34 (expr -> ID .) ]
+  ! RIGHT_BRACE     [ reduce using rule 34 (expr -> ID .) ]
+  ! $end            [ reduce using rule 34 (expr -> ID .) ]
+  ! SEMICOLON       [ reduce using rule 34 (expr -> ID .) ]
+  ! COMMA           [ reduce using rule 34 (expr -> ID .) ]
+
+
+state 30
+
+    (1) start -> ID LEFT_PAREN parameters RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE . program
+    (2) program -> . ID EQUALS expr SEMICOLON program
+    (3) program -> . ID EQUALS function_call SEMICOLON program
+    (4) program -> . function_call SEMICOLON program
+    (5) program -> . expr program
+    (6) program -> . lambda
+    (7) function_call -> . ID LEFT_PAREN args RIGHT_PAREN
+    (10) expr -> . expr PLUS term
+    (11) expr -> . expr MINUS term
+    (12) expr -> . term
+    (21) expr -> . expr PLUS expr
+    (22) expr -> . expr MINUS expr
+    (23) expr -> . expr TIMES expr
+    (24) expr -> . expr DIVIDE expr
+    (25) expr -> . expr EQUALS_EQUALS expr
+    (26) expr -> . expr LESS_THAN expr
+    (27) expr -> . expr LESS_THAN_EQUAL expr
+    (28) expr -> . expr GREATER_THAN expr
+    (29) expr -> . expr GREATER_THAN_EQUAL expr
+    (30) expr -> . expr AND expr
+    (31) expr -> . expr OR expr
+    (32) expr -> . NOT expr
+    (33) expr -> . LEFT_PAREN expr RIGHT_PAREN
+    (34) expr -> . ID
+    (35) expr -> . NUMBER
+    (36) expr -> . STRING
+    (37) expr -> . TRUE
+    (38) expr -> . FALSE
+    (39) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
+    (40) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE
+    (41) expr -> . WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
+    (42) expr -> . PRINTF LEFT_PAREN expr RIGHT_PAREN SEMICOLON
+    (43) lambda -> .
+    (13) term -> . term TIMES factor
+    (14) term -> . term DIVIDE factor
+    (15) term -> . factor
+    (16) factor -> . NUMBER
+    (17) factor -> . ID
+    (18) factor -> . LEFT_PAREN expr RIGHT_PAREN
+
+    ID              shift and go to state 10
+    NOT             shift and go to state 17
+    LEFT_PAREN      shift and go to state 11
+    NUMBER          shift and go to state 18
+    STRING          shift and go to state 19
+    TRUE            shift and go to state 20
+    FALSE           shift and go to state 21
+    IF              shift and go to state 22
+    WHILE           shift and go to state 23
+    PRINTF          shift and go to state 24
+    $end            reduce using rule 43 (lambda -> .)
+
+    program                        shift and go to state 56
+    expr                           shift and go to state 13
+    function_call                  shift and go to state 14
+    lambda                         shift and go to state 15
+    term                           shift and go to state 16
+    factor                         shift and go to state 25
+
+state 31
+
+    (5) program -> expr program .
+
+    RIGHT_BRACE     reduce using rule 5 (program -> expr program .)
+    $end            reduce using rule 5 (program -> expr program .)
+
+
+state 32
 
     (10) expr -> expr PLUS . term
     (21) expr -> expr PLUS . expr
@@ -881,22 +1126,22 @@ state 20
     (17) factor -> . ID
     (18) factor -> . LEFT_PAREN expr RIGHT_PAREN
 
-    NOT             shift and go to state 8
-    LEFT_PAREN      shift and go to state 6
-    ID              shift and go to state 33
-    NUMBER          shift and go to state 9
-    STRING          shift and go to state 10
-    TRUE            shift and go to state 11
-    FALSE           shift and go to state 12
-    IF              shift and go to state 13
-    WHILE           shift and go to state 14
-    PRINTF          shift and go to state 15
+    NOT             shift and go to state 17
+    LEFT_PAREN      shift and go to state 11
+    ID              shift and go to state 29
+    NUMBER          shift and go to state 18
+    STRING          shift and go to state 19
+    TRUE            shift and go to state 20
+    FALSE           shift and go to state 21
+    IF              shift and go to state 22
+    WHILE           shift and go to state 23
+    PRINTF          shift and go to state 24
 
-    expr                           shift and go to state 47
-    term                           shift and go to state 48
-    factor                         shift and go to state 16
+    expr                           shift and go to state 57
+    term                           shift and go to state 58
+    factor                         shift and go to state 25
 
-state 21
+state 33
 
     (11) expr -> expr MINUS . term
     (22) expr -> expr MINUS . expr
@@ -932,22 +1177,22 @@ state 21
     (17) factor -> . ID
     (18) factor -> . LEFT_PAREN expr RIGHT_PAREN
 
-    NOT             shift and go to state 8
-    LEFT_PAREN      shift and go to state 6
-    ID              shift and go to state 33
-    NUMBER          shift and go to state 9
-    STRING          shift and go to state 10
-    TRUE            shift and go to state 11
-    FALSE           shift and go to state 12
-    IF              shift and go to state 13
-    WHILE           shift and go to state 14
-    PRINTF          shift and go to state 15
+    NOT             shift and go to state 17
+    LEFT_PAREN      shift and go to state 11
+    ID              shift and go to state 29
+    NUMBER          shift and go to state 18
+    STRING          shift and go to state 19
+    TRUE            shift and go to state 20
+    FALSE           shift and go to state 21
+    IF              shift and go to state 22
+    WHILE           shift and go to state 23
+    PRINTF          shift and go to state 24
 
-    expr                           shift and go to state 49
-    term                           shift and go to state 50
-    factor                         shift and go to state 16
+    expr                           shift and go to state 59
+    term                           shift and go to state 60
+    factor                         shift and go to state 25
 
-state 22
+state 34
 
     (23) expr -> expr TIMES . expr
     (10) expr -> . expr PLUS term
@@ -982,22 +1227,22 @@ state 22
     (17) factor -> . ID
     (18) factor -> . LEFT_PAREN expr RIGHT_PAREN
 
-    NOT             shift and go to state 8
-    LEFT_PAREN      shift and go to state 6
-    ID              shift and go to state 33
-    NUMBER          shift and go to state 9
-    STRING          shift and go to state 10
-    TRUE            shift and go to state 11
-    FALSE           shift and go to state 12
-    IF              shift and go to state 13
-    WHILE           shift and go to state 14
-    PRINTF          shift and go to state 15
+    NOT             shift and go to state 17
+    LEFT_PAREN      shift and go to state 11
+    ID              shift and go to state 29
+    NUMBER          shift and go to state 18
+    STRING          shift and go to state 19
+    TRUE            shift and go to state 20
+    FALSE           shift and go to state 21
+    IF              shift and go to state 22
+    WHILE           shift and go to state 23
+    PRINTF          shift and go to state 24
 
-    expr                           shift and go to state 51
-    term                           shift and go to state 7
-    factor                         shift and go to state 16
+    expr                           shift and go to state 61
+    term                           shift and go to state 16
+    factor                         shift and go to state 25
 
-state 23
+state 35
 
     (24) expr -> expr DIVIDE . expr
     (10) expr -> . expr PLUS term
@@ -1032,22 +1277,22 @@ state 23
     (17) factor -> . ID
     (18) factor -> . LEFT_PAREN expr RIGHT_PAREN
 
-    NOT             shift and go to state 8
-    LEFT_PAREN      shift and go to state 6
-    ID              shift and go to state 33
-    NUMBER          shift and go to state 9
-    STRING          shift and go to state 10
-    TRUE            shift and go to state 11
-    FALSE           shift and go to state 12
-    IF              shift and go to state 13
-    WHILE           shift and go to state 14
-    PRINTF          shift and go to state 15
+    NOT             shift and go to state 17
+    LEFT_PAREN      shift and go to state 11
+    ID              shift and go to state 29
+    NUMBER          shift and go to state 18
+    STRING          shift and go to state 19
+    TRUE            shift and go to state 20
+    FALSE           shift and go to state 21
+    IF              shift and go to state 22
+    WHILE           shift and go to state 23
+    PRINTF          shift and go to state 24
 
-    expr                           shift and go to state 52
-    term                           shift and go to state 7
-    factor                         shift and go to state 16
+    expr                           shift and go to state 62
+    term                           shift and go to state 16
+    factor                         shift and go to state 25
 
-state 24
+state 36
 
     (25) expr -> expr EQUALS_EQUALS . expr
     (10) expr -> . expr PLUS term
@@ -1082,22 +1327,22 @@ state 24
     (17) factor -> . ID
     (18) factor -> . LEFT_PAREN expr RIGHT_PAREN
 
-    NOT             shift and go to state 8
-    LEFT_PAREN      shift and go to state 6
-    ID              shift and go to state 33
-    NUMBER          shift and go to state 9
-    STRING          shift and go to state 10
-    TRUE            shift and go to state 11
-    FALSE           shift and go to state 12
-    IF              shift and go to state 13
-    WHILE           shift and go to state 14
-    PRINTF          shift and go to state 15
+    NOT             shift and go to state 17
+    LEFT_PAREN      shift and go to state 11
+    ID              shift and go to state 29
+    NUMBER          shift and go to state 18
+    STRING          shift and go to state 19
+    TRUE            shift and go to state 20
+    FALSE           shift and go to state 21
+    IF              shift and go to state 22
+    WHILE           shift and go to state 23
+    PRINTF          shift and go to state 24
 
-    expr                           shift and go to state 53
-    term                           shift and go to state 7
-    factor                         shift and go to state 16
+    expr                           shift and go to state 63
+    term                           shift and go to state 16
+    factor                         shift and go to state 25
 
-state 25
+state 37
 
     (26) expr -> expr LESS_THAN . expr
     (10) expr -> . expr PLUS term
@@ -1132,22 +1377,22 @@ state 25
     (17) factor -> . ID
     (18) factor -> . LEFT_PAREN expr RIGHT_PAREN
 
-    NOT             shift and go to state 8
-    LEFT_PAREN      shift and go to state 6
-    ID              shift and go to state 33
-    NUMBER          shift and go to state 9
-    STRING          shift and go to state 10
-    TRUE            shift and go to state 11
-    FALSE           shift and go to state 12
-    IF              shift and go to state 13
-    WHILE           shift and go to state 14
-    PRINTF          shift and go to state 15
+    NOT             shift and go to state 17
+    LEFT_PAREN      shift and go to state 11
+    ID              shift and go to state 29
+    NUMBER          shift and go to state 18
+    STRING          shift and go to state 19
+    TRUE            shift and go to state 20
+    FALSE           shift and go to state 21
+    IF              shift and go to state 22
+    WHILE           shift and go to state 23
+    PRINTF          shift and go to state 24
 
-    expr                           shift and go to state 54
-    term                           shift and go to state 7
-    factor                         shift and go to state 16
+    expr                           shift and go to state 64
+    term                           shift and go to state 16
+    factor                         shift and go to state 25
 
-state 26
+state 38
 
     (27) expr -> expr LESS_THAN_EQUAL . expr
     (10) expr -> . expr PLUS term
@@ -1182,22 +1427,22 @@ state 26
     (17) factor -> . ID
     (18) factor -> . LEFT_PAREN expr RIGHT_PAREN
 
-    NOT             shift and go to state 8
-    LEFT_PAREN      shift and go to state 6
-    ID              shift and go to state 33
-    NUMBER          shift and go to state 9
-    STRING          shift and go to state 10
-    TRUE            shift and go to state 11
-    FALSE           shift and go to state 12
-    IF              shift and go to state 13
-    WHILE           shift and go to state 14
-    PRINTF          shift and go to state 15
+    NOT             shift and go to state 17
+    LEFT_PAREN      shift and go to state 11
+    ID              shift and go to state 29
+    NUMBER          shift and go to state 18
+    STRING          shift and go to state 19
+    TRUE            shift and go to state 20
+    FALSE           shift and go to state 21
+    IF              shift and go to state 22
+    WHILE           shift and go to state 23
+    PRINTF          shift and go to state 24
 
-    expr                           shift and go to state 55
-    term                           shift and go to state 7
-    factor                         shift and go to state 16
+    expr                           shift and go to state 65
+    term                           shift and go to state 16
+    factor                         shift and go to state 25
 
-state 27
+state 39
 
     (28) expr -> expr GREATER_THAN . expr
     (10) expr -> . expr PLUS term
@@ -1232,22 +1477,22 @@ state 27
     (17) factor -> . ID
     (18) factor -> . LEFT_PAREN expr RIGHT_PAREN
 
-    NOT             shift and go to state 8
-    LEFT_PAREN      shift and go to state 6
-    ID              shift and go to state 33
-    NUMBER          shift and go to state 9
-    STRING          shift and go to state 10
-    TRUE            shift and go to state 11
-    FALSE           shift and go to state 12
-    IF              shift and go to state 13
-    WHILE           shift and go to state 14
-    PRINTF          shift and go to state 15
+    NOT             shift and go to state 17
+    LEFT_PAREN      shift and go to state 11
+    ID              shift and go to state 29
+    NUMBER          shift and go to state 18
+    STRING          shift and go to state 19
+    TRUE            shift and go to state 20
+    FALSE           shift and go to state 21
+    IF              shift and go to state 22
+    WHILE           shift and go to state 23
+    PRINTF          shift and go to state 24
 
-    expr                           shift and go to state 56
-    term                           shift and go to state 7
-    factor                         shift and go to state 16
+    expr                           shift and go to state 66
+    term                           shift and go to state 16
+    factor                         shift and go to state 25
 
-state 28
+state 40
 
     (29) expr -> expr GREATER_THAN_EQUAL . expr
     (10) expr -> . expr PLUS term
@@ -1282,22 +1527,22 @@ state 28
     (17) factor -> . ID
     (18) factor -> . LEFT_PAREN expr RIGHT_PAREN
 
-    NOT             shift and go to state 8
-    LEFT_PAREN      shift and go to state 6
-    ID              shift and go to state 33
-    NUMBER          shift and go to state 9
-    STRING          shift and go to state 10
-    TRUE            shift and go to state 11
-    FALSE           shift and go to state 12
-    IF              shift and go to state 13
-    WHILE           shift and go to state 14
-    PRINTF          shift and go to state 15
+    NOT             shift and go to state 17
+    LEFT_PAREN      shift and go to state 11
+    ID              shift and go to state 29
+    NUMBER          shift and go to state 18
+    STRING          shift and go to state 19
+    TRUE            shift and go to state 20
+    FALSE           shift and go to state 21
+    IF              shift and go to state 22
+    WHILE           shift and go to state 23
+    PRINTF          shift and go to state 24
 
-    expr                           shift and go to state 57
-    term                           shift and go to state 7
-    factor                         shift and go to state 16
+    expr                           shift and go to state 67
+    term                           shift and go to state 16
+    factor                         shift and go to state 25
 
-state 29
+state 41
 
     (30) expr -> expr AND . expr
     (10) expr -> . expr PLUS term
@@ -1332,22 +1577,22 @@ state 29
     (17) factor -> . ID
     (18) factor -> . LEFT_PAREN expr RIGHT_PAREN
 
-    NOT             shift and go to state 8
-    LEFT_PAREN      shift and go to state 6
-    ID              shift and go to state 33
-    NUMBER          shift and go to state 9
-    STRING          shift and go to state 10
-    TRUE            shift and go to state 11
-    FALSE           shift and go to state 12
-    IF              shift and go to state 13
-    WHILE           shift and go to state 14
-    PRINTF          shift and go to state 15
+    NOT             shift and go to state 17
+    LEFT_PAREN      shift and go to state 11
+    ID              shift and go to state 29
+    NUMBER          shift and go to state 18
+    STRING          shift and go to state 19
+    TRUE            shift and go to state 20
+    FALSE           shift and go to state 21
+    IF              shift and go to state 22
+    WHILE           shift and go to state 23
+    PRINTF          shift and go to state 24
 
-    expr                           shift and go to state 58
-    term                           shift and go to state 7
-    factor                         shift and go to state 16
+    expr                           shift and go to state 68
+    term                           shift and go to state 16
+    factor                         shift and go to state 25
 
-state 30
+state 42
 
     (31) expr -> expr OR . expr
     (10) expr -> . expr PLUS term
@@ -1382,30 +1627,29 @@ state 30
     (17) factor -> . ID
     (18) factor -> . LEFT_PAREN expr RIGHT_PAREN
 
-    NOT             shift and go to state 8
-    LEFT_PAREN      shift and go to state 6
-    ID              shift and go to state 33
-    NUMBER          shift and go to state 9
-    STRING          shift and go to state 10
-    TRUE            shift and go to state 11
-    FALSE           shift and go to state 12
-    IF              shift and go to state 13
-    WHILE           shift and go to state 14
-    PRINTF          shift and go to state 15
+    NOT             shift and go to state 17
+    LEFT_PAREN      shift and go to state 11
+    ID              shift and go to state 29
+    NUMBER          shift and go to state 18
+    STRING          shift and go to state 19
+    TRUE            shift and go to state 20
+    FALSE           shift and go to state 21
+    IF              shift and go to state 22
+    WHILE           shift and go to state 23
+    PRINTF          shift and go to state 24
 
-    expr                           shift and go to state 59
-    term                           shift and go to state 7
-    factor                         shift and go to state 16
+    expr                           shift and go to state 69
+    term                           shift and go to state 16
+    factor                         shift and go to state 25
 
-state 31
+state 43
 
-    (3) program -> function_call SEMICOLON . program
-    (1) program -> . ID EQUALS expr SEMICOLON program
-    (2) program -> . ID EQUALS function_call SEMICOLON program
-    (3) program -> . function_call SEMICOLON program
-    (4) program -> . expr program
-    (5) program -> . lambda
-    (6) program -> . ID LEFT_PAREN parameters RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE program
+    (4) program -> function_call SEMICOLON . program
+    (2) program -> . ID EQUALS expr SEMICOLON program
+    (3) program -> . ID EQUALS function_call SEMICOLON program
+    (4) program -> . function_call SEMICOLON program
+    (5) program -> . expr program
+    (6) program -> . lambda
     (7) function_call -> . ID LEFT_PAREN args RIGHT_PAREN
     (10) expr -> . expr PLUS term
     (11) expr -> . expr MINUS term
@@ -1440,171 +1684,53 @@ state 31
     (17) factor -> . ID
     (18) factor -> . LEFT_PAREN expr RIGHT_PAREN
 
-    ID              shift and go to state 2
-    NOT             shift and go to state 8
-    LEFT_PAREN      shift and go to state 6
-    NUMBER          shift and go to state 9
-    STRING          shift and go to state 10
-    TRUE            shift and go to state 11
-    FALSE           shift and go to state 12
-    IF              shift and go to state 13
-    WHILE           shift and go to state 14
-    PRINTF          shift and go to state 15
-    $end            reduce using rule 43 (lambda -> .)
+    ID              shift and go to state 10
+    NOT             shift and go to state 17
+    LEFT_PAREN      shift and go to state 11
+    NUMBER          shift and go to state 18
+    STRING          shift and go to state 19
+    TRUE            shift and go to state 20
+    FALSE           shift and go to state 21
+    IF              shift and go to state 22
+    WHILE           shift and go to state 23
+    PRINTF          shift and go to state 24
     RIGHT_BRACE     reduce using rule 43 (lambda -> .)
+    $end            reduce using rule 43 (lambda -> .)
 
-    function_call                  shift and go to state 4
-    program                        shift and go to state 60
-    expr                           shift and go to state 3
-    lambda                         shift and go to state 5
-    term                           shift and go to state 7
-    factor                         shift and go to state 16
+    function_call                  shift and go to state 14
+    program                        shift and go to state 70
+    expr                           shift and go to state 13
+    lambda                         shift and go to state 15
+    term                           shift and go to state 16
+    factor                         shift and go to state 25
 
-state 32
-
-    (33) expr -> LEFT_PAREN expr . RIGHT_PAREN
-    (18) factor -> LEFT_PAREN expr . RIGHT_PAREN
-    (10) expr -> expr . PLUS term
-    (11) expr -> expr . MINUS term
-    (21) expr -> expr . PLUS expr
-    (22) expr -> expr . MINUS expr
-    (23) expr -> expr . TIMES expr
-    (24) expr -> expr . DIVIDE expr
-    (25) expr -> expr . EQUALS_EQUALS expr
-    (26) expr -> expr . LESS_THAN expr
-    (27) expr -> expr . LESS_THAN_EQUAL expr
-    (28) expr -> expr . GREATER_THAN expr
-    (29) expr -> expr . GREATER_THAN_EQUAL expr
-    (30) expr -> expr . AND expr
-    (31) expr -> expr . OR expr
-
-    RIGHT_PAREN     shift and go to state 61
-    PLUS            shift and go to state 20
-    MINUS           shift and go to state 21
-    TIMES           shift and go to state 22
-    DIVIDE          shift and go to state 23
-    EQUALS_EQUALS   shift and go to state 24
-    LESS_THAN       shift and go to state 25
-    LESS_THAN_EQUAL shift and go to state 26
-    GREATER_THAN    shift and go to state 27
-    GREATER_THAN_EQUAL shift and go to state 28
-    AND             shift and go to state 29
-    OR              shift and go to state 30
-
-
-state 33
-
-    (34) expr -> ID .
-    (17) factor -> ID .
-
-  ! reduce/reduce conflict for TIMES resolved using rule 17 (factor -> ID .)
-  ! reduce/reduce conflict for DIVIDE resolved using rule 17 (factor -> ID .)
-  ! reduce/reduce conflict for RIGHT_PAREN resolved using rule 17 (factor -> ID .)
-  ! reduce/reduce conflict for PLUS resolved using rule 17 (factor -> ID .)
-  ! reduce/reduce conflict for MINUS resolved using rule 17 (factor -> ID .)
-  ! reduce/reduce conflict for EQUALS_EQUALS resolved using rule 17 (factor -> ID .)
-  ! reduce/reduce conflict for LESS_THAN resolved using rule 17 (factor -> ID .)
-  ! reduce/reduce conflict for LESS_THAN_EQUAL resolved using rule 17 (factor -> ID .)
-  ! reduce/reduce conflict for GREATER_THAN resolved using rule 17 (factor -> ID .)
-  ! reduce/reduce conflict for GREATER_THAN_EQUAL resolved using rule 17 (factor -> ID .)
-  ! reduce/reduce conflict for AND resolved using rule 17 (factor -> ID .)
-  ! reduce/reduce conflict for OR resolved using rule 17 (factor -> ID .)
-  ! reduce/reduce conflict for ID resolved using rule 17 (factor -> ID .)
-  ! reduce/reduce conflict for NOT resolved using rule 17 (factor -> ID .)
-  ! reduce/reduce conflict for LEFT_PAREN resolved using rule 17 (factor -> ID .)
-  ! reduce/reduce conflict for NUMBER resolved using rule 17 (factor -> ID .)
-  ! reduce/reduce conflict for STRING resolved using rule 17 (factor -> ID .)
-  ! reduce/reduce conflict for TRUE resolved using rule 17 (factor -> ID .)
-  ! reduce/reduce conflict for FALSE resolved using rule 17 (factor -> ID .)
-  ! reduce/reduce conflict for IF resolved using rule 17 (factor -> ID .)
-  ! reduce/reduce conflict for WHILE resolved using rule 17 (factor -> ID .)
-  ! reduce/reduce conflict for PRINTF resolved using rule 17 (factor -> ID .)
-  ! reduce/reduce conflict for $end resolved using rule 17 (factor -> ID .)
-  ! reduce/reduce conflict for RIGHT_BRACE resolved using rule 17 (factor -> ID .)
-  ! reduce/reduce conflict for SEMICOLON resolved using rule 17 (factor -> ID .)
-  ! reduce/reduce conflict for COMMA resolved using rule 17 (factor -> ID .)
-    TIMES           reduce using rule 17 (factor -> ID .)
-    DIVIDE          reduce using rule 17 (factor -> ID .)
-    RIGHT_PAREN     reduce using rule 17 (factor -> ID .)
-    PLUS            reduce using rule 17 (factor -> ID .)
-    MINUS           reduce using rule 17 (factor -> ID .)
-    EQUALS_EQUALS   reduce using rule 17 (factor -> ID .)
-    LESS_THAN       reduce using rule 17 (factor -> ID .)
-    LESS_THAN_EQUAL reduce using rule 17 (factor -> ID .)
-    GREATER_THAN    reduce using rule 17 (factor -> ID .)
-    GREATER_THAN_EQUAL reduce using rule 17 (factor -> ID .)
-    AND             reduce using rule 17 (factor -> ID .)
-    OR              reduce using rule 17 (factor -> ID .)
-    ID              reduce using rule 17 (factor -> ID .)
-    NOT             reduce using rule 17 (factor -> ID .)
-    LEFT_PAREN      reduce using rule 17 (factor -> ID .)
-    NUMBER          reduce using rule 17 (factor -> ID .)
-    STRING          reduce using rule 17 (factor -> ID .)
-    TRUE            reduce using rule 17 (factor -> ID .)
-    FALSE           reduce using rule 17 (factor -> ID .)
-    IF              reduce using rule 17 (factor -> ID .)
-    WHILE           reduce using rule 17 (factor -> ID .)
-    PRINTF          reduce using rule 17 (factor -> ID .)
-    $end            reduce using rule 17 (factor -> ID .)
-    RIGHT_BRACE     reduce using rule 17 (factor -> ID .)
-    SEMICOLON       reduce using rule 17 (factor -> ID .)
-    COMMA           reduce using rule 17 (factor -> ID .)
-
-  ! RIGHT_PAREN     [ reduce using rule 34 (expr -> ID .) ]
-  ! PLUS            [ reduce using rule 34 (expr -> ID .) ]
-  ! MINUS           [ reduce using rule 34 (expr -> ID .) ]
-  ! TIMES           [ reduce using rule 34 (expr -> ID .) ]
-  ! DIVIDE          [ reduce using rule 34 (expr -> ID .) ]
-  ! EQUALS_EQUALS   [ reduce using rule 34 (expr -> ID .) ]
-  ! LESS_THAN       [ reduce using rule 34 (expr -> ID .) ]
-  ! LESS_THAN_EQUAL [ reduce using rule 34 (expr -> ID .) ]
-  ! GREATER_THAN    [ reduce using rule 34 (expr -> ID .) ]
-  ! GREATER_THAN_EQUAL [ reduce using rule 34 (expr -> ID .) ]
-  ! AND             [ reduce using rule 34 (expr -> ID .) ]
-  ! OR              [ reduce using rule 34 (expr -> ID .) ]
-  ! ID              [ reduce using rule 34 (expr -> ID .) ]
-  ! NOT             [ reduce using rule 34 (expr -> ID .) ]
-  ! LEFT_PAREN      [ reduce using rule 34 (expr -> ID .) ]
-  ! NUMBER          [ reduce using rule 34 (expr -> ID .) ]
-  ! STRING          [ reduce using rule 34 (expr -> ID .) ]
-  ! TRUE            [ reduce using rule 34 (expr -> ID .) ]
-  ! FALSE           [ reduce using rule 34 (expr -> ID .) ]
-  ! IF              [ reduce using rule 34 (expr -> ID .) ]
-  ! WHILE           [ reduce using rule 34 (expr -> ID .) ]
-  ! PRINTF          [ reduce using rule 34 (expr -> ID .) ]
-  ! $end            [ reduce using rule 34 (expr -> ID .) ]
-  ! RIGHT_BRACE     [ reduce using rule 34 (expr -> ID .) ]
-  ! SEMICOLON       [ reduce using rule 34 (expr -> ID .) ]
-  ! COMMA           [ reduce using rule 34 (expr -> ID .) ]
-
-
-state 34
+state 44
 
     (13) term -> term TIMES . factor
     (16) factor -> . NUMBER
     (17) factor -> . ID
     (18) factor -> . LEFT_PAREN expr RIGHT_PAREN
 
-    NUMBER          shift and go to state 63
-    ID              shift and go to state 64
-    LEFT_PAREN      shift and go to state 65
+    NUMBER          shift and go to state 72
+    ID              shift and go to state 73
+    LEFT_PAREN      shift and go to state 74
 
-    factor                         shift and go to state 62
+    factor                         shift and go to state 71
 
-state 35
+state 45
 
     (14) term -> term DIVIDE . factor
     (16) factor -> . NUMBER
     (17) factor -> . ID
     (18) factor -> . LEFT_PAREN expr RIGHT_PAREN
 
-    NUMBER          shift and go to state 63
-    ID              shift and go to state 64
-    LEFT_PAREN      shift and go to state 65
+    NUMBER          shift and go to state 72
+    ID              shift and go to state 73
+    LEFT_PAREN      shift and go to state 74
 
-    factor                         shift and go to state 66
+    factor                         shift and go to state 75
 
-state 36
+state 46
 
     (32) expr -> NOT expr .
     (10) expr -> expr . PLUS term
@@ -1642,22 +1768,22 @@ state 36
     IF              reduce using rule 32 (expr -> NOT expr .)
     WHILE           reduce using rule 32 (expr -> NOT expr .)
     PRINTF          reduce using rule 32 (expr -> NOT expr .)
-    $end            reduce using rule 32 (expr -> NOT expr .)
     RIGHT_BRACE     reduce using rule 32 (expr -> NOT expr .)
     RIGHT_PAREN     reduce using rule 32 (expr -> NOT expr .)
+    $end            reduce using rule 32 (expr -> NOT expr .)
     SEMICOLON       reduce using rule 32 (expr -> NOT expr .)
     COMMA           reduce using rule 32 (expr -> NOT expr .)
-    PLUS            shift and go to state 20
-    MINUS           shift and go to state 21
-    TIMES           shift and go to state 22
-    DIVIDE          shift and go to state 23
-    EQUALS_EQUALS   shift and go to state 24
-    LESS_THAN       shift and go to state 25
-    LESS_THAN_EQUAL shift and go to state 26
-    GREATER_THAN    shift and go to state 27
-    GREATER_THAN_EQUAL shift and go to state 28
-    AND             shift and go to state 29
-    OR              shift and go to state 30
+    PLUS            shift and go to state 32
+    MINUS           shift and go to state 33
+    TIMES           shift and go to state 34
+    DIVIDE          shift and go to state 35
+    EQUALS_EQUALS   shift and go to state 36
+    LESS_THAN       shift and go to state 37
+    LESS_THAN_EQUAL shift and go to state 38
+    GREATER_THAN    shift and go to state 39
+    GREATER_THAN_EQUAL shift and go to state 40
+    AND             shift and go to state 41
+    OR              shift and go to state 42
 
   ! PLUS            [ reduce using rule 32 (expr -> NOT expr .) ]
   ! MINUS           [ reduce using rule 32 (expr -> NOT expr .) ]
@@ -1672,7 +1798,7 @@ state 36
   ! OR              [ reduce using rule 32 (expr -> NOT expr .) ]
 
 
-state 37
+state 47
 
     (39) expr -> IF LEFT_PAREN . expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
     (40) expr -> IF LEFT_PAREN . expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE
@@ -1708,22 +1834,22 @@ state 37
     (17) factor -> . ID
     (18) factor -> . LEFT_PAREN expr RIGHT_PAREN
 
-    NOT             shift and go to state 8
-    LEFT_PAREN      shift and go to state 6
-    ID              shift and go to state 33
-    NUMBER          shift and go to state 9
-    STRING          shift and go to state 10
-    TRUE            shift and go to state 11
-    FALSE           shift and go to state 12
-    IF              shift and go to state 13
-    WHILE           shift and go to state 14
-    PRINTF          shift and go to state 15
+    NOT             shift and go to state 17
+    LEFT_PAREN      shift and go to state 11
+    ID              shift and go to state 29
+    NUMBER          shift and go to state 18
+    STRING          shift and go to state 19
+    TRUE            shift and go to state 20
+    FALSE           shift and go to state 21
+    IF              shift and go to state 22
+    WHILE           shift and go to state 23
+    PRINTF          shift and go to state 24
 
-    expr                           shift and go to state 67
-    term                           shift and go to state 7
-    factor                         shift and go to state 16
+    expr                           shift and go to state 76
+    term                           shift and go to state 16
+    factor                         shift and go to state 25
 
-state 38
+state 48
 
     (41) expr -> WHILE LEFT_PAREN . expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
     (10) expr -> . expr PLUS term
@@ -1758,22 +1884,22 @@ state 38
     (17) factor -> . ID
     (18) factor -> . LEFT_PAREN expr RIGHT_PAREN
 
-    NOT             shift and go to state 8
-    LEFT_PAREN      shift and go to state 6
-    ID              shift and go to state 33
-    NUMBER          shift and go to state 9
-    STRING          shift and go to state 10
-    TRUE            shift and go to state 11
-    FALSE           shift and go to state 12
-    IF              shift and go to state 13
-    WHILE           shift and go to state 14
-    PRINTF          shift and go to state 15
+    NOT             shift and go to state 17
+    LEFT_PAREN      shift and go to state 11
+    ID              shift and go to state 29
+    NUMBER          shift and go to state 18
+    STRING          shift and go to state 19
+    TRUE            shift and go to state 20
+    FALSE           shift and go to state 21
+    IF              shift and go to state 22
+    WHILE           shift and go to state 23
+    PRINTF          shift and go to state 24
 
-    expr                           shift and go to state 68
-    term                           shift and go to state 7
-    factor                         shift and go to state 16
+    expr                           shift and go to state 77
+    term                           shift and go to state 16
+    factor                         shift and go to state 25
 
-state 39
+state 49
 
     (42) expr -> PRINTF LEFT_PAREN . expr RIGHT_PAREN SEMICOLON
     (10) expr -> . expr PLUS term
@@ -1808,22 +1934,22 @@ state 39
     (17) factor -> . ID
     (18) factor -> . LEFT_PAREN expr RIGHT_PAREN
 
-    NOT             shift and go to state 8
-    LEFT_PAREN      shift and go to state 6
-    ID              shift and go to state 33
-    NUMBER          shift and go to state 9
-    STRING          shift and go to state 10
-    TRUE            shift and go to state 11
-    FALSE           shift and go to state 12
-    IF              shift and go to state 13
-    WHILE           shift and go to state 14
-    PRINTF          shift and go to state 15
+    NOT             shift and go to state 17
+    LEFT_PAREN      shift and go to state 11
+    ID              shift and go to state 29
+    NUMBER          shift and go to state 18
+    STRING          shift and go to state 19
+    TRUE            shift and go to state 20
+    FALSE           shift and go to state 21
+    IF              shift and go to state 22
+    WHILE           shift and go to state 23
+    PRINTF          shift and go to state 24
 
-    expr                           shift and go to state 69
-    term                           shift and go to state 7
-    factor                         shift and go to state 16
+    expr                           shift and go to state 78
+    term                           shift and go to state 16
+    factor                         shift and go to state 25
 
-state 40
+state 50
 
     (34) expr -> ID .
     (7) function_call -> ID . LEFT_PAREN args RIGHT_PAREN
@@ -1841,7 +1967,7 @@ state 40
   ! reduce/reduce conflict for GREATER_THAN_EQUAL resolved using rule 17 (factor -> ID .)
   ! reduce/reduce conflict for AND resolved using rule 17 (factor -> ID .)
   ! reduce/reduce conflict for OR resolved using rule 17 (factor -> ID .)
-    LEFT_PAREN      shift and go to state 70
+    LEFT_PAREN      shift and go to state 27
     TIMES           reduce using rule 17 (factor -> ID .)
     DIVIDE          reduce using rule 17 (factor -> ID .)
     SEMICOLON       reduce using rule 17 (factor -> ID .)
@@ -1869,9 +1995,9 @@ state 40
   ! OR              [ reduce using rule 34 (expr -> ID .) ]
 
 
-state 41
+state 51
 
-    (1) program -> ID EQUALS expr . SEMICOLON program
+    (2) program -> ID EQUALS expr . SEMICOLON program
     (10) expr -> expr . PLUS term
     (11) expr -> expr . MINUS term
     (21) expr -> expr . PLUS expr
@@ -1886,98 +2012,37 @@ state 41
     (30) expr -> expr . AND expr
     (31) expr -> expr . OR expr
 
-    SEMICOLON       shift and go to state 71
-    PLUS            shift and go to state 20
-    MINUS           shift and go to state 21
-    TIMES           shift and go to state 22
-    DIVIDE          shift and go to state 23
-    EQUALS_EQUALS   shift and go to state 24
-    LESS_THAN       shift and go to state 25
-    LESS_THAN_EQUAL shift and go to state 26
-    GREATER_THAN    shift and go to state 27
-    GREATER_THAN_EQUAL shift and go to state 28
-    AND             shift and go to state 29
-    OR              shift and go to state 30
+    SEMICOLON       shift and go to state 79
+    PLUS            shift and go to state 32
+    MINUS           shift and go to state 33
+    TIMES           shift and go to state 34
+    DIVIDE          shift and go to state 35
+    EQUALS_EQUALS   shift and go to state 36
+    LESS_THAN       shift and go to state 37
+    LESS_THAN_EQUAL shift and go to state 38
+    GREATER_THAN    shift and go to state 39
+    GREATER_THAN_EQUAL shift and go to state 40
+    AND             shift and go to state 41
+    OR              shift and go to state 42
 
 
-state 42
+state 52
 
-    (2) program -> ID EQUALS function_call . SEMICOLON program
+    (3) program -> ID EQUALS function_call . SEMICOLON program
 
-    SEMICOLON       shift and go to state 72
-
-
-state 43
-
-    (8) parameters -> ID .
-    (34) expr -> ID .
-    (17) factor -> ID .
-
-  ! reduce/reduce conflict for RIGHT_PAREN resolved using rule 8 (parameters -> ID .)
-  ! reduce/reduce conflict for COMMA resolved using rule 8 (parameters -> ID .)
-  ! reduce/reduce conflict for TIMES resolved using rule 17 (factor -> ID .)
-  ! reduce/reduce conflict for DIVIDE resolved using rule 17 (factor -> ID .)
-  ! reduce/reduce conflict for PLUS resolved using rule 17 (factor -> ID .)
-  ! reduce/reduce conflict for MINUS resolved using rule 17 (factor -> ID .)
-  ! reduce/reduce conflict for EQUALS_EQUALS resolved using rule 17 (factor -> ID .)
-  ! reduce/reduce conflict for LESS_THAN resolved using rule 17 (factor -> ID .)
-  ! reduce/reduce conflict for LESS_THAN_EQUAL resolved using rule 17 (factor -> ID .)
-  ! reduce/reduce conflict for GREATER_THAN resolved using rule 17 (factor -> ID .)
-  ! reduce/reduce conflict for GREATER_THAN_EQUAL resolved using rule 17 (factor -> ID .)
-  ! reduce/reduce conflict for AND resolved using rule 17 (factor -> ID .)
-  ! reduce/reduce conflict for OR resolved using rule 17 (factor -> ID .)
-  ! reduce/reduce conflict for RIGHT_PAREN resolved using rule 8 (parameters -> ID .)
-  ! reduce/reduce conflict for COMMA resolved using rule 8 (parameters -> ID .)
-    RIGHT_PAREN     reduce using rule 8 (parameters -> ID .)
-    COMMA           reduce using rule 8 (parameters -> ID .)
-    TIMES           reduce using rule 17 (factor -> ID .)
-    DIVIDE          reduce using rule 17 (factor -> ID .)
-    PLUS            reduce using rule 17 (factor -> ID .)
-    MINUS           reduce using rule 17 (factor -> ID .)
-    EQUALS_EQUALS   reduce using rule 17 (factor -> ID .)
-    LESS_THAN       reduce using rule 17 (factor -> ID .)
-    LESS_THAN_EQUAL reduce using rule 17 (factor -> ID .)
-    GREATER_THAN    reduce using rule 17 (factor -> ID .)
-    GREATER_THAN_EQUAL reduce using rule 17 (factor -> ID .)
-    AND             reduce using rule 17 (factor -> ID .)
-    OR              reduce using rule 17 (factor -> ID .)
-
-  ! PLUS            [ reduce using rule 34 (expr -> ID .) ]
-  ! MINUS           [ reduce using rule 34 (expr -> ID .) ]
-  ! TIMES           [ reduce using rule 34 (expr -> ID .) ]
-  ! DIVIDE          [ reduce using rule 34 (expr -> ID .) ]
-  ! EQUALS_EQUALS   [ reduce using rule 34 (expr -> ID .) ]
-  ! LESS_THAN       [ reduce using rule 34 (expr -> ID .) ]
-  ! LESS_THAN_EQUAL [ reduce using rule 34 (expr -> ID .) ]
-  ! GREATER_THAN    [ reduce using rule 34 (expr -> ID .) ]
-  ! GREATER_THAN_EQUAL [ reduce using rule 34 (expr -> ID .) ]
-  ! AND             [ reduce using rule 34 (expr -> ID .) ]
-  ! OR              [ reduce using rule 34 (expr -> ID .) ]
-  ! RIGHT_PAREN     [ reduce using rule 34 (expr -> ID .) ]
-  ! COMMA           [ reduce using rule 34 (expr -> ID .) ]
-  ! RIGHT_PAREN     [ reduce using rule 17 (factor -> ID .) ]
-  ! COMMA           [ reduce using rule 17 (factor -> ID .) ]
+    SEMICOLON       shift and go to state 80
 
 
-state 44
-
-    (6) program -> ID LEFT_PAREN parameters . RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE program
-    (9) parameters -> parameters . COMMA ID
-
-    RIGHT_PAREN     shift and go to state 73
-    COMMA           shift and go to state 74
-
-
-state 45
+state 53
 
     (7) function_call -> ID LEFT_PAREN args . RIGHT_PAREN
     (20) args -> args . COMMA expr
 
-    RIGHT_PAREN     shift and go to state 75
-    COMMA           shift and go to state 76
+    RIGHT_PAREN     shift and go to state 81
+    COMMA           shift and go to state 82
 
 
-state 46
+state 54
 
     (19) args -> expr .
     (10) expr -> expr . PLUS term
@@ -1996,20 +2061,113 @@ state 46
 
     RIGHT_PAREN     reduce using rule 19 (args -> expr .)
     COMMA           reduce using rule 19 (args -> expr .)
-    PLUS            shift and go to state 20
-    MINUS           shift and go to state 21
-    TIMES           shift and go to state 22
-    DIVIDE          shift and go to state 23
-    EQUALS_EQUALS   shift and go to state 24
-    LESS_THAN       shift and go to state 25
-    LESS_THAN_EQUAL shift and go to state 26
-    GREATER_THAN    shift and go to state 27
-    GREATER_THAN_EQUAL shift and go to state 28
-    AND             shift and go to state 29
-    OR              shift and go to state 30
+    PLUS            shift and go to state 32
+    MINUS           shift and go to state 33
+    TIMES           shift and go to state 34
+    DIVIDE          shift and go to state 35
+    EQUALS_EQUALS   shift and go to state 36
+    LESS_THAN       shift and go to state 37
+    LESS_THAN_EQUAL shift and go to state 38
+    GREATER_THAN    shift and go to state 39
+    GREATER_THAN_EQUAL shift and go to state 40
+    AND             shift and go to state 41
+    OR              shift and go to state 42
 
 
-state 47
+state 55
+
+    (33) expr -> LEFT_PAREN expr RIGHT_PAREN .
+    (18) factor -> LEFT_PAREN expr RIGHT_PAREN .
+
+  ! reduce/reduce conflict for TIMES resolved using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
+  ! reduce/reduce conflict for DIVIDE resolved using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
+  ! reduce/reduce conflict for PLUS resolved using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
+  ! reduce/reduce conflict for MINUS resolved using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
+  ! reduce/reduce conflict for EQUALS_EQUALS resolved using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
+  ! reduce/reduce conflict for LESS_THAN resolved using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
+  ! reduce/reduce conflict for LESS_THAN_EQUAL resolved using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
+  ! reduce/reduce conflict for GREATER_THAN resolved using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
+  ! reduce/reduce conflict for GREATER_THAN_EQUAL resolved using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
+  ! reduce/reduce conflict for AND resolved using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
+  ! reduce/reduce conflict for OR resolved using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
+  ! reduce/reduce conflict for ID resolved using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
+  ! reduce/reduce conflict for NOT resolved using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
+  ! reduce/reduce conflict for LEFT_PAREN resolved using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
+  ! reduce/reduce conflict for NUMBER resolved using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
+  ! reduce/reduce conflict for STRING resolved using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
+  ! reduce/reduce conflict for TRUE resolved using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
+  ! reduce/reduce conflict for FALSE resolved using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
+  ! reduce/reduce conflict for IF resolved using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
+  ! reduce/reduce conflict for WHILE resolved using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
+  ! reduce/reduce conflict for PRINTF resolved using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
+  ! reduce/reduce conflict for RIGHT_BRACE resolved using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
+  ! reduce/reduce conflict for RIGHT_PAREN resolved using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
+  ! reduce/reduce conflict for $end resolved using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
+  ! reduce/reduce conflict for SEMICOLON resolved using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
+  ! reduce/reduce conflict for COMMA resolved using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
+    TIMES           reduce using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
+    DIVIDE          reduce using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
+    PLUS            reduce using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
+    MINUS           reduce using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
+    EQUALS_EQUALS   reduce using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
+    LESS_THAN       reduce using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
+    LESS_THAN_EQUAL reduce using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
+    GREATER_THAN    reduce using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
+    GREATER_THAN_EQUAL reduce using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
+    AND             reduce using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
+    OR              reduce using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
+    ID              reduce using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
+    NOT             reduce using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
+    LEFT_PAREN      reduce using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
+    NUMBER          reduce using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
+    STRING          reduce using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
+    TRUE            reduce using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
+    FALSE           reduce using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
+    IF              reduce using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
+    WHILE           reduce using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
+    PRINTF          reduce using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
+    RIGHT_BRACE     reduce using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
+    RIGHT_PAREN     reduce using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
+    $end            reduce using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
+    SEMICOLON       reduce using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
+    COMMA           reduce using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
+
+  ! PLUS            [ reduce using rule 33 (expr -> LEFT_PAREN expr RIGHT_PAREN .) ]
+  ! MINUS           [ reduce using rule 33 (expr -> LEFT_PAREN expr RIGHT_PAREN .) ]
+  ! TIMES           [ reduce using rule 33 (expr -> LEFT_PAREN expr RIGHT_PAREN .) ]
+  ! DIVIDE          [ reduce using rule 33 (expr -> LEFT_PAREN expr RIGHT_PAREN .) ]
+  ! EQUALS_EQUALS   [ reduce using rule 33 (expr -> LEFT_PAREN expr RIGHT_PAREN .) ]
+  ! LESS_THAN       [ reduce using rule 33 (expr -> LEFT_PAREN expr RIGHT_PAREN .) ]
+  ! LESS_THAN_EQUAL [ reduce using rule 33 (expr -> LEFT_PAREN expr RIGHT_PAREN .) ]
+  ! GREATER_THAN    [ reduce using rule 33 (expr -> LEFT_PAREN expr RIGHT_PAREN .) ]
+  ! GREATER_THAN_EQUAL [ reduce using rule 33 (expr -> LEFT_PAREN expr RIGHT_PAREN .) ]
+  ! AND             [ reduce using rule 33 (expr -> LEFT_PAREN expr RIGHT_PAREN .) ]
+  ! OR              [ reduce using rule 33 (expr -> LEFT_PAREN expr RIGHT_PAREN .) ]
+  ! ID              [ reduce using rule 33 (expr -> LEFT_PAREN expr RIGHT_PAREN .) ]
+  ! NOT             [ reduce using rule 33 (expr -> LEFT_PAREN expr RIGHT_PAREN .) ]
+  ! LEFT_PAREN      [ reduce using rule 33 (expr -> LEFT_PAREN expr RIGHT_PAREN .) ]
+  ! NUMBER          [ reduce using rule 33 (expr -> LEFT_PAREN expr RIGHT_PAREN .) ]
+  ! STRING          [ reduce using rule 33 (expr -> LEFT_PAREN expr RIGHT_PAREN .) ]
+  ! TRUE            [ reduce using rule 33 (expr -> LEFT_PAREN expr RIGHT_PAREN .) ]
+  ! FALSE           [ reduce using rule 33 (expr -> LEFT_PAREN expr RIGHT_PAREN .) ]
+  ! IF              [ reduce using rule 33 (expr -> LEFT_PAREN expr RIGHT_PAREN .) ]
+  ! WHILE           [ reduce using rule 33 (expr -> LEFT_PAREN expr RIGHT_PAREN .) ]
+  ! PRINTF          [ reduce using rule 33 (expr -> LEFT_PAREN expr RIGHT_PAREN .) ]
+  ! RIGHT_BRACE     [ reduce using rule 33 (expr -> LEFT_PAREN expr RIGHT_PAREN .) ]
+  ! RIGHT_PAREN     [ reduce using rule 33 (expr -> LEFT_PAREN expr RIGHT_PAREN .) ]
+  ! $end            [ reduce using rule 33 (expr -> LEFT_PAREN expr RIGHT_PAREN .) ]
+  ! SEMICOLON       [ reduce using rule 33 (expr -> LEFT_PAREN expr RIGHT_PAREN .) ]
+  ! COMMA           [ reduce using rule 33 (expr -> LEFT_PAREN expr RIGHT_PAREN .) ]
+
+
+state 56
+
+    (1) start -> ID LEFT_PAREN parameters RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE program .
+
+    $end            reduce using rule 1 (start -> ID LEFT_PAREN parameters RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE program .)
+
+
+state 57
 
     (21) expr -> expr PLUS expr .
     (10) expr -> expr . PLUS term
@@ -2047,22 +2205,22 @@ state 47
     IF              reduce using rule 21 (expr -> expr PLUS expr .)
     WHILE           reduce using rule 21 (expr -> expr PLUS expr .)
     PRINTF          reduce using rule 21 (expr -> expr PLUS expr .)
-    $end            reduce using rule 21 (expr -> expr PLUS expr .)
     RIGHT_BRACE     reduce using rule 21 (expr -> expr PLUS expr .)
     RIGHT_PAREN     reduce using rule 21 (expr -> expr PLUS expr .)
+    $end            reduce using rule 21 (expr -> expr PLUS expr .)
     SEMICOLON       reduce using rule 21 (expr -> expr PLUS expr .)
     COMMA           reduce using rule 21 (expr -> expr PLUS expr .)
-    PLUS            shift and go to state 20
-    MINUS           shift and go to state 21
-    TIMES           shift and go to state 22
-    DIVIDE          shift and go to state 23
-    EQUALS_EQUALS   shift and go to state 24
-    LESS_THAN       shift and go to state 25
-    LESS_THAN_EQUAL shift and go to state 26
-    GREATER_THAN    shift and go to state 27
-    GREATER_THAN_EQUAL shift and go to state 28
-    AND             shift and go to state 29
-    OR              shift and go to state 30
+    PLUS            shift and go to state 32
+    MINUS           shift and go to state 33
+    TIMES           shift and go to state 34
+    DIVIDE          shift and go to state 35
+    EQUALS_EQUALS   shift and go to state 36
+    LESS_THAN       shift and go to state 37
+    LESS_THAN_EQUAL shift and go to state 38
+    GREATER_THAN    shift and go to state 39
+    GREATER_THAN_EQUAL shift and go to state 40
+    AND             shift and go to state 41
+    OR              shift and go to state 42
 
   ! PLUS            [ reduce using rule 21 (expr -> expr PLUS expr .) ]
   ! MINUS           [ reduce using rule 21 (expr -> expr PLUS expr .) ]
@@ -2077,7 +2235,7 @@ state 47
   ! OR              [ reduce using rule 21 (expr -> expr PLUS expr .) ]
 
 
-state 48
+state 58
 
     (10) expr -> expr PLUS term .
     (13) term -> term . TIMES factor
@@ -2107,9 +2265,9 @@ state 48
   ! reduce/reduce conflict for IF resolved using rule 10 (expr -> expr PLUS term .)
   ! reduce/reduce conflict for WHILE resolved using rule 10 (expr -> expr PLUS term .)
   ! reduce/reduce conflict for PRINTF resolved using rule 10 (expr -> expr PLUS term .)
-  ! reduce/reduce conflict for $end resolved using rule 10 (expr -> expr PLUS term .)
   ! reduce/reduce conflict for RIGHT_BRACE resolved using rule 10 (expr -> expr PLUS term .)
   ! reduce/reduce conflict for RIGHT_PAREN resolved using rule 10 (expr -> expr PLUS term .)
+  ! reduce/reduce conflict for $end resolved using rule 10 (expr -> expr PLUS term .)
   ! reduce/reduce conflict for SEMICOLON resolved using rule 10 (expr -> expr PLUS term .)
   ! reduce/reduce conflict for COMMA resolved using rule 10 (expr -> expr PLUS term .)
     PLUS            reduce using rule 10 (expr -> expr PLUS term .)
@@ -2131,13 +2289,13 @@ state 48
     IF              reduce using rule 10 (expr -> expr PLUS term .)
     WHILE           reduce using rule 10 (expr -> expr PLUS term .)
     PRINTF          reduce using rule 10 (expr -> expr PLUS term .)
-    $end            reduce using rule 10 (expr -> expr PLUS term .)
     RIGHT_BRACE     reduce using rule 10 (expr -> expr PLUS term .)
     RIGHT_PAREN     reduce using rule 10 (expr -> expr PLUS term .)
+    $end            reduce using rule 10 (expr -> expr PLUS term .)
     SEMICOLON       reduce using rule 10 (expr -> expr PLUS term .)
     COMMA           reduce using rule 10 (expr -> expr PLUS term .)
-    TIMES           shift and go to state 34
-    DIVIDE          shift and go to state 35
+    TIMES           shift and go to state 44
+    DIVIDE          shift and go to state 45
 
   ! TIMES           [ reduce using rule 10 (expr -> expr PLUS term .) ]
   ! DIVIDE          [ reduce using rule 10 (expr -> expr PLUS term .) ]
@@ -2162,14 +2320,14 @@ state 48
   ! IF              [ reduce using rule 12 (expr -> term .) ]
   ! WHILE           [ reduce using rule 12 (expr -> term .) ]
   ! PRINTF          [ reduce using rule 12 (expr -> term .) ]
-  ! $end            [ reduce using rule 12 (expr -> term .) ]
   ! RIGHT_BRACE     [ reduce using rule 12 (expr -> term .) ]
   ! RIGHT_PAREN     [ reduce using rule 12 (expr -> term .) ]
+  ! $end            [ reduce using rule 12 (expr -> term .) ]
   ! SEMICOLON       [ reduce using rule 12 (expr -> term .) ]
   ! COMMA           [ reduce using rule 12 (expr -> term .) ]
 
 
-state 49
+state 59
 
     (22) expr -> expr MINUS expr .
     (10) expr -> expr . PLUS term
@@ -2207,22 +2365,22 @@ state 49
     IF              reduce using rule 22 (expr -> expr MINUS expr .)
     WHILE           reduce using rule 22 (expr -> expr MINUS expr .)
     PRINTF          reduce using rule 22 (expr -> expr MINUS expr .)
-    $end            reduce using rule 22 (expr -> expr MINUS expr .)
     RIGHT_BRACE     reduce using rule 22 (expr -> expr MINUS expr .)
     RIGHT_PAREN     reduce using rule 22 (expr -> expr MINUS expr .)
+    $end            reduce using rule 22 (expr -> expr MINUS expr .)
     SEMICOLON       reduce using rule 22 (expr -> expr MINUS expr .)
     COMMA           reduce using rule 22 (expr -> expr MINUS expr .)
-    PLUS            shift and go to state 20
-    MINUS           shift and go to state 21
-    TIMES           shift and go to state 22
-    DIVIDE          shift and go to state 23
-    EQUALS_EQUALS   shift and go to state 24
-    LESS_THAN       shift and go to state 25
-    LESS_THAN_EQUAL shift and go to state 26
-    GREATER_THAN    shift and go to state 27
-    GREATER_THAN_EQUAL shift and go to state 28
-    AND             shift and go to state 29
-    OR              shift and go to state 30
+    PLUS            shift and go to state 32
+    MINUS           shift and go to state 33
+    TIMES           shift and go to state 34
+    DIVIDE          shift and go to state 35
+    EQUALS_EQUALS   shift and go to state 36
+    LESS_THAN       shift and go to state 37
+    LESS_THAN_EQUAL shift and go to state 38
+    GREATER_THAN    shift and go to state 39
+    GREATER_THAN_EQUAL shift and go to state 40
+    AND             shift and go to state 41
+    OR              shift and go to state 42
 
   ! PLUS            [ reduce using rule 22 (expr -> expr MINUS expr .) ]
   ! MINUS           [ reduce using rule 22 (expr -> expr MINUS expr .) ]
@@ -2237,7 +2395,7 @@ state 49
   ! OR              [ reduce using rule 22 (expr -> expr MINUS expr .) ]
 
 
-state 50
+state 60
 
     (11) expr -> expr MINUS term .
     (13) term -> term . TIMES factor
@@ -2267,9 +2425,9 @@ state 50
   ! reduce/reduce conflict for IF resolved using rule 11 (expr -> expr MINUS term .)
   ! reduce/reduce conflict for WHILE resolved using rule 11 (expr -> expr MINUS term .)
   ! reduce/reduce conflict for PRINTF resolved using rule 11 (expr -> expr MINUS term .)
-  ! reduce/reduce conflict for $end resolved using rule 11 (expr -> expr MINUS term .)
   ! reduce/reduce conflict for RIGHT_BRACE resolved using rule 11 (expr -> expr MINUS term .)
   ! reduce/reduce conflict for RIGHT_PAREN resolved using rule 11 (expr -> expr MINUS term .)
+  ! reduce/reduce conflict for $end resolved using rule 11 (expr -> expr MINUS term .)
   ! reduce/reduce conflict for SEMICOLON resolved using rule 11 (expr -> expr MINUS term .)
   ! reduce/reduce conflict for COMMA resolved using rule 11 (expr -> expr MINUS term .)
     PLUS            reduce using rule 11 (expr -> expr MINUS term .)
@@ -2291,13 +2449,13 @@ state 50
     IF              reduce using rule 11 (expr -> expr MINUS term .)
     WHILE           reduce using rule 11 (expr -> expr MINUS term .)
     PRINTF          reduce using rule 11 (expr -> expr MINUS term .)
-    $end            reduce using rule 11 (expr -> expr MINUS term .)
     RIGHT_BRACE     reduce using rule 11 (expr -> expr MINUS term .)
     RIGHT_PAREN     reduce using rule 11 (expr -> expr MINUS term .)
+    $end            reduce using rule 11 (expr -> expr MINUS term .)
     SEMICOLON       reduce using rule 11 (expr -> expr MINUS term .)
     COMMA           reduce using rule 11 (expr -> expr MINUS term .)
-    TIMES           shift and go to state 34
-    DIVIDE          shift and go to state 35
+    TIMES           shift and go to state 44
+    DIVIDE          shift and go to state 45
 
   ! TIMES           [ reduce using rule 11 (expr -> expr MINUS term .) ]
   ! DIVIDE          [ reduce using rule 11 (expr -> expr MINUS term .) ]
@@ -2322,14 +2480,14 @@ state 50
   ! IF              [ reduce using rule 12 (expr -> term .) ]
   ! WHILE           [ reduce using rule 12 (expr -> term .) ]
   ! PRINTF          [ reduce using rule 12 (expr -> term .) ]
-  ! $end            [ reduce using rule 12 (expr -> term .) ]
   ! RIGHT_BRACE     [ reduce using rule 12 (expr -> term .) ]
   ! RIGHT_PAREN     [ reduce using rule 12 (expr -> term .) ]
+  ! $end            [ reduce using rule 12 (expr -> term .) ]
   ! SEMICOLON       [ reduce using rule 12 (expr -> term .) ]
   ! COMMA           [ reduce using rule 12 (expr -> term .) ]
 
 
-state 51
+state 61
 
     (23) expr -> expr TIMES expr .
     (10) expr -> expr . PLUS term
@@ -2367,22 +2525,22 @@ state 51
     IF              reduce using rule 23 (expr -> expr TIMES expr .)
     WHILE           reduce using rule 23 (expr -> expr TIMES expr .)
     PRINTF          reduce using rule 23 (expr -> expr TIMES expr .)
-    $end            reduce using rule 23 (expr -> expr TIMES expr .)
     RIGHT_BRACE     reduce using rule 23 (expr -> expr TIMES expr .)
     RIGHT_PAREN     reduce using rule 23 (expr -> expr TIMES expr .)
+    $end            reduce using rule 23 (expr -> expr TIMES expr .)
     SEMICOLON       reduce using rule 23 (expr -> expr TIMES expr .)
     COMMA           reduce using rule 23 (expr -> expr TIMES expr .)
-    PLUS            shift and go to state 20
-    MINUS           shift and go to state 21
-    TIMES           shift and go to state 22
-    DIVIDE          shift and go to state 23
-    EQUALS_EQUALS   shift and go to state 24
-    LESS_THAN       shift and go to state 25
-    LESS_THAN_EQUAL shift and go to state 26
-    GREATER_THAN    shift and go to state 27
-    GREATER_THAN_EQUAL shift and go to state 28
-    AND             shift and go to state 29
-    OR              shift and go to state 30
+    PLUS            shift and go to state 32
+    MINUS           shift and go to state 33
+    TIMES           shift and go to state 34
+    DIVIDE          shift and go to state 35
+    EQUALS_EQUALS   shift and go to state 36
+    LESS_THAN       shift and go to state 37
+    LESS_THAN_EQUAL shift and go to state 38
+    GREATER_THAN    shift and go to state 39
+    GREATER_THAN_EQUAL shift and go to state 40
+    AND             shift and go to state 41
+    OR              shift and go to state 42
 
   ! PLUS            [ reduce using rule 23 (expr -> expr TIMES expr .) ]
   ! MINUS           [ reduce using rule 23 (expr -> expr TIMES expr .) ]
@@ -2397,7 +2555,7 @@ state 51
   ! OR              [ reduce using rule 23 (expr -> expr TIMES expr .) ]
 
 
-state 52
+state 62
 
     (24) expr -> expr DIVIDE expr .
     (10) expr -> expr . PLUS term
@@ -2435,22 +2593,22 @@ state 52
     IF              reduce using rule 24 (expr -> expr DIVIDE expr .)
     WHILE           reduce using rule 24 (expr -> expr DIVIDE expr .)
     PRINTF          reduce using rule 24 (expr -> expr DIVIDE expr .)
-    $end            reduce using rule 24 (expr -> expr DIVIDE expr .)
     RIGHT_BRACE     reduce using rule 24 (expr -> expr DIVIDE expr .)
     RIGHT_PAREN     reduce using rule 24 (expr -> expr DIVIDE expr .)
+    $end            reduce using rule 24 (expr -> expr DIVIDE expr .)
     SEMICOLON       reduce using rule 24 (expr -> expr DIVIDE expr .)
     COMMA           reduce using rule 24 (expr -> expr DIVIDE expr .)
-    PLUS            shift and go to state 20
-    MINUS           shift and go to state 21
-    TIMES           shift and go to state 22
-    DIVIDE          shift and go to state 23
-    EQUALS_EQUALS   shift and go to state 24
-    LESS_THAN       shift and go to state 25
-    LESS_THAN_EQUAL shift and go to state 26
-    GREATER_THAN    shift and go to state 27
-    GREATER_THAN_EQUAL shift and go to state 28
-    AND             shift and go to state 29
-    OR              shift and go to state 30
+    PLUS            shift and go to state 32
+    MINUS           shift and go to state 33
+    TIMES           shift and go to state 34
+    DIVIDE          shift and go to state 35
+    EQUALS_EQUALS   shift and go to state 36
+    LESS_THAN       shift and go to state 37
+    LESS_THAN_EQUAL shift and go to state 38
+    GREATER_THAN    shift and go to state 39
+    GREATER_THAN_EQUAL shift and go to state 40
+    AND             shift and go to state 41
+    OR              shift and go to state 42
 
   ! PLUS            [ reduce using rule 24 (expr -> expr DIVIDE expr .) ]
   ! MINUS           [ reduce using rule 24 (expr -> expr DIVIDE expr .) ]
@@ -2465,7 +2623,7 @@ state 52
   ! OR              [ reduce using rule 24 (expr -> expr DIVIDE expr .) ]
 
 
-state 53
+state 63
 
     (25) expr -> expr EQUALS_EQUALS expr .
     (10) expr -> expr . PLUS term
@@ -2503,22 +2661,22 @@ state 53
     IF              reduce using rule 25 (expr -> expr EQUALS_EQUALS expr .)
     WHILE           reduce using rule 25 (expr -> expr EQUALS_EQUALS expr .)
     PRINTF          reduce using rule 25 (expr -> expr EQUALS_EQUALS expr .)
-    $end            reduce using rule 25 (expr -> expr EQUALS_EQUALS expr .)
     RIGHT_BRACE     reduce using rule 25 (expr -> expr EQUALS_EQUALS expr .)
     RIGHT_PAREN     reduce using rule 25 (expr -> expr EQUALS_EQUALS expr .)
+    $end            reduce using rule 25 (expr -> expr EQUALS_EQUALS expr .)
     SEMICOLON       reduce using rule 25 (expr -> expr EQUALS_EQUALS expr .)
     COMMA           reduce using rule 25 (expr -> expr EQUALS_EQUALS expr .)
-    PLUS            shift and go to state 20
-    MINUS           shift and go to state 21
-    TIMES           shift and go to state 22
-    DIVIDE          shift and go to state 23
-    EQUALS_EQUALS   shift and go to state 24
-    LESS_THAN       shift and go to state 25
-    LESS_THAN_EQUAL shift and go to state 26
-    GREATER_THAN    shift and go to state 27
-    GREATER_THAN_EQUAL shift and go to state 28
-    AND             shift and go to state 29
-    OR              shift and go to state 30
+    PLUS            shift and go to state 32
+    MINUS           shift and go to state 33
+    TIMES           shift and go to state 34
+    DIVIDE          shift and go to state 35
+    EQUALS_EQUALS   shift and go to state 36
+    LESS_THAN       shift and go to state 37
+    LESS_THAN_EQUAL shift and go to state 38
+    GREATER_THAN    shift and go to state 39
+    GREATER_THAN_EQUAL shift and go to state 40
+    AND             shift and go to state 41
+    OR              shift and go to state 42
 
   ! PLUS            [ reduce using rule 25 (expr -> expr EQUALS_EQUALS expr .) ]
   ! MINUS           [ reduce using rule 25 (expr -> expr EQUALS_EQUALS expr .) ]
@@ -2533,7 +2691,7 @@ state 53
   ! OR              [ reduce using rule 25 (expr -> expr EQUALS_EQUALS expr .) ]
 
 
-state 54
+state 64
 
     (26) expr -> expr LESS_THAN expr .
     (10) expr -> expr . PLUS term
@@ -2571,22 +2729,22 @@ state 54
     IF              reduce using rule 26 (expr -> expr LESS_THAN expr .)
     WHILE           reduce using rule 26 (expr -> expr LESS_THAN expr .)
     PRINTF          reduce using rule 26 (expr -> expr LESS_THAN expr .)
-    $end            reduce using rule 26 (expr -> expr LESS_THAN expr .)
     RIGHT_BRACE     reduce using rule 26 (expr -> expr LESS_THAN expr .)
     RIGHT_PAREN     reduce using rule 26 (expr -> expr LESS_THAN expr .)
+    $end            reduce using rule 26 (expr -> expr LESS_THAN expr .)
     SEMICOLON       reduce using rule 26 (expr -> expr LESS_THAN expr .)
     COMMA           reduce using rule 26 (expr -> expr LESS_THAN expr .)
-    PLUS            shift and go to state 20
-    MINUS           shift and go to state 21
-    TIMES           shift and go to state 22
-    DIVIDE          shift and go to state 23
-    EQUALS_EQUALS   shift and go to state 24
-    LESS_THAN       shift and go to state 25
-    LESS_THAN_EQUAL shift and go to state 26
-    GREATER_THAN    shift and go to state 27
-    GREATER_THAN_EQUAL shift and go to state 28
-    AND             shift and go to state 29
-    OR              shift and go to state 30
+    PLUS            shift and go to state 32
+    MINUS           shift and go to state 33
+    TIMES           shift and go to state 34
+    DIVIDE          shift and go to state 35
+    EQUALS_EQUALS   shift and go to state 36
+    LESS_THAN       shift and go to state 37
+    LESS_THAN_EQUAL shift and go to state 38
+    GREATER_THAN    shift and go to state 39
+    GREATER_THAN_EQUAL shift and go to state 40
+    AND             shift and go to state 41
+    OR              shift and go to state 42
 
   ! PLUS            [ reduce using rule 26 (expr -> expr LESS_THAN expr .) ]
   ! MINUS           [ reduce using rule 26 (expr -> expr LESS_THAN expr .) ]
@@ -2601,7 +2759,7 @@ state 54
   ! OR              [ reduce using rule 26 (expr -> expr LESS_THAN expr .) ]
 
 
-state 55
+state 65
 
     (27) expr -> expr LESS_THAN_EQUAL expr .
     (10) expr -> expr . PLUS term
@@ -2639,22 +2797,22 @@ state 55
     IF              reduce using rule 27 (expr -> expr LESS_THAN_EQUAL expr .)
     WHILE           reduce using rule 27 (expr -> expr LESS_THAN_EQUAL expr .)
     PRINTF          reduce using rule 27 (expr -> expr LESS_THAN_EQUAL expr .)
-    $end            reduce using rule 27 (expr -> expr LESS_THAN_EQUAL expr .)
     RIGHT_BRACE     reduce using rule 27 (expr -> expr LESS_THAN_EQUAL expr .)
     RIGHT_PAREN     reduce using rule 27 (expr -> expr LESS_THAN_EQUAL expr .)
+    $end            reduce using rule 27 (expr -> expr LESS_THAN_EQUAL expr .)
     SEMICOLON       reduce using rule 27 (expr -> expr LESS_THAN_EQUAL expr .)
     COMMA           reduce using rule 27 (expr -> expr LESS_THAN_EQUAL expr .)
-    PLUS            shift and go to state 20
-    MINUS           shift and go to state 21
-    TIMES           shift and go to state 22
-    DIVIDE          shift and go to state 23
-    EQUALS_EQUALS   shift and go to state 24
-    LESS_THAN       shift and go to state 25
-    LESS_THAN_EQUAL shift and go to state 26
-    GREATER_THAN    shift and go to state 27
-    GREATER_THAN_EQUAL shift and go to state 28
-    AND             shift and go to state 29
-    OR              shift and go to state 30
+    PLUS            shift and go to state 32
+    MINUS           shift and go to state 33
+    TIMES           shift and go to state 34
+    DIVIDE          shift and go to state 35
+    EQUALS_EQUALS   shift and go to state 36
+    LESS_THAN       shift and go to state 37
+    LESS_THAN_EQUAL shift and go to state 38
+    GREATER_THAN    shift and go to state 39
+    GREATER_THAN_EQUAL shift and go to state 40
+    AND             shift and go to state 41
+    OR              shift and go to state 42
 
   ! PLUS            [ reduce using rule 27 (expr -> expr LESS_THAN_EQUAL expr .) ]
   ! MINUS           [ reduce using rule 27 (expr -> expr LESS_THAN_EQUAL expr .) ]
@@ -2669,7 +2827,7 @@ state 55
   ! OR              [ reduce using rule 27 (expr -> expr LESS_THAN_EQUAL expr .) ]
 
 
-state 56
+state 66
 
     (28) expr -> expr GREATER_THAN expr .
     (10) expr -> expr . PLUS term
@@ -2707,22 +2865,22 @@ state 56
     IF              reduce using rule 28 (expr -> expr GREATER_THAN expr .)
     WHILE           reduce using rule 28 (expr -> expr GREATER_THAN expr .)
     PRINTF          reduce using rule 28 (expr -> expr GREATER_THAN expr .)
-    $end            reduce using rule 28 (expr -> expr GREATER_THAN expr .)
     RIGHT_BRACE     reduce using rule 28 (expr -> expr GREATER_THAN expr .)
     RIGHT_PAREN     reduce using rule 28 (expr -> expr GREATER_THAN expr .)
+    $end            reduce using rule 28 (expr -> expr GREATER_THAN expr .)
     SEMICOLON       reduce using rule 28 (expr -> expr GREATER_THAN expr .)
     COMMA           reduce using rule 28 (expr -> expr GREATER_THAN expr .)
-    PLUS            shift and go to state 20
-    MINUS           shift and go to state 21
-    TIMES           shift and go to state 22
-    DIVIDE          shift and go to state 23
-    EQUALS_EQUALS   shift and go to state 24
-    LESS_THAN       shift and go to state 25
-    LESS_THAN_EQUAL shift and go to state 26
-    GREATER_THAN    shift and go to state 27
-    GREATER_THAN_EQUAL shift and go to state 28
-    AND             shift and go to state 29
-    OR              shift and go to state 30
+    PLUS            shift and go to state 32
+    MINUS           shift and go to state 33
+    TIMES           shift and go to state 34
+    DIVIDE          shift and go to state 35
+    EQUALS_EQUALS   shift and go to state 36
+    LESS_THAN       shift and go to state 37
+    LESS_THAN_EQUAL shift and go to state 38
+    GREATER_THAN    shift and go to state 39
+    GREATER_THAN_EQUAL shift and go to state 40
+    AND             shift and go to state 41
+    OR              shift and go to state 42
 
   ! PLUS            [ reduce using rule 28 (expr -> expr GREATER_THAN expr .) ]
   ! MINUS           [ reduce using rule 28 (expr -> expr GREATER_THAN expr .) ]
@@ -2737,7 +2895,7 @@ state 56
   ! OR              [ reduce using rule 28 (expr -> expr GREATER_THAN expr .) ]
 
 
-state 57
+state 67
 
     (29) expr -> expr GREATER_THAN_EQUAL expr .
     (10) expr -> expr . PLUS term
@@ -2775,22 +2933,22 @@ state 57
     IF              reduce using rule 29 (expr -> expr GREATER_THAN_EQUAL expr .)
     WHILE           reduce using rule 29 (expr -> expr GREATER_THAN_EQUAL expr .)
     PRINTF          reduce using rule 29 (expr -> expr GREATER_THAN_EQUAL expr .)
-    $end            reduce using rule 29 (expr -> expr GREATER_THAN_EQUAL expr .)
     RIGHT_BRACE     reduce using rule 29 (expr -> expr GREATER_THAN_EQUAL expr .)
     RIGHT_PAREN     reduce using rule 29 (expr -> expr GREATER_THAN_EQUAL expr .)
+    $end            reduce using rule 29 (expr -> expr GREATER_THAN_EQUAL expr .)
     SEMICOLON       reduce using rule 29 (expr -> expr GREATER_THAN_EQUAL expr .)
     COMMA           reduce using rule 29 (expr -> expr GREATER_THAN_EQUAL expr .)
-    PLUS            shift and go to state 20
-    MINUS           shift and go to state 21
-    TIMES           shift and go to state 22
-    DIVIDE          shift and go to state 23
-    EQUALS_EQUALS   shift and go to state 24
-    LESS_THAN       shift and go to state 25
-    LESS_THAN_EQUAL shift and go to state 26
-    GREATER_THAN    shift and go to state 27
-    GREATER_THAN_EQUAL shift and go to state 28
-    AND             shift and go to state 29
-    OR              shift and go to state 30
+    PLUS            shift and go to state 32
+    MINUS           shift and go to state 33
+    TIMES           shift and go to state 34
+    DIVIDE          shift and go to state 35
+    EQUALS_EQUALS   shift and go to state 36
+    LESS_THAN       shift and go to state 37
+    LESS_THAN_EQUAL shift and go to state 38
+    GREATER_THAN    shift and go to state 39
+    GREATER_THAN_EQUAL shift and go to state 40
+    AND             shift and go to state 41
+    OR              shift and go to state 42
 
   ! PLUS            [ reduce using rule 29 (expr -> expr GREATER_THAN_EQUAL expr .) ]
   ! MINUS           [ reduce using rule 29 (expr -> expr GREATER_THAN_EQUAL expr .) ]
@@ -2805,7 +2963,7 @@ state 57
   ! OR              [ reduce using rule 29 (expr -> expr GREATER_THAN_EQUAL expr .) ]
 
 
-state 58
+state 68
 
     (30) expr -> expr AND expr .
     (10) expr -> expr . PLUS term
@@ -2843,22 +3001,22 @@ state 58
     IF              reduce using rule 30 (expr -> expr AND expr .)
     WHILE           reduce using rule 30 (expr -> expr AND expr .)
     PRINTF          reduce using rule 30 (expr -> expr AND expr .)
-    $end            reduce using rule 30 (expr -> expr AND expr .)
     RIGHT_BRACE     reduce using rule 30 (expr -> expr AND expr .)
     RIGHT_PAREN     reduce using rule 30 (expr -> expr AND expr .)
+    $end            reduce using rule 30 (expr -> expr AND expr .)
     SEMICOLON       reduce using rule 30 (expr -> expr AND expr .)
     COMMA           reduce using rule 30 (expr -> expr AND expr .)
-    PLUS            shift and go to state 20
-    MINUS           shift and go to state 21
-    TIMES           shift and go to state 22
-    DIVIDE          shift and go to state 23
-    EQUALS_EQUALS   shift and go to state 24
-    LESS_THAN       shift and go to state 25
-    LESS_THAN_EQUAL shift and go to state 26
-    GREATER_THAN    shift and go to state 27
-    GREATER_THAN_EQUAL shift and go to state 28
-    AND             shift and go to state 29
-    OR              shift and go to state 30
+    PLUS            shift and go to state 32
+    MINUS           shift and go to state 33
+    TIMES           shift and go to state 34
+    DIVIDE          shift and go to state 35
+    EQUALS_EQUALS   shift and go to state 36
+    LESS_THAN       shift and go to state 37
+    LESS_THAN_EQUAL shift and go to state 38
+    GREATER_THAN    shift and go to state 39
+    GREATER_THAN_EQUAL shift and go to state 40
+    AND             shift and go to state 41
+    OR              shift and go to state 42
 
   ! PLUS            [ reduce using rule 30 (expr -> expr AND expr .) ]
   ! MINUS           [ reduce using rule 30 (expr -> expr AND expr .) ]
@@ -2873,7 +3031,7 @@ state 58
   ! OR              [ reduce using rule 30 (expr -> expr AND expr .) ]
 
 
-state 59
+state 69
 
     (31) expr -> expr OR expr .
     (10) expr -> expr . PLUS term
@@ -2911,22 +3069,22 @@ state 59
     IF              reduce using rule 31 (expr -> expr OR expr .)
     WHILE           reduce using rule 31 (expr -> expr OR expr .)
     PRINTF          reduce using rule 31 (expr -> expr OR expr .)
-    $end            reduce using rule 31 (expr -> expr OR expr .)
     RIGHT_BRACE     reduce using rule 31 (expr -> expr OR expr .)
     RIGHT_PAREN     reduce using rule 31 (expr -> expr OR expr .)
+    $end            reduce using rule 31 (expr -> expr OR expr .)
     SEMICOLON       reduce using rule 31 (expr -> expr OR expr .)
     COMMA           reduce using rule 31 (expr -> expr OR expr .)
-    PLUS            shift and go to state 20
-    MINUS           shift and go to state 21
-    TIMES           shift and go to state 22
-    DIVIDE          shift and go to state 23
-    EQUALS_EQUALS   shift and go to state 24
-    LESS_THAN       shift and go to state 25
-    LESS_THAN_EQUAL shift and go to state 26
-    GREATER_THAN    shift and go to state 27
-    GREATER_THAN_EQUAL shift and go to state 28
-    AND             shift and go to state 29
-    OR              shift and go to state 30
+    PLUS            shift and go to state 32
+    MINUS           shift and go to state 33
+    TIMES           shift and go to state 34
+    DIVIDE          shift and go to state 35
+    EQUALS_EQUALS   shift and go to state 36
+    LESS_THAN       shift and go to state 37
+    LESS_THAN_EQUAL shift and go to state 38
+    GREATER_THAN    shift and go to state 39
+    GREATER_THAN_EQUAL shift and go to state 40
+    AND             shift and go to state 41
+    OR              shift and go to state 42
 
   ! PLUS            [ reduce using rule 31 (expr -> expr OR expr .) ]
   ! MINUS           [ reduce using rule 31 (expr -> expr OR expr .) ]
@@ -2941,101 +3099,15 @@ state 59
   ! OR              [ reduce using rule 31 (expr -> expr OR expr .) ]
 
 
-state 60
+state 70
 
-    (3) program -> function_call SEMICOLON program .
+    (4) program -> function_call SEMICOLON program .
 
-    $end            reduce using rule 3 (program -> function_call SEMICOLON program .)
-    RIGHT_BRACE     reduce using rule 3 (program -> function_call SEMICOLON program .)
-
-
-state 61
-
-    (33) expr -> LEFT_PAREN expr RIGHT_PAREN .
-    (18) factor -> LEFT_PAREN expr RIGHT_PAREN .
-
-  ! reduce/reduce conflict for TIMES resolved using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
-  ! reduce/reduce conflict for DIVIDE resolved using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
-  ! reduce/reduce conflict for PLUS resolved using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
-  ! reduce/reduce conflict for MINUS resolved using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
-  ! reduce/reduce conflict for EQUALS_EQUALS resolved using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
-  ! reduce/reduce conflict for LESS_THAN resolved using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
-  ! reduce/reduce conflict for LESS_THAN_EQUAL resolved using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
-  ! reduce/reduce conflict for GREATER_THAN resolved using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
-  ! reduce/reduce conflict for GREATER_THAN_EQUAL resolved using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
-  ! reduce/reduce conflict for AND resolved using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
-  ! reduce/reduce conflict for OR resolved using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
-  ! reduce/reduce conflict for ID resolved using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
-  ! reduce/reduce conflict for NOT resolved using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
-  ! reduce/reduce conflict for LEFT_PAREN resolved using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
-  ! reduce/reduce conflict for NUMBER resolved using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
-  ! reduce/reduce conflict for STRING resolved using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
-  ! reduce/reduce conflict for TRUE resolved using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
-  ! reduce/reduce conflict for FALSE resolved using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
-  ! reduce/reduce conflict for IF resolved using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
-  ! reduce/reduce conflict for WHILE resolved using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
-  ! reduce/reduce conflict for PRINTF resolved using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
-  ! reduce/reduce conflict for $end resolved using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
-  ! reduce/reduce conflict for RIGHT_BRACE resolved using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
-  ! reduce/reduce conflict for RIGHT_PAREN resolved using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
-  ! reduce/reduce conflict for SEMICOLON resolved using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
-  ! reduce/reduce conflict for COMMA resolved using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
-    TIMES           reduce using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
-    DIVIDE          reduce using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
-    PLUS            reduce using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
-    MINUS           reduce using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
-    EQUALS_EQUALS   reduce using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
-    LESS_THAN       reduce using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
-    LESS_THAN_EQUAL reduce using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
-    GREATER_THAN    reduce using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
-    GREATER_THAN_EQUAL reduce using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
-    AND             reduce using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
-    OR              reduce using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
-    ID              reduce using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
-    NOT             reduce using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
-    LEFT_PAREN      reduce using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
-    NUMBER          reduce using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
-    STRING          reduce using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
-    TRUE            reduce using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
-    FALSE           reduce using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
-    IF              reduce using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
-    WHILE           reduce using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
-    PRINTF          reduce using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
-    $end            reduce using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
-    RIGHT_BRACE     reduce using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
-    RIGHT_PAREN     reduce using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
-    SEMICOLON       reduce using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
-    COMMA           reduce using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
-
-  ! PLUS            [ reduce using rule 33 (expr -> LEFT_PAREN expr RIGHT_PAREN .) ]
-  ! MINUS           [ reduce using rule 33 (expr -> LEFT_PAREN expr RIGHT_PAREN .) ]
-  ! TIMES           [ reduce using rule 33 (expr -> LEFT_PAREN expr RIGHT_PAREN .) ]
-  ! DIVIDE          [ reduce using rule 33 (expr -> LEFT_PAREN expr RIGHT_PAREN .) ]
-  ! EQUALS_EQUALS   [ reduce using rule 33 (expr -> LEFT_PAREN expr RIGHT_PAREN .) ]
-  ! LESS_THAN       [ reduce using rule 33 (expr -> LEFT_PAREN expr RIGHT_PAREN .) ]
-  ! LESS_THAN_EQUAL [ reduce using rule 33 (expr -> LEFT_PAREN expr RIGHT_PAREN .) ]
-  ! GREATER_THAN    [ reduce using rule 33 (expr -> LEFT_PAREN expr RIGHT_PAREN .) ]
-  ! GREATER_THAN_EQUAL [ reduce using rule 33 (expr -> LEFT_PAREN expr RIGHT_PAREN .) ]
-  ! AND             [ reduce using rule 33 (expr -> LEFT_PAREN expr RIGHT_PAREN .) ]
-  ! OR              [ reduce using rule 33 (expr -> LEFT_PAREN expr RIGHT_PAREN .) ]
-  ! ID              [ reduce using rule 33 (expr -> LEFT_PAREN expr RIGHT_PAREN .) ]
-  ! NOT             [ reduce using rule 33 (expr -> LEFT_PAREN expr RIGHT_PAREN .) ]
-  ! LEFT_PAREN      [ reduce using rule 33 (expr -> LEFT_PAREN expr RIGHT_PAREN .) ]
-  ! NUMBER          [ reduce using rule 33 (expr -> LEFT_PAREN expr RIGHT_PAREN .) ]
-  ! STRING          [ reduce using rule 33 (expr -> LEFT_PAREN expr RIGHT_PAREN .) ]
-  ! TRUE            [ reduce using rule 33 (expr -> LEFT_PAREN expr RIGHT_PAREN .) ]
-  ! FALSE           [ reduce using rule 33 (expr -> LEFT_PAREN expr RIGHT_PAREN .) ]
-  ! IF              [ reduce using rule 33 (expr -> LEFT_PAREN expr RIGHT_PAREN .) ]
-  ! WHILE           [ reduce using rule 33 (expr -> LEFT_PAREN expr RIGHT_PAREN .) ]
-  ! PRINTF          [ reduce using rule 33 (expr -> LEFT_PAREN expr RIGHT_PAREN .) ]
-  ! $end            [ reduce using rule 33 (expr -> LEFT_PAREN expr RIGHT_PAREN .) ]
-  ! RIGHT_BRACE     [ reduce using rule 33 (expr -> LEFT_PAREN expr RIGHT_PAREN .) ]
-  ! RIGHT_PAREN     [ reduce using rule 33 (expr -> LEFT_PAREN expr RIGHT_PAREN .) ]
-  ! SEMICOLON       [ reduce using rule 33 (expr -> LEFT_PAREN expr RIGHT_PAREN .) ]
-  ! COMMA           [ reduce using rule 33 (expr -> LEFT_PAREN expr RIGHT_PAREN .) ]
+    RIGHT_BRACE     reduce using rule 4 (program -> function_call SEMICOLON program .)
+    $end            reduce using rule 4 (program -> function_call SEMICOLON program .)
 
 
-state 62
+state 71
 
     (13) term -> term TIMES factor .
 
@@ -3060,14 +3132,14 @@ state 62
     IF              reduce using rule 13 (term -> term TIMES factor .)
     WHILE           reduce using rule 13 (term -> term TIMES factor .)
     PRINTF          reduce using rule 13 (term -> term TIMES factor .)
-    $end            reduce using rule 13 (term -> term TIMES factor .)
     RIGHT_BRACE     reduce using rule 13 (term -> term TIMES factor .)
     RIGHT_PAREN     reduce using rule 13 (term -> term TIMES factor .)
+    $end            reduce using rule 13 (term -> term TIMES factor .)
     SEMICOLON       reduce using rule 13 (term -> term TIMES factor .)
     COMMA           reduce using rule 13 (term -> term TIMES factor .)
 
 
-state 63
+state 72
 
     (16) factor -> NUMBER .
 
@@ -3092,14 +3164,14 @@ state 63
     IF              reduce using rule 16 (factor -> NUMBER .)
     WHILE           reduce using rule 16 (factor -> NUMBER .)
     PRINTF          reduce using rule 16 (factor -> NUMBER .)
-    $end            reduce using rule 16 (factor -> NUMBER .)
     RIGHT_BRACE     reduce using rule 16 (factor -> NUMBER .)
     RIGHT_PAREN     reduce using rule 16 (factor -> NUMBER .)
+    $end            reduce using rule 16 (factor -> NUMBER .)
     SEMICOLON       reduce using rule 16 (factor -> NUMBER .)
     COMMA           reduce using rule 16 (factor -> NUMBER .)
 
 
-state 64
+state 73
 
     (17) factor -> ID .
 
@@ -3124,14 +3196,14 @@ state 64
     IF              reduce using rule 17 (factor -> ID .)
     WHILE           reduce using rule 17 (factor -> ID .)
     PRINTF          reduce using rule 17 (factor -> ID .)
-    $end            reduce using rule 17 (factor -> ID .)
     RIGHT_BRACE     reduce using rule 17 (factor -> ID .)
     RIGHT_PAREN     reduce using rule 17 (factor -> ID .)
+    $end            reduce using rule 17 (factor -> ID .)
     SEMICOLON       reduce using rule 17 (factor -> ID .)
     COMMA           reduce using rule 17 (factor -> ID .)
 
 
-state 65
+state 74
 
     (18) factor -> LEFT_PAREN . expr RIGHT_PAREN
     (10) expr -> . expr PLUS term
@@ -3166,22 +3238,22 @@ state 65
     (17) factor -> . ID
     (18) factor -> . LEFT_PAREN expr RIGHT_PAREN
 
-    NOT             shift and go to state 8
-    LEFT_PAREN      shift and go to state 6
-    ID              shift and go to state 33
-    NUMBER          shift and go to state 9
-    STRING          shift and go to state 10
-    TRUE            shift and go to state 11
-    FALSE           shift and go to state 12
-    IF              shift and go to state 13
-    WHILE           shift and go to state 14
-    PRINTF          shift and go to state 15
+    NOT             shift and go to state 17
+    LEFT_PAREN      shift and go to state 11
+    ID              shift and go to state 29
+    NUMBER          shift and go to state 18
+    STRING          shift and go to state 19
+    TRUE            shift and go to state 20
+    FALSE           shift and go to state 21
+    IF              shift and go to state 22
+    WHILE           shift and go to state 23
+    PRINTF          shift and go to state 24
 
-    expr                           shift and go to state 77
-    term                           shift and go to state 7
-    factor                         shift and go to state 16
+    expr                           shift and go to state 83
+    term                           shift and go to state 16
+    factor                         shift and go to state 25
 
-state 66
+state 75
 
     (14) term -> term DIVIDE factor .
 
@@ -3206,14 +3278,14 @@ state 66
     IF              reduce using rule 14 (term -> term DIVIDE factor .)
     WHILE           reduce using rule 14 (term -> term DIVIDE factor .)
     PRINTF          reduce using rule 14 (term -> term DIVIDE factor .)
-    $end            reduce using rule 14 (term -> term DIVIDE factor .)
     RIGHT_BRACE     reduce using rule 14 (term -> term DIVIDE factor .)
     RIGHT_PAREN     reduce using rule 14 (term -> term DIVIDE factor .)
+    $end            reduce using rule 14 (term -> term DIVIDE factor .)
     SEMICOLON       reduce using rule 14 (term -> term DIVIDE factor .)
     COMMA           reduce using rule 14 (term -> term DIVIDE factor .)
 
 
-state 67
+state 76
 
     (39) expr -> IF LEFT_PAREN expr . RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
     (40) expr -> IF LEFT_PAREN expr . RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE
@@ -3231,21 +3303,21 @@ state 67
     (30) expr -> expr . AND expr
     (31) expr -> expr . OR expr
 
-    RIGHT_PAREN     shift and go to state 78
-    PLUS            shift and go to state 20
-    MINUS           shift and go to state 21
-    TIMES           shift and go to state 22
-    DIVIDE          shift and go to state 23
-    EQUALS_EQUALS   shift and go to state 24
-    LESS_THAN       shift and go to state 25
-    LESS_THAN_EQUAL shift and go to state 26
-    GREATER_THAN    shift and go to state 27
-    GREATER_THAN_EQUAL shift and go to state 28
-    AND             shift and go to state 29
-    OR              shift and go to state 30
+    RIGHT_PAREN     shift and go to state 84
+    PLUS            shift and go to state 32
+    MINUS           shift and go to state 33
+    TIMES           shift and go to state 34
+    DIVIDE          shift and go to state 35
+    EQUALS_EQUALS   shift and go to state 36
+    LESS_THAN       shift and go to state 37
+    LESS_THAN_EQUAL shift and go to state 38
+    GREATER_THAN    shift and go to state 39
+    GREATER_THAN_EQUAL shift and go to state 40
+    AND             shift and go to state 41
+    OR              shift and go to state 42
 
 
-state 68
+state 77
 
     (41) expr -> WHILE LEFT_PAREN expr . RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
     (10) expr -> expr . PLUS term
@@ -3262,21 +3334,21 @@ state 68
     (30) expr -> expr . AND expr
     (31) expr -> expr . OR expr
 
-    RIGHT_PAREN     shift and go to state 79
-    PLUS            shift and go to state 20
-    MINUS           shift and go to state 21
-    TIMES           shift and go to state 22
-    DIVIDE          shift and go to state 23
-    EQUALS_EQUALS   shift and go to state 24
-    LESS_THAN       shift and go to state 25
-    LESS_THAN_EQUAL shift and go to state 26
-    GREATER_THAN    shift and go to state 27
-    GREATER_THAN_EQUAL shift and go to state 28
-    AND             shift and go to state 29
-    OR              shift and go to state 30
+    RIGHT_PAREN     shift and go to state 85
+    PLUS            shift and go to state 32
+    MINUS           shift and go to state 33
+    TIMES           shift and go to state 34
+    DIVIDE          shift and go to state 35
+    EQUALS_EQUALS   shift and go to state 36
+    LESS_THAN       shift and go to state 37
+    LESS_THAN_EQUAL shift and go to state 38
+    GREATER_THAN    shift and go to state 39
+    GREATER_THAN_EQUAL shift and go to state 40
+    AND             shift and go to state 41
+    OR              shift and go to state 42
 
 
-state 69
+state 78
 
     (42) expr -> PRINTF LEFT_PAREN expr . RIGHT_PAREN SEMICOLON
     (10) expr -> expr . PLUS term
@@ -3293,82 +3365,28 @@ state 69
     (30) expr -> expr . AND expr
     (31) expr -> expr . OR expr
 
-    RIGHT_PAREN     shift and go to state 80
-    PLUS            shift and go to state 20
-    MINUS           shift and go to state 21
-    TIMES           shift and go to state 22
-    DIVIDE          shift and go to state 23
-    EQUALS_EQUALS   shift and go to state 24
-    LESS_THAN       shift and go to state 25
-    LESS_THAN_EQUAL shift and go to state 26
-    GREATER_THAN    shift and go to state 27
-    GREATER_THAN_EQUAL shift and go to state 28
-    AND             shift and go to state 29
-    OR              shift and go to state 30
+    RIGHT_PAREN     shift and go to state 86
+    PLUS            shift and go to state 32
+    MINUS           shift and go to state 33
+    TIMES           shift and go to state 34
+    DIVIDE          shift and go to state 35
+    EQUALS_EQUALS   shift and go to state 36
+    LESS_THAN       shift and go to state 37
+    LESS_THAN_EQUAL shift and go to state 38
+    GREATER_THAN    shift and go to state 39
+    GREATER_THAN_EQUAL shift and go to state 40
+    AND             shift and go to state 41
+    OR              shift and go to state 42
 
 
-state 70
+state 79
 
-    (7) function_call -> ID LEFT_PAREN . args RIGHT_PAREN
-    (19) args -> . expr
-    (20) args -> . args COMMA expr
-    (10) expr -> . expr PLUS term
-    (11) expr -> . expr MINUS term
-    (12) expr -> . term
-    (21) expr -> . expr PLUS expr
-    (22) expr -> . expr MINUS expr
-    (23) expr -> . expr TIMES expr
-    (24) expr -> . expr DIVIDE expr
-    (25) expr -> . expr EQUALS_EQUALS expr
-    (26) expr -> . expr LESS_THAN expr
-    (27) expr -> . expr LESS_THAN_EQUAL expr
-    (28) expr -> . expr GREATER_THAN expr
-    (29) expr -> . expr GREATER_THAN_EQUAL expr
-    (30) expr -> . expr AND expr
-    (31) expr -> . expr OR expr
-    (32) expr -> . NOT expr
-    (33) expr -> . LEFT_PAREN expr RIGHT_PAREN
-    (34) expr -> . ID
-    (35) expr -> . NUMBER
-    (36) expr -> . STRING
-    (37) expr -> . TRUE
-    (38) expr -> . FALSE
-    (39) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
-    (40) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE
-    (41) expr -> . WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
-    (42) expr -> . PRINTF LEFT_PAREN expr RIGHT_PAREN SEMICOLON
-    (13) term -> . term TIMES factor
-    (14) term -> . term DIVIDE factor
-    (15) term -> . factor
-    (16) factor -> . NUMBER
-    (17) factor -> . ID
-    (18) factor -> . LEFT_PAREN expr RIGHT_PAREN
-
-    NOT             shift and go to state 8
-    LEFT_PAREN      shift and go to state 6
-    ID              shift and go to state 33
-    NUMBER          shift and go to state 9
-    STRING          shift and go to state 10
-    TRUE            shift and go to state 11
-    FALSE           shift and go to state 12
-    IF              shift and go to state 13
-    WHILE           shift and go to state 14
-    PRINTF          shift and go to state 15
-
-    args                           shift and go to state 45
-    expr                           shift and go to state 46
-    term                           shift and go to state 7
-    factor                         shift and go to state 16
-
-state 71
-
-    (1) program -> ID EQUALS expr SEMICOLON . program
-    (1) program -> . ID EQUALS expr SEMICOLON program
-    (2) program -> . ID EQUALS function_call SEMICOLON program
-    (3) program -> . function_call SEMICOLON program
-    (4) program -> . expr program
-    (5) program -> . lambda
-    (6) program -> . ID LEFT_PAREN parameters RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE program
+    (2) program -> ID EQUALS expr SEMICOLON . program
+    (2) program -> . ID EQUALS expr SEMICOLON program
+    (3) program -> . ID EQUALS function_call SEMICOLON program
+    (4) program -> . function_call SEMICOLON program
+    (5) program -> . expr program
+    (6) program -> . lambda
     (7) function_call -> . ID LEFT_PAREN args RIGHT_PAREN
     (10) expr -> . expr PLUS term
     (11) expr -> . expr MINUS term
@@ -3403,35 +3421,34 @@ state 71
     (17) factor -> . ID
     (18) factor -> . LEFT_PAREN expr RIGHT_PAREN
 
-    ID              shift and go to state 2
-    NOT             shift and go to state 8
-    LEFT_PAREN      shift and go to state 6
-    NUMBER          shift and go to state 9
-    STRING          shift and go to state 10
-    TRUE            shift and go to state 11
-    FALSE           shift and go to state 12
-    IF              shift and go to state 13
-    WHILE           shift and go to state 14
-    PRINTF          shift and go to state 15
-    $end            reduce using rule 43 (lambda -> .)
+    ID              shift and go to state 10
+    NOT             shift and go to state 17
+    LEFT_PAREN      shift and go to state 11
+    NUMBER          shift and go to state 18
+    STRING          shift and go to state 19
+    TRUE            shift and go to state 20
+    FALSE           shift and go to state 21
+    IF              shift and go to state 22
+    WHILE           shift and go to state 23
+    PRINTF          shift and go to state 24
     RIGHT_BRACE     reduce using rule 43 (lambda -> .)
+    $end            reduce using rule 43 (lambda -> .)
 
-    expr                           shift and go to state 3
-    program                        shift and go to state 81
-    function_call                  shift and go to state 4
-    lambda                         shift and go to state 5
-    term                           shift and go to state 7
-    factor                         shift and go to state 16
+    expr                           shift and go to state 13
+    program                        shift and go to state 87
+    function_call                  shift and go to state 14
+    lambda                         shift and go to state 15
+    term                           shift and go to state 16
+    factor                         shift and go to state 25
 
-state 72
+state 80
 
-    (2) program -> ID EQUALS function_call SEMICOLON . program
-    (1) program -> . ID EQUALS expr SEMICOLON program
-    (2) program -> . ID EQUALS function_call SEMICOLON program
-    (3) program -> . function_call SEMICOLON program
-    (4) program -> . expr program
-    (5) program -> . lambda
-    (6) program -> . ID LEFT_PAREN parameters RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE program
+    (3) program -> ID EQUALS function_call SEMICOLON . program
+    (2) program -> . ID EQUALS expr SEMICOLON program
+    (3) program -> . ID EQUALS function_call SEMICOLON program
+    (4) program -> . function_call SEMICOLON program
+    (5) program -> . expr program
+    (6) program -> . lambda
     (7) function_call -> . ID LEFT_PAREN args RIGHT_PAREN
     (10) expr -> . expr PLUS term
     (11) expr -> . expr MINUS term
@@ -3466,48 +3483,34 @@ state 72
     (17) factor -> . ID
     (18) factor -> . LEFT_PAREN expr RIGHT_PAREN
 
-    ID              shift and go to state 2
-    NOT             shift and go to state 8
-    LEFT_PAREN      shift and go to state 6
-    NUMBER          shift and go to state 9
-    STRING          shift and go to state 10
-    TRUE            shift and go to state 11
-    FALSE           shift and go to state 12
-    IF              shift and go to state 13
-    WHILE           shift and go to state 14
-    PRINTF          shift and go to state 15
-    $end            reduce using rule 43 (lambda -> .)
+    ID              shift and go to state 10
+    NOT             shift and go to state 17
+    LEFT_PAREN      shift and go to state 11
+    NUMBER          shift and go to state 18
+    STRING          shift and go to state 19
+    TRUE            shift and go to state 20
+    FALSE           shift and go to state 21
+    IF              shift and go to state 22
+    WHILE           shift and go to state 23
+    PRINTF          shift and go to state 24
     RIGHT_BRACE     reduce using rule 43 (lambda -> .)
+    $end            reduce using rule 43 (lambda -> .)
 
-    function_call                  shift and go to state 4
-    program                        shift and go to state 82
-    expr                           shift and go to state 3
-    lambda                         shift and go to state 5
-    term                           shift and go to state 7
-    factor                         shift and go to state 16
+    function_call                  shift and go to state 14
+    program                        shift and go to state 88
+    expr                           shift and go to state 13
+    lambda                         shift and go to state 15
+    term                           shift and go to state 16
+    factor                         shift and go to state 25
 
-state 73
-
-    (6) program -> ID LEFT_PAREN parameters RIGHT_PAREN . LEFT_BRACE program RIGHT_BRACE program
-
-    LEFT_BRACE      shift and go to state 83
-
-
-state 74
-
-    (9) parameters -> parameters COMMA . ID
-
-    ID              shift and go to state 84
-
-
-state 75
+state 81
 
     (7) function_call -> ID LEFT_PAREN args RIGHT_PAREN .
 
     SEMICOLON       reduce using rule 7 (function_call -> ID LEFT_PAREN args RIGHT_PAREN .)
 
 
-state 76
+state 82
 
     (20) args -> args COMMA . expr
     (10) expr -> . expr PLUS term
@@ -3542,22 +3545,22 @@ state 76
     (17) factor -> . ID
     (18) factor -> . LEFT_PAREN expr RIGHT_PAREN
 
-    NOT             shift and go to state 8
-    LEFT_PAREN      shift and go to state 6
-    ID              shift and go to state 33
-    NUMBER          shift and go to state 9
-    STRING          shift and go to state 10
-    TRUE            shift and go to state 11
-    FALSE           shift and go to state 12
-    IF              shift and go to state 13
-    WHILE           shift and go to state 14
-    PRINTF          shift and go to state 15
+    NOT             shift and go to state 17
+    LEFT_PAREN      shift and go to state 11
+    ID              shift and go to state 29
+    NUMBER          shift and go to state 18
+    STRING          shift and go to state 19
+    TRUE            shift and go to state 20
+    FALSE           shift and go to state 21
+    IF              shift and go to state 22
+    WHILE           shift and go to state 23
+    PRINTF          shift and go to state 24
 
-    expr                           shift and go to state 85
-    term                           shift and go to state 7
-    factor                         shift and go to state 16
+    expr                           shift and go to state 89
+    term                           shift and go to state 16
+    factor                         shift and go to state 25
 
-state 77
+state 83
 
     (18) factor -> LEFT_PAREN expr . RIGHT_PAREN
     (10) expr -> expr . PLUS term
@@ -3574,129 +3577,59 @@ state 77
     (30) expr -> expr . AND expr
     (31) expr -> expr . OR expr
 
-    RIGHT_PAREN     shift and go to state 86
-    PLUS            shift and go to state 20
-    MINUS           shift and go to state 21
-    TIMES           shift and go to state 22
-    DIVIDE          shift and go to state 23
-    EQUALS_EQUALS   shift and go to state 24
-    LESS_THAN       shift and go to state 25
-    LESS_THAN_EQUAL shift and go to state 26
-    GREATER_THAN    shift and go to state 27
-    GREATER_THAN_EQUAL shift and go to state 28
-    AND             shift and go to state 29
-    OR              shift and go to state 30
+    RIGHT_PAREN     shift and go to state 90
+    PLUS            shift and go to state 32
+    MINUS           shift and go to state 33
+    TIMES           shift and go to state 34
+    DIVIDE          shift and go to state 35
+    EQUALS_EQUALS   shift and go to state 36
+    LESS_THAN       shift and go to state 37
+    LESS_THAN_EQUAL shift and go to state 38
+    GREATER_THAN    shift and go to state 39
+    GREATER_THAN_EQUAL shift and go to state 40
+    AND             shift and go to state 41
+    OR              shift and go to state 42
 
 
-state 78
+state 84
 
     (39) expr -> IF LEFT_PAREN expr RIGHT_PAREN . LEFT_BRACE program RIGHT_BRACE
     (40) expr -> IF LEFT_PAREN expr RIGHT_PAREN . LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE
 
-    LEFT_BRACE      shift and go to state 87
-
-
-state 79
-
-    (41) expr -> WHILE LEFT_PAREN expr RIGHT_PAREN . LEFT_BRACE program RIGHT_BRACE
-
-    LEFT_BRACE      shift and go to state 88
-
-
-state 80
-
-    (42) expr -> PRINTF LEFT_PAREN expr RIGHT_PAREN . SEMICOLON
-
-    SEMICOLON       shift and go to state 89
-
-
-state 81
-
-    (1) program -> ID EQUALS expr SEMICOLON program .
-
-    $end            reduce using rule 1 (program -> ID EQUALS expr SEMICOLON program .)
-    RIGHT_BRACE     reduce using rule 1 (program -> ID EQUALS expr SEMICOLON program .)
-
-
-state 82
-
-    (2) program -> ID EQUALS function_call SEMICOLON program .
-
-    $end            reduce using rule 2 (program -> ID EQUALS function_call SEMICOLON program .)
-    RIGHT_BRACE     reduce using rule 2 (program -> ID EQUALS function_call SEMICOLON program .)
-
-
-state 83
-
-    (6) program -> ID LEFT_PAREN parameters RIGHT_PAREN LEFT_BRACE . program RIGHT_BRACE program
-    (1) program -> . ID EQUALS expr SEMICOLON program
-    (2) program -> . ID EQUALS function_call SEMICOLON program
-    (3) program -> . function_call SEMICOLON program
-    (4) program -> . expr program
-    (5) program -> . lambda
-    (6) program -> . ID LEFT_PAREN parameters RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE program
-    (7) function_call -> . ID LEFT_PAREN args RIGHT_PAREN
-    (10) expr -> . expr PLUS term
-    (11) expr -> . expr MINUS term
-    (12) expr -> . term
-    (21) expr -> . expr PLUS expr
-    (22) expr -> . expr MINUS expr
-    (23) expr -> . expr TIMES expr
-    (24) expr -> . expr DIVIDE expr
-    (25) expr -> . expr EQUALS_EQUALS expr
-    (26) expr -> . expr LESS_THAN expr
-    (27) expr -> . expr LESS_THAN_EQUAL expr
-    (28) expr -> . expr GREATER_THAN expr
-    (29) expr -> . expr GREATER_THAN_EQUAL expr
-    (30) expr -> . expr AND expr
-    (31) expr -> . expr OR expr
-    (32) expr -> . NOT expr
-    (33) expr -> . LEFT_PAREN expr RIGHT_PAREN
-    (34) expr -> . ID
-    (35) expr -> . NUMBER
-    (36) expr -> . STRING
-    (37) expr -> . TRUE
-    (38) expr -> . FALSE
-    (39) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
-    (40) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE
-    (41) expr -> . WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
-    (42) expr -> . PRINTF LEFT_PAREN expr RIGHT_PAREN SEMICOLON
-    (43) lambda -> .
-    (13) term -> . term TIMES factor
-    (14) term -> . term DIVIDE factor
-    (15) term -> . factor
-    (16) factor -> . NUMBER
-    (17) factor -> . ID
-    (18) factor -> . LEFT_PAREN expr RIGHT_PAREN
-
-    ID              shift and go to state 2
-    NOT             shift and go to state 8
-    LEFT_PAREN      shift and go to state 6
-    NUMBER          shift and go to state 9
-    STRING          shift and go to state 10
-    TRUE            shift and go to state 11
-    FALSE           shift and go to state 12
-    IF              shift and go to state 13
-    WHILE           shift and go to state 14
-    PRINTF          shift and go to state 15
-    RIGHT_BRACE     reduce using rule 43 (lambda -> .)
-
-    program                        shift and go to state 90
-    expr                           shift and go to state 3
-    function_call                  shift and go to state 4
-    lambda                         shift and go to state 5
-    term                           shift and go to state 7
-    factor                         shift and go to state 16
-
-state 84
-
-    (9) parameters -> parameters COMMA ID .
-
-    RIGHT_PAREN     reduce using rule 9 (parameters -> parameters COMMA ID .)
-    COMMA           reduce using rule 9 (parameters -> parameters COMMA ID .)
+    LEFT_BRACE      shift and go to state 91
 
 
 state 85
+
+    (41) expr -> WHILE LEFT_PAREN expr RIGHT_PAREN . LEFT_BRACE program RIGHT_BRACE
+
+    LEFT_BRACE      shift and go to state 92
+
+
+state 86
+
+    (42) expr -> PRINTF LEFT_PAREN expr RIGHT_PAREN . SEMICOLON
+
+    SEMICOLON       shift and go to state 93
+
+
+state 87
+
+    (2) program -> ID EQUALS expr SEMICOLON program .
+
+    RIGHT_BRACE     reduce using rule 2 (program -> ID EQUALS expr SEMICOLON program .)
+    $end            reduce using rule 2 (program -> ID EQUALS expr SEMICOLON program .)
+
+
+state 88
+
+    (3) program -> ID EQUALS function_call SEMICOLON program .
+
+    RIGHT_BRACE     reduce using rule 3 (program -> ID EQUALS function_call SEMICOLON program .)
+    $end            reduce using rule 3 (program -> ID EQUALS function_call SEMICOLON program .)
+
+
+state 89
 
     (20) args -> args COMMA expr .
     (10) expr -> expr . PLUS term
@@ -3715,20 +3648,20 @@ state 85
 
     RIGHT_PAREN     reduce using rule 20 (args -> args COMMA expr .)
     COMMA           reduce using rule 20 (args -> args COMMA expr .)
-    PLUS            shift and go to state 20
-    MINUS           shift and go to state 21
-    TIMES           shift and go to state 22
-    DIVIDE          shift and go to state 23
-    EQUALS_EQUALS   shift and go to state 24
-    LESS_THAN       shift and go to state 25
-    LESS_THAN_EQUAL shift and go to state 26
-    GREATER_THAN    shift and go to state 27
-    GREATER_THAN_EQUAL shift and go to state 28
-    AND             shift and go to state 29
-    OR              shift and go to state 30
+    PLUS            shift and go to state 32
+    MINUS           shift and go to state 33
+    TIMES           shift and go to state 34
+    DIVIDE          shift and go to state 35
+    EQUALS_EQUALS   shift and go to state 36
+    LESS_THAN       shift and go to state 37
+    LESS_THAN_EQUAL shift and go to state 38
+    GREATER_THAN    shift and go to state 39
+    GREATER_THAN_EQUAL shift and go to state 40
+    AND             shift and go to state 41
+    OR              shift and go to state 42
 
 
-state 86
+state 90
 
     (18) factor -> LEFT_PAREN expr RIGHT_PAREN .
 
@@ -3753,23 +3686,22 @@ state 86
     IF              reduce using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
     WHILE           reduce using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
     PRINTF          reduce using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
-    $end            reduce using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
     RIGHT_BRACE     reduce using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
     RIGHT_PAREN     reduce using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
+    $end            reduce using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
     SEMICOLON       reduce using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
     COMMA           reduce using rule 18 (factor -> LEFT_PAREN expr RIGHT_PAREN .)
 
 
-state 87
+state 91
 
     (39) expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE . program RIGHT_BRACE
     (40) expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE . program RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE
-    (1) program -> . ID EQUALS expr SEMICOLON program
-    (2) program -> . ID EQUALS function_call SEMICOLON program
-    (3) program -> . function_call SEMICOLON program
-    (4) program -> . expr program
-    (5) program -> . lambda
-    (6) program -> . ID LEFT_PAREN parameters RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE program
+    (2) program -> . ID EQUALS expr SEMICOLON program
+    (3) program -> . ID EQUALS function_call SEMICOLON program
+    (4) program -> . function_call SEMICOLON program
+    (5) program -> . expr program
+    (6) program -> . lambda
     (7) function_call -> . ID LEFT_PAREN args RIGHT_PAREN
     (10) expr -> . expr PLUS term
     (11) expr -> . expr MINUS term
@@ -3804,34 +3736,33 @@ state 87
     (17) factor -> . ID
     (18) factor -> . LEFT_PAREN expr RIGHT_PAREN
 
-    ID              shift and go to state 2
-    NOT             shift and go to state 8
-    LEFT_PAREN      shift and go to state 6
-    NUMBER          shift and go to state 9
-    STRING          shift and go to state 10
-    TRUE            shift and go to state 11
-    FALSE           shift and go to state 12
-    IF              shift and go to state 13
-    WHILE           shift and go to state 14
-    PRINTF          shift and go to state 15
+    ID              shift and go to state 10
+    NOT             shift and go to state 17
+    LEFT_PAREN      shift and go to state 11
+    NUMBER          shift and go to state 18
+    STRING          shift and go to state 19
+    TRUE            shift and go to state 20
+    FALSE           shift and go to state 21
+    IF              shift and go to state 22
+    WHILE           shift and go to state 23
+    PRINTF          shift and go to state 24
     RIGHT_BRACE     reduce using rule 43 (lambda -> .)
 
-    expr                           shift and go to state 3
-    program                        shift and go to state 91
-    function_call                  shift and go to state 4
-    lambda                         shift and go to state 5
-    term                           shift and go to state 7
-    factor                         shift and go to state 16
+    expr                           shift and go to state 13
+    program                        shift and go to state 94
+    function_call                  shift and go to state 14
+    lambda                         shift and go to state 15
+    term                           shift and go to state 16
+    factor                         shift and go to state 25
 
-state 88
+state 92
 
     (41) expr -> WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE . program RIGHT_BRACE
-    (1) program -> . ID EQUALS expr SEMICOLON program
-    (2) program -> . ID EQUALS function_call SEMICOLON program
-    (3) program -> . function_call SEMICOLON program
-    (4) program -> . expr program
-    (5) program -> . lambda
-    (6) program -> . ID LEFT_PAREN parameters RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE program
+    (2) program -> . ID EQUALS expr SEMICOLON program
+    (3) program -> . ID EQUALS function_call SEMICOLON program
+    (4) program -> . function_call SEMICOLON program
+    (5) program -> . expr program
+    (6) program -> . lambda
     (7) function_call -> . ID LEFT_PAREN args RIGHT_PAREN
     (10) expr -> . expr PLUS term
     (11) expr -> . expr MINUS term
@@ -3866,26 +3797,26 @@ state 88
     (17) factor -> . ID
     (18) factor -> . LEFT_PAREN expr RIGHT_PAREN
 
-    ID              shift and go to state 2
-    NOT             shift and go to state 8
-    LEFT_PAREN      shift and go to state 6
-    NUMBER          shift and go to state 9
-    STRING          shift and go to state 10
-    TRUE            shift and go to state 11
-    FALSE           shift and go to state 12
-    IF              shift and go to state 13
-    WHILE           shift and go to state 14
-    PRINTF          shift and go to state 15
+    ID              shift and go to state 10
+    NOT             shift and go to state 17
+    LEFT_PAREN      shift and go to state 11
+    NUMBER          shift and go to state 18
+    STRING          shift and go to state 19
+    TRUE            shift and go to state 20
+    FALSE           shift and go to state 21
+    IF              shift and go to state 22
+    WHILE           shift and go to state 23
+    PRINTF          shift and go to state 24
     RIGHT_BRACE     reduce using rule 43 (lambda -> .)
 
-    expr                           shift and go to state 3
-    program                        shift and go to state 92
-    function_call                  shift and go to state 4
-    lambda                         shift and go to state 5
-    term                           shift and go to state 7
-    factor                         shift and go to state 16
+    expr                           shift and go to state 13
+    program                        shift and go to state 95
+    function_call                  shift and go to state 14
+    lambda                         shift and go to state 15
+    term                           shift and go to state 16
+    factor                         shift and go to state 25
 
-state 89
+state 93
 
     (42) expr -> PRINTF LEFT_PAREN expr RIGHT_PAREN SEMICOLON .
 
@@ -3910,99 +3841,29 @@ state 89
     IF              reduce using rule 42 (expr -> PRINTF LEFT_PAREN expr RIGHT_PAREN SEMICOLON .)
     WHILE           reduce using rule 42 (expr -> PRINTF LEFT_PAREN expr RIGHT_PAREN SEMICOLON .)
     PRINTF          reduce using rule 42 (expr -> PRINTF LEFT_PAREN expr RIGHT_PAREN SEMICOLON .)
-    $end            reduce using rule 42 (expr -> PRINTF LEFT_PAREN expr RIGHT_PAREN SEMICOLON .)
     RIGHT_BRACE     reduce using rule 42 (expr -> PRINTF LEFT_PAREN expr RIGHT_PAREN SEMICOLON .)
     RIGHT_PAREN     reduce using rule 42 (expr -> PRINTF LEFT_PAREN expr RIGHT_PAREN SEMICOLON .)
+    $end            reduce using rule 42 (expr -> PRINTF LEFT_PAREN expr RIGHT_PAREN SEMICOLON .)
     SEMICOLON       reduce using rule 42 (expr -> PRINTF LEFT_PAREN expr RIGHT_PAREN SEMICOLON .)
     COMMA           reduce using rule 42 (expr -> PRINTF LEFT_PAREN expr RIGHT_PAREN SEMICOLON .)
 
 
-state 90
-
-    (6) program -> ID LEFT_PAREN parameters RIGHT_PAREN LEFT_BRACE program . RIGHT_BRACE program
-
-    RIGHT_BRACE     shift and go to state 93
-
-
-state 91
+state 94
 
     (39) expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program . RIGHT_BRACE
     (40) expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program . RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE
 
-    RIGHT_BRACE     shift and go to state 94
+    RIGHT_BRACE     shift and go to state 96
 
 
-state 92
+state 95
 
     (41) expr -> WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program . RIGHT_BRACE
 
-    RIGHT_BRACE     shift and go to state 95
+    RIGHT_BRACE     shift and go to state 97
 
 
-state 93
-
-    (6) program -> ID LEFT_PAREN parameters RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE . program
-    (1) program -> . ID EQUALS expr SEMICOLON program
-    (2) program -> . ID EQUALS function_call SEMICOLON program
-    (3) program -> . function_call SEMICOLON program
-    (4) program -> . expr program
-    (5) program -> . lambda
-    (6) program -> . ID LEFT_PAREN parameters RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE program
-    (7) function_call -> . ID LEFT_PAREN args RIGHT_PAREN
-    (10) expr -> . expr PLUS term
-    (11) expr -> . expr MINUS term
-    (12) expr -> . term
-    (21) expr -> . expr PLUS expr
-    (22) expr -> . expr MINUS expr
-    (23) expr -> . expr TIMES expr
-    (24) expr -> . expr DIVIDE expr
-    (25) expr -> . expr EQUALS_EQUALS expr
-    (26) expr -> . expr LESS_THAN expr
-    (27) expr -> . expr LESS_THAN_EQUAL expr
-    (28) expr -> . expr GREATER_THAN expr
-    (29) expr -> . expr GREATER_THAN_EQUAL expr
-    (30) expr -> . expr AND expr
-    (31) expr -> . expr OR expr
-    (32) expr -> . NOT expr
-    (33) expr -> . LEFT_PAREN expr RIGHT_PAREN
-    (34) expr -> . ID
-    (35) expr -> . NUMBER
-    (36) expr -> . STRING
-    (37) expr -> . TRUE
-    (38) expr -> . FALSE
-    (39) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
-    (40) expr -> . IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE
-    (41) expr -> . WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE
-    (42) expr -> . PRINTF LEFT_PAREN expr RIGHT_PAREN SEMICOLON
-    (43) lambda -> .
-    (13) term -> . term TIMES factor
-    (14) term -> . term DIVIDE factor
-    (15) term -> . factor
-    (16) factor -> . NUMBER
-    (17) factor -> . ID
-    (18) factor -> . LEFT_PAREN expr RIGHT_PAREN
-
-    ID              shift and go to state 2
-    NOT             shift and go to state 8
-    LEFT_PAREN      shift and go to state 6
-    NUMBER          shift and go to state 9
-    STRING          shift and go to state 10
-    TRUE            shift and go to state 11
-    FALSE           shift and go to state 12
-    IF              shift and go to state 13
-    WHILE           shift and go to state 14
-    PRINTF          shift and go to state 15
-    $end            reduce using rule 43 (lambda -> .)
-    RIGHT_BRACE     reduce using rule 43 (lambda -> .)
-
-    program                        shift and go to state 96
-    expr                           shift and go to state 3
-    function_call                  shift and go to state 4
-    lambda                         shift and go to state 5
-    term                           shift and go to state 7
-    factor                         shift and go to state 16
-
-state 94
+state 96
 
     (39) expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE .
     (40) expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE . ELSE LEFT_BRACE program RIGHT_BRACE
@@ -4028,15 +3889,15 @@ state 94
     IF              reduce using rule 39 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE .)
     WHILE           reduce using rule 39 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE .)
     PRINTF          reduce using rule 39 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE .)
-    $end            reduce using rule 39 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE .)
     RIGHT_BRACE     reduce using rule 39 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE .)
     RIGHT_PAREN     reduce using rule 39 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE .)
+    $end            reduce using rule 39 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE .)
     SEMICOLON       reduce using rule 39 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE .)
     COMMA           reduce using rule 39 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE .)
-    ELSE            shift and go to state 97
+    ELSE            shift and go to state 98
 
 
-state 95
+state 97
 
     (41) expr -> WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE .
 
@@ -4061,37 +3922,28 @@ state 95
     IF              reduce using rule 41 (expr -> WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE .)
     WHILE           reduce using rule 41 (expr -> WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE .)
     PRINTF          reduce using rule 41 (expr -> WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE .)
-    $end            reduce using rule 41 (expr -> WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE .)
     RIGHT_BRACE     reduce using rule 41 (expr -> WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE .)
     RIGHT_PAREN     reduce using rule 41 (expr -> WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE .)
+    $end            reduce using rule 41 (expr -> WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE .)
     SEMICOLON       reduce using rule 41 (expr -> WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE .)
     COMMA           reduce using rule 41 (expr -> WHILE LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE .)
 
 
-state 96
-
-    (6) program -> ID LEFT_PAREN parameters RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE program .
-
-    $end            reduce using rule 6 (program -> ID LEFT_PAREN parameters RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE program .)
-    RIGHT_BRACE     reduce using rule 6 (program -> ID LEFT_PAREN parameters RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE program .)
-
-
-state 97
+state 98
 
     (40) expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE . LEFT_BRACE program RIGHT_BRACE
 
-    LEFT_BRACE      shift and go to state 98
+    LEFT_BRACE      shift and go to state 99
 
 
-state 98
+state 99
 
     (40) expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE . program RIGHT_BRACE
-    (1) program -> . ID EQUALS expr SEMICOLON program
-    (2) program -> . ID EQUALS function_call SEMICOLON program
-    (3) program -> . function_call SEMICOLON program
-    (4) program -> . expr program
-    (5) program -> . lambda
-    (6) program -> . ID LEFT_PAREN parameters RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE program
+    (2) program -> . ID EQUALS expr SEMICOLON program
+    (3) program -> . ID EQUALS function_call SEMICOLON program
+    (4) program -> . function_call SEMICOLON program
+    (5) program -> . expr program
+    (6) program -> . lambda
     (7) function_call -> . ID LEFT_PAREN args RIGHT_PAREN
     (10) expr -> . expr PLUS term
     (11) expr -> . expr MINUS term
@@ -4126,33 +3978,33 @@ state 98
     (17) factor -> . ID
     (18) factor -> . LEFT_PAREN expr RIGHT_PAREN
 
-    ID              shift and go to state 2
-    NOT             shift and go to state 8
-    LEFT_PAREN      shift and go to state 6
-    NUMBER          shift and go to state 9
-    STRING          shift and go to state 10
-    TRUE            shift and go to state 11
-    FALSE           shift and go to state 12
-    IF              shift and go to state 13
-    WHILE           shift and go to state 14
-    PRINTF          shift and go to state 15
+    ID              shift and go to state 10
+    NOT             shift and go to state 17
+    LEFT_PAREN      shift and go to state 11
+    NUMBER          shift and go to state 18
+    STRING          shift and go to state 19
+    TRUE            shift and go to state 20
+    FALSE           shift and go to state 21
+    IF              shift and go to state 22
+    WHILE           shift and go to state 23
+    PRINTF          shift and go to state 24
     RIGHT_BRACE     reduce using rule 43 (lambda -> .)
 
-    expr                           shift and go to state 3
-    program                        shift and go to state 99
-    function_call                  shift and go to state 4
-    lambda                         shift and go to state 5
-    term                           shift and go to state 7
-    factor                         shift and go to state 16
+    expr                           shift and go to state 13
+    program                        shift and go to state 100
+    function_call                  shift and go to state 14
+    lambda                         shift and go to state 15
+    term                           shift and go to state 16
+    factor                         shift and go to state 25
 
-state 99
+state 100
 
     (40) expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE program . RIGHT_BRACE
 
-    RIGHT_BRACE     shift and go to state 100
+    RIGHT_BRACE     shift and go to state 101
 
 
-state 100
+state 101
 
     (40) expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE .
 
@@ -4177,126 +4029,30 @@ state 100
     IF              reduce using rule 40 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE .)
     WHILE           reduce using rule 40 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE .)
     PRINTF          reduce using rule 40 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE .)
-    $end            reduce using rule 40 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE .)
     RIGHT_BRACE     reduce using rule 40 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE .)
     RIGHT_PAREN     reduce using rule 40 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE .)
+    $end            reduce using rule 40 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE .)
     SEMICOLON       reduce using rule 40 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE .)
     COMMA           reduce using rule 40 (expr -> IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE ELSE LEFT_BRACE program RIGHT_BRACE .)
 
 WARNING: 
 WARNING: Conflicts:
 WARNING: 
-WARNING: shift/reduce conflict for LEFT_PAREN in state 2 resolved as shift
-WARNING: shift/reduce conflict for LEFT_PAREN in state 2 resolved as shift
-WARNING: shift/reduce conflict for TIMES in state 7 resolved as shift
-WARNING: shift/reduce conflict for DIVIDE in state 7 resolved as shift
-WARNING: shift/reduce conflict for PLUS in state 36 resolved as shift
-WARNING: shift/reduce conflict for MINUS in state 36 resolved as shift
-WARNING: shift/reduce conflict for TIMES in state 36 resolved as shift
-WARNING: shift/reduce conflict for DIVIDE in state 36 resolved as shift
-WARNING: shift/reduce conflict for EQUALS_EQUALS in state 36 resolved as shift
-WARNING: shift/reduce conflict for LESS_THAN in state 36 resolved as shift
-WARNING: shift/reduce conflict for LESS_THAN_EQUAL in state 36 resolved as shift
-WARNING: shift/reduce conflict for GREATER_THAN in state 36 resolved as shift
-WARNING: shift/reduce conflict for GREATER_THAN_EQUAL in state 36 resolved as shift
-WARNING: shift/reduce conflict for AND in state 36 resolved as shift
-WARNING: shift/reduce conflict for OR in state 36 resolved as shift
-WARNING: shift/reduce conflict for PLUS in state 47 resolved as shift
-WARNING: shift/reduce conflict for MINUS in state 47 resolved as shift
-WARNING: shift/reduce conflict for TIMES in state 47 resolved as shift
-WARNING: shift/reduce conflict for DIVIDE in state 47 resolved as shift
-WARNING: shift/reduce conflict for EQUALS_EQUALS in state 47 resolved as shift
-WARNING: shift/reduce conflict for LESS_THAN in state 47 resolved as shift
-WARNING: shift/reduce conflict for LESS_THAN_EQUAL in state 47 resolved as shift
-WARNING: shift/reduce conflict for GREATER_THAN in state 47 resolved as shift
-WARNING: shift/reduce conflict for GREATER_THAN_EQUAL in state 47 resolved as shift
-WARNING: shift/reduce conflict for AND in state 47 resolved as shift
-WARNING: shift/reduce conflict for OR in state 47 resolved as shift
-WARNING: shift/reduce conflict for TIMES in state 48 resolved as shift
-WARNING: shift/reduce conflict for DIVIDE in state 48 resolved as shift
-WARNING: shift/reduce conflict for TIMES in state 48 resolved as shift
-WARNING: shift/reduce conflict for DIVIDE in state 48 resolved as shift
-WARNING: shift/reduce conflict for PLUS in state 49 resolved as shift
-WARNING: shift/reduce conflict for MINUS in state 49 resolved as shift
-WARNING: shift/reduce conflict for TIMES in state 49 resolved as shift
-WARNING: shift/reduce conflict for DIVIDE in state 49 resolved as shift
-WARNING: shift/reduce conflict for EQUALS_EQUALS in state 49 resolved as shift
-WARNING: shift/reduce conflict for LESS_THAN in state 49 resolved as shift
-WARNING: shift/reduce conflict for LESS_THAN_EQUAL in state 49 resolved as shift
-WARNING: shift/reduce conflict for GREATER_THAN in state 49 resolved as shift
-WARNING: shift/reduce conflict for GREATER_THAN_EQUAL in state 49 resolved as shift
-WARNING: shift/reduce conflict for AND in state 49 resolved as shift
-WARNING: shift/reduce conflict for OR in state 49 resolved as shift
-WARNING: shift/reduce conflict for TIMES in state 50 resolved as shift
-WARNING: shift/reduce conflict for DIVIDE in state 50 resolved as shift
-WARNING: shift/reduce conflict for TIMES in state 50 resolved as shift
-WARNING: shift/reduce conflict for DIVIDE in state 50 resolved as shift
-WARNING: shift/reduce conflict for PLUS in state 51 resolved as shift
-WARNING: shift/reduce conflict for MINUS in state 51 resolved as shift
-WARNING: shift/reduce conflict for TIMES in state 51 resolved as shift
-WARNING: shift/reduce conflict for DIVIDE in state 51 resolved as shift
-WARNING: shift/reduce conflict for EQUALS_EQUALS in state 51 resolved as shift
-WARNING: shift/reduce conflict for LESS_THAN in state 51 resolved as shift
-WARNING: shift/reduce conflict for LESS_THAN_EQUAL in state 51 resolved as shift
-WARNING: shift/reduce conflict for GREATER_THAN in state 51 resolved as shift
-WARNING: shift/reduce conflict for GREATER_THAN_EQUAL in state 51 resolved as shift
-WARNING: shift/reduce conflict for AND in state 51 resolved as shift
-WARNING: shift/reduce conflict for OR in state 51 resolved as shift
-WARNING: shift/reduce conflict for PLUS in state 52 resolved as shift
-WARNING: shift/reduce conflict for MINUS in state 52 resolved as shift
-WARNING: shift/reduce conflict for TIMES in state 52 resolved as shift
-WARNING: shift/reduce conflict for DIVIDE in state 52 resolved as shift
-WARNING: shift/reduce conflict for EQUALS_EQUALS in state 52 resolved as shift
-WARNING: shift/reduce conflict for LESS_THAN in state 52 resolved as shift
-WARNING: shift/reduce conflict for LESS_THAN_EQUAL in state 52 resolved as shift
-WARNING: shift/reduce conflict for GREATER_THAN in state 52 resolved as shift
-WARNING: shift/reduce conflict for GREATER_THAN_EQUAL in state 52 resolved as shift
-WARNING: shift/reduce conflict for AND in state 52 resolved as shift
-WARNING: shift/reduce conflict for OR in state 52 resolved as shift
-WARNING: shift/reduce conflict for PLUS in state 53 resolved as shift
-WARNING: shift/reduce conflict for MINUS in state 53 resolved as shift
-WARNING: shift/reduce conflict for TIMES in state 53 resolved as shift
-WARNING: shift/reduce conflict for DIVIDE in state 53 resolved as shift
-WARNING: shift/reduce conflict for EQUALS_EQUALS in state 53 resolved as shift
-WARNING: shift/reduce conflict for LESS_THAN in state 53 resolved as shift
-WARNING: shift/reduce conflict for LESS_THAN_EQUAL in state 53 resolved as shift
-WARNING: shift/reduce conflict for GREATER_THAN in state 53 resolved as shift
-WARNING: shift/reduce conflict for GREATER_THAN_EQUAL in state 53 resolved as shift
-WARNING: shift/reduce conflict for AND in state 53 resolved as shift
-WARNING: shift/reduce conflict for OR in state 53 resolved as shift
-WARNING: shift/reduce conflict for PLUS in state 54 resolved as shift
-WARNING: shift/reduce conflict for MINUS in state 54 resolved as shift
-WARNING: shift/reduce conflict for TIMES in state 54 resolved as shift
-WARNING: shift/reduce conflict for DIVIDE in state 54 resolved as shift
-WARNING: shift/reduce conflict for EQUALS_EQUALS in state 54 resolved as shift
-WARNING: shift/reduce conflict for LESS_THAN in state 54 resolved as shift
-WARNING: shift/reduce conflict for LESS_THAN_EQUAL in state 54 resolved as shift
-WARNING: shift/reduce conflict for GREATER_THAN in state 54 resolved as shift
-WARNING: shift/reduce conflict for GREATER_THAN_EQUAL in state 54 resolved as shift
-WARNING: shift/reduce conflict for AND in state 54 resolved as shift
-WARNING: shift/reduce conflict for OR in state 54 resolved as shift
-WARNING: shift/reduce conflict for PLUS in state 55 resolved as shift
-WARNING: shift/reduce conflict for MINUS in state 55 resolved as shift
-WARNING: shift/reduce conflict for TIMES in state 55 resolved as shift
-WARNING: shift/reduce conflict for DIVIDE in state 55 resolved as shift
-WARNING: shift/reduce conflict for EQUALS_EQUALS in state 55 resolved as shift
-WARNING: shift/reduce conflict for LESS_THAN in state 55 resolved as shift
-WARNING: shift/reduce conflict for LESS_THAN_EQUAL in state 55 resolved as shift
-WARNING: shift/reduce conflict for GREATER_THAN in state 55 resolved as shift
-WARNING: shift/reduce conflict for GREATER_THAN_EQUAL in state 55 resolved as shift
-WARNING: shift/reduce conflict for AND in state 55 resolved as shift
-WARNING: shift/reduce conflict for OR in state 55 resolved as shift
-WARNING: shift/reduce conflict for PLUS in state 56 resolved as shift
-WARNING: shift/reduce conflict for MINUS in state 56 resolved as shift
-WARNING: shift/reduce conflict for TIMES in state 56 resolved as shift
-WARNING: shift/reduce conflict for DIVIDE in state 56 resolved as shift
-WARNING: shift/reduce conflict for EQUALS_EQUALS in state 56 resolved as shift
-WARNING: shift/reduce conflict for LESS_THAN in state 56 resolved as shift
-WARNING: shift/reduce conflict for LESS_THAN_EQUAL in state 56 resolved as shift
-WARNING: shift/reduce conflict for GREATER_THAN in state 56 resolved as shift
-WARNING: shift/reduce conflict for GREATER_THAN_EQUAL in state 56 resolved as shift
-WARNING: shift/reduce conflict for AND in state 56 resolved as shift
-WARNING: shift/reduce conflict for OR in state 56 resolved as shift
+WARNING: shift/reduce conflict for LEFT_PAREN in state 10 resolved as shift
+WARNING: shift/reduce conflict for LEFT_PAREN in state 10 resolved as shift
+WARNING: shift/reduce conflict for TIMES in state 16 resolved as shift
+WARNING: shift/reduce conflict for DIVIDE in state 16 resolved as shift
+WARNING: shift/reduce conflict for PLUS in state 46 resolved as shift
+WARNING: shift/reduce conflict for MINUS in state 46 resolved as shift
+WARNING: shift/reduce conflict for TIMES in state 46 resolved as shift
+WARNING: shift/reduce conflict for DIVIDE in state 46 resolved as shift
+WARNING: shift/reduce conflict for EQUALS_EQUALS in state 46 resolved as shift
+WARNING: shift/reduce conflict for LESS_THAN in state 46 resolved as shift
+WARNING: shift/reduce conflict for LESS_THAN_EQUAL in state 46 resolved as shift
+WARNING: shift/reduce conflict for GREATER_THAN in state 46 resolved as shift
+WARNING: shift/reduce conflict for GREATER_THAN_EQUAL in state 46 resolved as shift
+WARNING: shift/reduce conflict for AND in state 46 resolved as shift
+WARNING: shift/reduce conflict for OR in state 46 resolved as shift
 WARNING: shift/reduce conflict for PLUS in state 57 resolved as shift
 WARNING: shift/reduce conflict for MINUS in state 57 resolved as shift
 WARNING: shift/reduce conflict for TIMES in state 57 resolved as shift
@@ -4308,17 +4064,10 @@ WARNING: shift/reduce conflict for GREATER_THAN in state 57 resolved as shift
 WARNING: shift/reduce conflict for GREATER_THAN_EQUAL in state 57 resolved as shift
 WARNING: shift/reduce conflict for AND in state 57 resolved as shift
 WARNING: shift/reduce conflict for OR in state 57 resolved as shift
-WARNING: shift/reduce conflict for PLUS in state 58 resolved as shift
-WARNING: shift/reduce conflict for MINUS in state 58 resolved as shift
 WARNING: shift/reduce conflict for TIMES in state 58 resolved as shift
 WARNING: shift/reduce conflict for DIVIDE in state 58 resolved as shift
-WARNING: shift/reduce conflict for EQUALS_EQUALS in state 58 resolved as shift
-WARNING: shift/reduce conflict for LESS_THAN in state 58 resolved as shift
-WARNING: shift/reduce conflict for LESS_THAN_EQUAL in state 58 resolved as shift
-WARNING: shift/reduce conflict for GREATER_THAN in state 58 resolved as shift
-WARNING: shift/reduce conflict for GREATER_THAN_EQUAL in state 58 resolved as shift
-WARNING: shift/reduce conflict for AND in state 58 resolved as shift
-WARNING: shift/reduce conflict for OR in state 58 resolved as shift
+WARNING: shift/reduce conflict for TIMES in state 58 resolved as shift
+WARNING: shift/reduce conflict for DIVIDE in state 58 resolved as shift
 WARNING: shift/reduce conflict for PLUS in state 59 resolved as shift
 WARNING: shift/reduce conflict for MINUS in state 59 resolved as shift
 WARNING: shift/reduce conflict for TIMES in state 59 resolved as shift
@@ -4330,26 +4079,123 @@ WARNING: shift/reduce conflict for GREATER_THAN in state 59 resolved as shift
 WARNING: shift/reduce conflict for GREATER_THAN_EQUAL in state 59 resolved as shift
 WARNING: shift/reduce conflict for AND in state 59 resolved as shift
 WARNING: shift/reduce conflict for OR in state 59 resolved as shift
-WARNING: reduce/reduce conflict in state 2 resolved using rule (factor -> ID)
-WARNING: rejected rule (expr -> ID) in state 2
-WARNING: reduce/reduce conflict in state 9 resolved using rule (factor -> NUMBER)
-WARNING: rejected rule (expr -> NUMBER) in state 9
-WARNING: reduce/reduce conflict in state 33 resolved using rule (factor -> ID)
-WARNING: rejected rule (expr -> ID) in state 33
-WARNING: reduce/reduce conflict in state 40 resolved using rule (factor -> ID)
-WARNING: rejected rule (expr -> ID) in state 40
-WARNING: reduce/reduce conflict in state 43 resolved using rule (parameters -> ID)
-WARNING: rejected rule (expr -> ID) in state 43
-WARNING: reduce/reduce conflict in state 43 resolved using rule (factor -> ID)
-WARNING: rejected rule (expr -> ID) in state 43
-WARNING: reduce/reduce conflict in state 43 resolved using rule (parameters -> ID)
-WARNING: rejected rule (factor -> ID) in state 43
-WARNING: reduce/reduce conflict in state 48 resolved using rule (expr -> expr PLUS term)
-WARNING: rejected rule (expr -> term) in state 48
-WARNING: reduce/reduce conflict in state 50 resolved using rule (expr -> expr MINUS term)
-WARNING: rejected rule (expr -> term) in state 50
-WARNING: reduce/reduce conflict in state 61 resolved using rule (factor -> LEFT_PAREN expr RIGHT_PAREN)
-WARNING: rejected rule (expr -> LEFT_PAREN expr RIGHT_PAREN) in state 61
+WARNING: shift/reduce conflict for TIMES in state 60 resolved as shift
+WARNING: shift/reduce conflict for DIVIDE in state 60 resolved as shift
+WARNING: shift/reduce conflict for TIMES in state 60 resolved as shift
+WARNING: shift/reduce conflict for DIVIDE in state 60 resolved as shift
+WARNING: shift/reduce conflict for PLUS in state 61 resolved as shift
+WARNING: shift/reduce conflict for MINUS in state 61 resolved as shift
+WARNING: shift/reduce conflict for TIMES in state 61 resolved as shift
+WARNING: shift/reduce conflict for DIVIDE in state 61 resolved as shift
+WARNING: shift/reduce conflict for EQUALS_EQUALS in state 61 resolved as shift
+WARNING: shift/reduce conflict for LESS_THAN in state 61 resolved as shift
+WARNING: shift/reduce conflict for LESS_THAN_EQUAL in state 61 resolved as shift
+WARNING: shift/reduce conflict for GREATER_THAN in state 61 resolved as shift
+WARNING: shift/reduce conflict for GREATER_THAN_EQUAL in state 61 resolved as shift
+WARNING: shift/reduce conflict for AND in state 61 resolved as shift
+WARNING: shift/reduce conflict for OR in state 61 resolved as shift
+WARNING: shift/reduce conflict for PLUS in state 62 resolved as shift
+WARNING: shift/reduce conflict for MINUS in state 62 resolved as shift
+WARNING: shift/reduce conflict for TIMES in state 62 resolved as shift
+WARNING: shift/reduce conflict for DIVIDE in state 62 resolved as shift
+WARNING: shift/reduce conflict for EQUALS_EQUALS in state 62 resolved as shift
+WARNING: shift/reduce conflict for LESS_THAN in state 62 resolved as shift
+WARNING: shift/reduce conflict for LESS_THAN_EQUAL in state 62 resolved as shift
+WARNING: shift/reduce conflict for GREATER_THAN in state 62 resolved as shift
+WARNING: shift/reduce conflict for GREATER_THAN_EQUAL in state 62 resolved as shift
+WARNING: shift/reduce conflict for AND in state 62 resolved as shift
+WARNING: shift/reduce conflict for OR in state 62 resolved as shift
+WARNING: shift/reduce conflict for PLUS in state 63 resolved as shift
+WARNING: shift/reduce conflict for MINUS in state 63 resolved as shift
+WARNING: shift/reduce conflict for TIMES in state 63 resolved as shift
+WARNING: shift/reduce conflict for DIVIDE in state 63 resolved as shift
+WARNING: shift/reduce conflict for EQUALS_EQUALS in state 63 resolved as shift
+WARNING: shift/reduce conflict for LESS_THAN in state 63 resolved as shift
+WARNING: shift/reduce conflict for LESS_THAN_EQUAL in state 63 resolved as shift
+WARNING: shift/reduce conflict for GREATER_THAN in state 63 resolved as shift
+WARNING: shift/reduce conflict for GREATER_THAN_EQUAL in state 63 resolved as shift
+WARNING: shift/reduce conflict for AND in state 63 resolved as shift
+WARNING: shift/reduce conflict for OR in state 63 resolved as shift
+WARNING: shift/reduce conflict for PLUS in state 64 resolved as shift
+WARNING: shift/reduce conflict for MINUS in state 64 resolved as shift
+WARNING: shift/reduce conflict for TIMES in state 64 resolved as shift
+WARNING: shift/reduce conflict for DIVIDE in state 64 resolved as shift
+WARNING: shift/reduce conflict for EQUALS_EQUALS in state 64 resolved as shift
+WARNING: shift/reduce conflict for LESS_THAN in state 64 resolved as shift
+WARNING: shift/reduce conflict for LESS_THAN_EQUAL in state 64 resolved as shift
+WARNING: shift/reduce conflict for GREATER_THAN in state 64 resolved as shift
+WARNING: shift/reduce conflict for GREATER_THAN_EQUAL in state 64 resolved as shift
+WARNING: shift/reduce conflict for AND in state 64 resolved as shift
+WARNING: shift/reduce conflict for OR in state 64 resolved as shift
+WARNING: shift/reduce conflict for PLUS in state 65 resolved as shift
+WARNING: shift/reduce conflict for MINUS in state 65 resolved as shift
+WARNING: shift/reduce conflict for TIMES in state 65 resolved as shift
+WARNING: shift/reduce conflict for DIVIDE in state 65 resolved as shift
+WARNING: shift/reduce conflict for EQUALS_EQUALS in state 65 resolved as shift
+WARNING: shift/reduce conflict for LESS_THAN in state 65 resolved as shift
+WARNING: shift/reduce conflict for LESS_THAN_EQUAL in state 65 resolved as shift
+WARNING: shift/reduce conflict for GREATER_THAN in state 65 resolved as shift
+WARNING: shift/reduce conflict for GREATER_THAN_EQUAL in state 65 resolved as shift
+WARNING: shift/reduce conflict for AND in state 65 resolved as shift
+WARNING: shift/reduce conflict for OR in state 65 resolved as shift
+WARNING: shift/reduce conflict for PLUS in state 66 resolved as shift
+WARNING: shift/reduce conflict for MINUS in state 66 resolved as shift
+WARNING: shift/reduce conflict for TIMES in state 66 resolved as shift
+WARNING: shift/reduce conflict for DIVIDE in state 66 resolved as shift
+WARNING: shift/reduce conflict for EQUALS_EQUALS in state 66 resolved as shift
+WARNING: shift/reduce conflict for LESS_THAN in state 66 resolved as shift
+WARNING: shift/reduce conflict for LESS_THAN_EQUAL in state 66 resolved as shift
+WARNING: shift/reduce conflict for GREATER_THAN in state 66 resolved as shift
+WARNING: shift/reduce conflict for GREATER_THAN_EQUAL in state 66 resolved as shift
+WARNING: shift/reduce conflict for AND in state 66 resolved as shift
+WARNING: shift/reduce conflict for OR in state 66 resolved as shift
+WARNING: shift/reduce conflict for PLUS in state 67 resolved as shift
+WARNING: shift/reduce conflict for MINUS in state 67 resolved as shift
+WARNING: shift/reduce conflict for TIMES in state 67 resolved as shift
+WARNING: shift/reduce conflict for DIVIDE in state 67 resolved as shift
+WARNING: shift/reduce conflict for EQUALS_EQUALS in state 67 resolved as shift
+WARNING: shift/reduce conflict for LESS_THAN in state 67 resolved as shift
+WARNING: shift/reduce conflict for LESS_THAN_EQUAL in state 67 resolved as shift
+WARNING: shift/reduce conflict for GREATER_THAN in state 67 resolved as shift
+WARNING: shift/reduce conflict for GREATER_THAN_EQUAL in state 67 resolved as shift
+WARNING: shift/reduce conflict for AND in state 67 resolved as shift
+WARNING: shift/reduce conflict for OR in state 67 resolved as shift
+WARNING: shift/reduce conflict for PLUS in state 68 resolved as shift
+WARNING: shift/reduce conflict for MINUS in state 68 resolved as shift
+WARNING: shift/reduce conflict for TIMES in state 68 resolved as shift
+WARNING: shift/reduce conflict for DIVIDE in state 68 resolved as shift
+WARNING: shift/reduce conflict for EQUALS_EQUALS in state 68 resolved as shift
+WARNING: shift/reduce conflict for LESS_THAN in state 68 resolved as shift
+WARNING: shift/reduce conflict for LESS_THAN_EQUAL in state 68 resolved as shift
+WARNING: shift/reduce conflict for GREATER_THAN in state 68 resolved as shift
+WARNING: shift/reduce conflict for GREATER_THAN_EQUAL in state 68 resolved as shift
+WARNING: shift/reduce conflict for AND in state 68 resolved as shift
+WARNING: shift/reduce conflict for OR in state 68 resolved as shift
+WARNING: shift/reduce conflict for PLUS in state 69 resolved as shift
+WARNING: shift/reduce conflict for MINUS in state 69 resolved as shift
+WARNING: shift/reduce conflict for TIMES in state 69 resolved as shift
+WARNING: shift/reduce conflict for DIVIDE in state 69 resolved as shift
+WARNING: shift/reduce conflict for EQUALS_EQUALS in state 69 resolved as shift
+WARNING: shift/reduce conflict for LESS_THAN in state 69 resolved as shift
+WARNING: shift/reduce conflict for LESS_THAN_EQUAL in state 69 resolved as shift
+WARNING: shift/reduce conflict for GREATER_THAN in state 69 resolved as shift
+WARNING: shift/reduce conflict for GREATER_THAN_EQUAL in state 69 resolved as shift
+WARNING: shift/reduce conflict for AND in state 69 resolved as shift
+WARNING: shift/reduce conflict for OR in state 69 resolved as shift
+WARNING: reduce/reduce conflict in state 10 resolved using rule (factor -> ID)
+WARNING: rejected rule (expr -> ID) in state 10
+WARNING: reduce/reduce conflict in state 18 resolved using rule (factor -> NUMBER)
+WARNING: rejected rule (expr -> NUMBER) in state 18
+WARNING: reduce/reduce conflict in state 29 resolved using rule (factor -> ID)
+WARNING: rejected rule (expr -> ID) in state 29
+WARNING: reduce/reduce conflict in state 50 resolved using rule (factor -> ID)
+WARNING: rejected rule (expr -> ID) in state 50
+WARNING: reduce/reduce conflict in state 55 resolved using rule (factor -> LEFT_PAREN expr RIGHT_PAREN)
+WARNING: rejected rule (expr -> LEFT_PAREN expr RIGHT_PAREN) in state 55
+WARNING: reduce/reduce conflict in state 58 resolved using rule (expr -> expr PLUS term)
+WARNING: rejected rule (expr -> term) in state 58
+WARNING: reduce/reduce conflict in state 60 resolved using rule (expr -> expr MINUS term)
+WARNING: rejected rule (expr -> term) in state 60
 WARNING: Rule (expr -> ID) is never reduced
 WARNING: Rule (expr -> NUMBER) is never reduced
 WARNING: Rule (expr -> LEFT_PAREN expr RIGHT_PAREN) is never reduced

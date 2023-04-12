@@ -128,7 +128,10 @@ class Code_generator():
     def generate_call(self, tree):
         #if tree.value[1] != 
         variaveis = tree.value[1]  
-        variables_str = ", ".join(variaveis)  
+        for i in range(len(variaveis)):
+            variaveis[i] += '= 0'
+        variables_str = ", ".join(variaveis) 
+        
         self.code += f"\n{tree.value[0]}({variables_str})"
 
 

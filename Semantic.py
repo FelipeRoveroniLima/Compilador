@@ -54,7 +54,7 @@ class Semantico():
                         
     def verifica_existencia(self, node):
         if node.type in {"IF"}:
-            if isinstance(node.value, str) and node.value not in ("true", "false"):
+            if isinstance(node.value, str) and node.value not in ("True", "False"):
                 if not node.value in self.tabela_simbolo:
                     raise ValueError(f"Variavel não declarada {node.value}")  
             elif isinstance(node.value, tuple):
@@ -68,7 +68,7 @@ class Semantico():
                         raise ValueError(f"Variavel não declarada {node.value[3]}")            
                 
         if node.type in {"WHILE"}:
-            if isinstance(node.value, str) and node.value not in ("true", "false"):
+            if isinstance(node.value, str) and node.value not in ("True", "False"):
                 if not node.value in self.tabela_simbolo:
                     raise ValueError(f"Variavel não declarada {node.value}")  
             elif isinstance(node.value, tuple):
