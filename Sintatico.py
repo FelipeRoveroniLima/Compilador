@@ -229,10 +229,7 @@ def parse_tuple_to_tree(tup):
         else:
             node_type, value, children_lst = tup[0],(tup[1], tup[2]), None    
     elif tup[0] == 'ADD' or tup[0] == 'SUB' or tup[0] == 'MUL' or tup[0] == 'DIV' :
-        if isinstance(tup[2], tuple):
-            node_type, value, children_lst = tup[0], tup[1], tup[2] 
-        else:
-            node_type, value, children_lst = tup[0],(tup[1], tup[2]), None
+        node_type, value, children_lst = "OP", (tup[0],tup[1], tup[2]), None 
     
     elif len(tup) > 3:
         node_type, value, children_lst = tup[0], (tup[1], tup[2]), tup[3] 
@@ -285,7 +282,7 @@ print()
 result = p.parser.parse("main(x, y, z){x = 1; printf(\"aaa\"); aaa = b;}", lexer=p.lexico.lexico) 
 print(result)
 print()
-
+"""
 p = Parser()
 
 with open('entrada.txt', 'r', encoding='utf-8') as file:
@@ -298,4 +295,3 @@ print()
 
 tree = parse_tuple_to_tree(result[0])
 print_tree(tree)
-"""

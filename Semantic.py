@@ -74,7 +74,6 @@ class Semantico():
                     # Verifica se existe na tabela simbolo
                     if not node.value[3] in self.tabela_simbolo:
                         raise ValueError(f"Variavel não declarada {node.value[3]}")            
-                print(node.value)
                 
             
         if node.type in {"WHILE"}:
@@ -89,9 +88,11 @@ class Semantico():
                 if isinstance(node.value[3], str):
                     # Verifica se existe na tabela simbolo
                     if not node.value[3] in self.tabela_simbolo:
-                        raise ValueError(f"Variavel não declarada {node.value[3]}")            
-                print(node.value)        
+                        raise ValueError(f"Variavel não declarada {node.value[3]}") 
+        # Fazer pro print
+        # Else talvez, mas é mais complicado
     def walk_tree(self, node, level=0):
+        print(self.tabela_simbolo)
         #print(' ' * level * 4 + f'{node.type}: {node.value}')
         for child in node.children:
             self.verifica_tipo(child)
@@ -112,3 +113,4 @@ print_tree(tree)
 
 s = Semantico(tree);
 s.walk_tree(tree)
+
