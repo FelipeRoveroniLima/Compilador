@@ -141,3 +141,5 @@ c = Code_generator(tree)
 c.generate(tree)
 print(c.code)
 
+with open('out.py', 'w', encoding='utf-8') as file:
+    file.write(c.code)
