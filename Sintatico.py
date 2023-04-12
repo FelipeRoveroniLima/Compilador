@@ -56,7 +56,11 @@ class Parser:
         else:
            p[0] = p[1]       
         
-         
+                
+    def p_expr_term(self, p):
+        'expr : term'
+        p[0] = p[1]
+            
             
     def p_function_call(self, p):
         'function_call : ID LEFT_PAREN args RIGHT_PAREN'   
@@ -78,7 +82,22 @@ class Parser:
             p[0] = p[1] + [(p[3])]
         else:
             p[0] = [(p[1])]
-    
+            
+    def p_factor(self,p):
+        '''factor : NUMBER
+            | ID
+            | LEFT_PAREN expr RIGHT_PAREN'''
+
+        if len(p) == 4:
+            print("entrou")
+            p[0] = p[2]
+        else:
+            if re.match(r'^\d+\.\d+$', p[1]):
+                p[0] = float(p[1])
+            # Se não for float, verifica se é um int
+            elif re.match(r'^\d+$', p[1]):
+                p[0] = int(p[1])    
+                
     def p_term_op(self, p):
         '''term : term TIMES factor
                 | term DIVIDE factor'''
@@ -91,19 +110,8 @@ class Parser:
         'term : factor'
         p[0] = p[1]
         
-    def p_factor_num(self,p):
-        '''factor : NUMBER
-            | ID
-            | LEFT_PAREN expr RIGHT_PAREN'''
-        if len(p) == 4:
-            p[0] = p[2]
-        else:
-            p[0] = p[1] 
-            
-    def p_expr_term(self, p):
-        'expr : term'
-        p[0] = p[1]
-       
+
+
     def p_expr_op(self, p):
         '''expr : expr PLUS term
                 | expr MINUS term'''
@@ -119,6 +127,7 @@ class Parser:
                 | expr LESS_THAN_EQUAL expr
                 | expr GREATER_THAN expr
                 | expr GREATER_THAN_EQUAL expr'''
+        print("entrou11")
         p[0] = ('COMPARE', p[2], p[1], p[3])
     
     def p_expr_logical(self, p):
@@ -132,26 +141,7 @@ class Parser:
             # Operador NOT
             p[0] = ('LOGICAL_OP', 'NOT', p[2])
     
-    def p_expr_group(self, p):
-        'expr : LEFT_PAREN expr RIGHT_PAREN'
-        p[0] = p[2]
-    
-    def p_expr_id(self, p):
-        'expr : ID'
-        p[0] = p[1]
-    
-    def p_expr_num(self, p):
-        'expr : NUMBER'
-        # Verifica se o número é um float
-        if re.match(r'^\d+\.\d+$', p[1]):
-            p[0] = float(p[1])
-        # Se não for float, verifica se é um int
-        elif re.match(r'^\d+$', p[1]):
-            p[0] = int(p[1])
-        # Se não for nenhum dos dois, lança um erro de sintaxe
-        else:
-            raise ValueError('Erro no numero')
-    
+  
     def p_expr_string(self, p):
         'expr : STRING'
         p[0] = p[1]
@@ -162,8 +152,7 @@ class Parser:
          
     def p_expr_false(self, p):
         'expr : FALSE'
-        p[0] = p[1] 
-        
+        p[0] = p[1]         
 
                 
     def p_expr_if(self, p):
@@ -215,7 +204,10 @@ def parse_tuple_to_tree(tup):
             node_type, value, children_lst = tup[0], tup[1], tup[2] 
         else:
             node_type, value, children_lst = tup[0],(tup[1], tup[2]), None
-    
+    elif tup[0] == 'COMPARE':
+        node_type, value, children_lst = tup[0], (tup[1], tup[2], tup[3]), None
+
+        print("a")
     elif len(tup) > 3:
         node_type, value, children_lst = tup[0], (tup[1], tup[2]), tup[3] 
     elif len(tup) == 3 and tup[0] != 'FUNCTION_CALL' :

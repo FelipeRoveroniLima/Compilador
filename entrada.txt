@@ -1,16 +1,6 @@
 
-
 main(x){
-    x = 2;
-    b = 2 + 1 - 2 + 6;
-    if(x > 0){
-        printf("aaaaaa");
-    }
-    while (a == 2){
-        if(x < 1){
-            printf("bbbbb");		
-	    }
-    }
+    x = 3;
+    a = 1 + x;
+
 }
-
-
