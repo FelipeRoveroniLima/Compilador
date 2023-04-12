@@ -51,20 +51,46 @@ class Semantico():
                 if not (isinstance(node.value[0], (int,float)) or isinstance(node.value[1], (int,float))): 
                     # Verifica se está tentantando fazer operação com tipos diferentes fora numeros 
                     if type(node.value[0]) != type(node.value[1]):
-                        print("Erro semantico em ", node.value)
+                        raise ValueError("Erro semantico em ", node.value)
                     # Verifica se esta fazendo operação com string
                     elif type(node.value[0]) == str or type(node.value[1]) ==  str:
-                        print("Erro semantico em ", node.value)
+                        raise ValueError("Erro semantico em ", node.value)
                     # Verifica se esta fazendo operação com boolean
                     elif type(node.value[0]) == bool or type(node.value[1]) ==  bool:
-                        print("Erro semantico em ", node.value)
+                        raise ValueError("Erro semantico em ", node.value)
                         
                         
     def verifica_existencia(self, node):
-        print(node.type)
-        if node.type in {"COMPARE"}:
-            print("aaaaaa")
-        
+        if node.type in {"IF"}:
+            if isinstance(node.value, str) and node.value not in ("true", "false"):
+                if not node.value in self.tabela_simbolo:
+                    raise ValueError(f"Variavel não declarada {node.value}")  
+            elif isinstance(node.value, tuple):
+                if isinstance(node.value[2], str):
+                    # Verifica se existe na tabela simbolo
+                    if not node.value[2] in self.tabela_simbolo:
+                        raise ValueError(f"Variavel não declarada {node.value[2]}")
+                if isinstance(node.value[3], str):
+                    # Verifica se existe na tabela simbolo
+                    if not node.value[3] in self.tabela_simbolo:
+                        raise ValueError(f"Variavel não declarada {node.value[3]}")            
+                print(node.value)
+                
+            
+        if node.type in {"WHILE"}:
+            if isinstance(node.value, str) and node.value not in ("true", "false"):
+                if not node.value in self.tabela_simbolo:
+                    raise ValueError(f"Variavel não declarada {node.value}")  
+            elif isinstance(node.value, tuple):
+                if isinstance(node.value[2], str):
+                    # Verifica se existe na tabela simbolo
+                    if not node.value[2] in self.tabela_simbolo:
+                        raise ValueError(f"Variavel não declarada {node.value[2]}")
+                if isinstance(node.value[3], str):
+                    # Verifica se existe na tabela simbolo
+                    if not node.value[3] in self.tabela_simbolo:
+                        raise ValueError(f"Variavel não declarada {node.value[3]}")            
+                print(node.value)        
     def walk_tree(self, node, level=0):
         #print(' ' * level * 4 + f'{node.type}: {node.value}')
         for child in node.children:

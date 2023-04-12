@@ -12,19 +12,7 @@ class Parser:
         self.lexico = Lexico()
         self.tokens = self.lexico.tokens
         self.parser = yacc.yacc(module=self)
-        self.precedence = (('left', 'PLUS', 'MINUS'), ('left', 'TIMES', 'DIVIDE'),)
         
-    def p_start(self, p):
-        'start : ID LEFT_PAREN parameters RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE'
-        
-        p[0] = [('FUNCTION', p[1], p[3], p[6])]       
-        """
-        if p[8] != None:
-            p[0] = [('FUNCTION', p[1], p[3], p[6])] + p[8]
-        else:
-            p[0] = [('FUNCTION', p[1], p[3], p[6])]       
-        """   
-            
     def p_program(self, p):
         '''program : ID EQUALS expr SEMICOLON program
                      | ID EQUALS function_call SEMICOLON program
@@ -54,13 +42,17 @@ class Parser:
                 p[0] = [p[1]]  
         # lamda
         else:
-           p[0] = p[1]       
+           p[0] = p[1]
+         
         
-                
-    def p_expr_term(self, p):
-        'expr : term'
-        p[0] = p[1]
-            
+         
+    def p_program_function(self, p):
+        'program : ID LEFT_PAREN parameters RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE program'
+        if p[8] != None:
+            p[0] = [('FUNCTION', p[1], p[3], p[6])] + p[8]
+        else:
+            p[0] = [('FUNCTION', p[1], p[3], p[6])]
+
             
     def p_function_call(self, p):
         'function_call : ID LEFT_PAREN args RIGHT_PAREN'   
@@ -73,8 +65,50 @@ class Parser:
             p[0] =  p[1] + [(p[3])]
         else:
             p[0] = [(p[1])]
+            
+    def p_expr_op(self, p):
+        '''expr : expr PLUS term
+            | expr MINUS term'''
+        if (p[2] == '+'):
+            p[0] = ('ADD', p[1], p[3])
+        elif (p[2] == '-'):
+            p[0] = ('SUB', p[1], p[3])
+        
+
+    def p_expr_term(self, p):
+        'expr : term'
+        p[0] = p[1]
+    
+    def p_term_op(self, p):
+        '''term : term TIMES factor
+            | term DIVIDE factor'''
+
+        if (p[2] == '*'):
+            p[0] = ('MUL', p[1], p[3])
+        elif (p[2] == '/'):
+            p[0] = ('DIV', p[1], p[3])
 
     
+    def p_term_factor(self, p):
+        'term : factor'
+        p[0] = p[1]
+        
+    def p_factor_num(self, p):
+        'factor : NUMBER'
+        if re.match(r'^\d+\.\d+$', p[1]):
+            p[0] = float(p[1])
+        # Se não for float, verifica se é um int
+        elif re.match(r'^\d+$', p[1]):
+            p[0] = int(p[1])
+    
+    def p_factor_id(self, p):
+        'factor : ID'
+        p[0] = p[1]
+    
+    def p_factor_expr(self, p):
+        'factor : LEFT_PAREN expr RIGHT_PAREN'
+        p[0] = p[2]
+        
     def p_args(self, p):
         '''args : expr
                 | args COMMA expr'''
@@ -82,44 +116,20 @@ class Parser:
             p[0] = p[1] + [(p[3])]
         else:
             p[0] = [(p[1])]
-            
-    def p_factor(self,p):
-        '''factor : NUMBER
-            | ID
-            | LEFT_PAREN expr RIGHT_PAREN'''
-
-        if len(p) == 4:
-            print("entrou")
-            p[0] = p[2]
-        else:
-            if re.match(r'^\d+\.\d+$', p[1]):
-                p[0] = float(p[1])
-            # Se não for float, verifica se é um int
-            elif re.match(r'^\d+$', p[1]):
-                p[0] = int(p[1])    
-                
-    def p_term_op(self, p):
-        '''term : term TIMES factor
-                | term DIVIDE factor'''
-        if (p[2] == '*'):
-            p[0] = ('MUL', p[1], p[3])
-        elif (p[2] == '/'):
-            p[0] = ('DIV', p[1], p[3])
-            
-    def p_term_factor(self, p):
-        'term : factor'
-        p[0] = p[1]
-        
-
-
-    def p_expr_op(self, p):
-        '''expr : expr PLUS term
-                | expr MINUS term'''
+    
+    def p_expr_bin_op(self, p):
+        '''expr : expr PLUS expr
+                | expr MINUS expr
+                | expr TIMES expr
+                | expr DIVIDE expr'''
         if (p[2] == '+'):
             p[0] = ('ADD', p[1], p[3])
         elif (p[2] == '-'):
             p[0] = ('SUB', p[1], p[3])
-
+        elif (p[2] == '*'):
+            p[0] = ('MUL', p[1], p[3])
+        else:
+            p[0] = ('DIV', p[1], p[3])
     
     def p_expr_relational(self, p):
         '''expr : expr EQUALS_EQUALS expr
@@ -127,7 +137,6 @@ class Parser:
                 | expr LESS_THAN_EQUAL expr
                 | expr GREATER_THAN expr
                 | expr GREATER_THAN_EQUAL expr'''
-        print("entrou11")
         p[0] = ('COMPARE', p[2], p[1], p[3])
     
     def p_expr_logical(self, p):
@@ -141,7 +150,26 @@ class Parser:
             # Operador NOT
             p[0] = ('LOGICAL_OP', 'NOT', p[2])
     
-  
+    def p_expr_group(self, p):
+        'expr : LEFT_PAREN expr RIGHT_PAREN'
+        p[0] = p[2]
+    
+    def p_expr_id(self, p):
+        'expr : ID'
+        p[0] = p[1]
+    
+    def p_expr_num(self, p):
+        'expr : NUMBER'
+        # Verifica se o número é um float
+        if re.match(r'^\d+\.\d+$', p[1]):
+            p[0] = float(p[1])
+        # Se não for float, verifica se é um int
+        elif re.match(r'^\d+$', p[1]):
+            p[0] = int(p[1])
+        # Se não for nenhum dos dois, lança um erro de sintaxe
+        else:
+            raise ValueError('Erro no numero')
+    
     def p_expr_string(self, p):
         'expr : STRING'
         p[0] = p[1]
@@ -152,7 +180,8 @@ class Parser:
          
     def p_expr_false(self, p):
         'expr : FALSE'
-        p[0] = p[1]         
+        p[0] = p[1] 
+        
 
                 
     def p_expr_if(self, p):
@@ -199,15 +228,12 @@ def parse_tuple_to_tree(tup):
             node_type, value, children_lst = tup[0], tup[1], tup[2] 
         else:
             node_type, value, children_lst = tup[0],(tup[1], tup[2]), None    
-    elif tup[0] in {"ADD", "SUB", "MUL", "DIV"}:
+    elif tup[0] == 'ADD' or tup[0] == 'SUB' or tup[0] == 'MUL' or tup[0] == 'DIV' :
         if isinstance(tup[2], tuple):
             node_type, value, children_lst = tup[0], tup[1], tup[2] 
         else:
             node_type, value, children_lst = tup[0],(tup[1], tup[2]), None
-    elif tup[0] == 'COMPARE':
-        node_type, value, children_lst = tup[0], (tup[1], tup[2], tup[3]), None
-
-        print("a")
+    
     elif len(tup) > 3:
         node_type, value, children_lst = tup[0], (tup[1], tup[2]), tup[3] 
     elif len(tup) == 3 and tup[0] != 'FUNCTION_CALL' :
@@ -230,16 +256,11 @@ def print_tree(node, level=0):
     for child in node.children:
         print_tree(child, level+1)
 
-a = [('FUNCTION', 'main', ['x'], [('ATRIBUITION', 'x', '2'), ('ATRIBUITION', 'b', ('ADD', ('SUB', ('ADD', '2', '1'), '2'), '6')), ('IF', ('COMPARE', '>', 'x', '0'), [('PRINTF', 'aaaaaa')]), ('WHILE', ('COMPARE', '==', 'a', '2'), [('IF', ('COMPARE', '<', 'x', '1'), [('PRINTF', 'bbbbb')])])])]
-
 """
-
 a = ('FUNCTION', 'main', ['x', 'y', 'z'], [('ATRIBUITION', 'x', 1), ('IF', ('COMPARE', '>', 'x', 1), [('PRINTF', 'aaa')]), ('ATRIBUITION', 'aaa', 'b')])
-
 tree = parse_tuple_to_tree(a)
 print_tree(tree)
 print("\n\n\n")
-
 result = p.parser.parse("x = (3 * 2) + (4 / (4-2));", lexer=p.lexico.lexico) # 10
 print(result)
 print()
@@ -261,11 +282,10 @@ print()
 result = p.parser.parse("printf(\"aaa\");", lexer=p.lexico.lexico) 
 print(result)
 print()
-
 result = p.parser.parse("main(x, y, z){x = 1; printf(\"aaa\"); aaa = b;}", lexer=p.lexico.lexico) 
 print(result)
 print()
-"""
+
 p = Parser()
 
 with open('entrada.txt', 'r', encoding='utf-8') as file:
@@ -274,7 +294,8 @@ with open('entrada.txt', 'r', encoding='utf-8') as file:
 p = Parser()
 result = p.parser.parse(file_content, lexer=p.lexico.lexico)
 print(result)
-#print()
+print()
 
 tree = parse_tuple_to_tree(result[0])
 print_tree(tree)
+"""

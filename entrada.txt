@@ -1,6 +1,12 @@
-
 main(x){
-    x = 3;
-    a = 1 + x;
-
+    x = 0;
+    x = 3 + x - 1;
+    if(x){
+        printf("aaaaaa");
+    }
+    while (1){
+        if(x < 1){
+            printf("bbbbb");		
+	    }
+    }
 }

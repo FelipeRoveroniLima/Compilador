@@ -240,5 +240,5 @@ class Lexico:
         tokens = [tok.type for tok in lexer]
         assert tokens == ['PRINT']
 
-aa = Lexico()
-aa.testes_lex
+#aa = Lexico()
+#aa.testes_lex
