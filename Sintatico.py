@@ -12,7 +12,19 @@ class Parser:
         self.lexico = Lexico()
         self.tokens = self.lexico.tokens
         self.parser = yacc.yacc(module=self)
+        self.precedence = (('left', 'PLUS', 'MINUS'), ('left', 'TIMES', 'DIVIDE'),)
         
+    def p_start(self, p):
+        'start : ID LEFT_PAREN parameters RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE'
+        
+        p[0] = [('FUNCTION', p[1], p[3], p[6])]       
+        """
+        if p[8] != None:
+            p[0] = [('FUNCTION', p[1], p[3], p[6])] + p[8]
+        else:
+            p[0] = [('FUNCTION', p[1], p[3], p[6])]       
+        """   
+            
     def p_program(self, p):
         '''program : ID EQUALS expr SEMICOLON program
                      | ID EQUALS function_call SEMICOLON program
@@ -42,17 +54,9 @@ class Parser:
                 p[0] = [p[1]]  
         # lamda
         else:
-           p[0] = p[1]
-         
+           p[0] = p[1]       
         
          
-    def p_program_function(self, p):
-        'program : ID LEFT_PAREN parameters RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE program'
-        if p[8] != None:
-            p[0] = [('FUNCTION', p[1], p[3], p[6])] + p[8]
-        else:
-            p[0] = [('FUNCTION', p[1], p[3], p[6])]
-
             
     def p_function_call(self, p):
         'function_call : ID LEFT_PAREN args RIGHT_PAREN'   
@@ -75,19 +79,39 @@ class Parser:
         else:
             p[0] = [(p[1])]
     
-    def p_expr_bin_op(self, p):
-        '''expr : expr PLUS expr
-                | expr MINUS expr
-                | expr TIMES expr
-                | expr DIVIDE expr'''
+    def p_term_op(self, p):
+        '''term : term TIMES factor
+                | term DIVIDE factor'''
+        if (p[2] == '*'):
+            p[0] = ('MUL', p[1], p[3])
+        elif (p[2] == '/'):
+            p[0] = ('DIV', p[1], p[3])
+            
+    def p_term_factor(self, p):
+        'term : factor'
+        p[0] = p[1]
+        
+    def p_factor_num(self,p):
+        '''factor : NUMBER
+            | ID
+            | LEFT_PAREN expr RIGHT_PAREN'''
+        if len(p) == 4:
+            p[0] = p[2]
+        else:
+            p[0] = p[1] 
+            
+    def p_expr_term(self, p):
+        'expr : term'
+        p[0] = p[1]
+       
+    def p_expr_op(self, p):
+        '''expr : expr PLUS term
+                | expr MINUS term'''
         if (p[2] == '+'):
             p[0] = ('ADD', p[1], p[3])
         elif (p[2] == '-'):
             p[0] = ('SUB', p[1], p[3])
-        elif (p[2] == '*'):
-            p[0] = ('MUL', p[1], p[3])
-        else:
-            p[0] = ('DIV', p[1], p[3])
+
     
     def p_expr_relational(self, p):
         '''expr : expr EQUALS_EQUALS expr
@@ -179,7 +203,6 @@ class TreeNode:
         self.children = []
 
 def parse_tuple_to_tree(tup):
-    print(tup)
     if tup[0] == 'FUNCTION':
         node_type, value, children_lst = tup[0], (tup[1], tup[2]), tup[3] 
     elif tup[0] == 'ATRIBUITION':
@@ -187,7 +210,7 @@ def parse_tuple_to_tree(tup):
             node_type, value, children_lst = tup[0], tup[1], tup[2] 
         else:
             node_type, value, children_lst = tup[0],(tup[1], tup[2]), None    
-    elif tup[0] == 'ADD' or tup[0] == 'SUB' or tup[0] == 'MUL' or tup[0] == 'DIV' :
+    elif tup[0] in {"ADD", "SUB", "MUL", "DIV"}:
         if isinstance(tup[2], tuple):
             node_type, value, children_lst = tup[0], tup[1], tup[2] 
         else:
@@ -214,6 +237,8 @@ def print_tree(node, level=0):
     print(' ' * level * 4 + f'{node.type}: {node.value}')
     for child in node.children:
         print_tree(child, level+1)
+
+a = [('FUNCTION', 'main', ['x'], [('ATRIBUITION', 'x', '2'), ('ATRIBUITION', 'b', ('ADD', ('SUB', ('ADD', '2', '1'), '2'), '6')), ('IF', ('COMPARE', '>', 'x', '0'), [('PRINTF', 'aaaaaa')]), ('WHILE', ('COMPARE', '==', 'a', '2'), [('IF', ('COMPARE', '<', 'x', '1'), [('PRINTF', 'bbbbb')])])])]
 
 """
 
@@ -257,7 +282,7 @@ with open('entrada.txt', 'r', encoding='utf-8') as file:
 p = Parser()
 result = p.parser.parse(file_content, lexer=p.lexico.lexico)
 print(result)
-print()
+#print()
 
 tree = parse_tuple_to_tree(result[0])
 print_tree(tree)
