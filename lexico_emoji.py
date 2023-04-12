@@ -40,10 +40,10 @@ class Lexico:
     tokens += list(reserved.values())
 
     t_NUMBER = r'\d+(\.\d+)?' 
-    t_PLUS = r'\+'
-    t_MINUS = r'-'
-    t_TIMES = r'\*'
-    t_DIVIDE = r'/'
+    t_PLUS = r'➕'
+    t_MINUS = r'➖'
+    t_TIMES = r'✖️'
+    t_DIVIDE = r'➗'
     t_EQUALS = r'💨'
     t_EQUALS_EQUALS = r'💨💨'
     t_LESS_THAN = r'◀️'
