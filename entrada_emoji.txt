@@ -1,12 +1,10 @@
-
-
-main🤜x🤛👉
+main🤜x 💨 1🤛👉
     x 💨 0🛑
     x 💨 3.5 + 4.2🛑
     🤔 🤜x > 0🤛👉
         🖨️🤜📝aaaaaa📝🤛🛑
     👈
-    🔄 🤜1🤛👉
+    🔄 🤜True🤛👉
         🖨️🤜📝aaaaaa📝🤛🛑
     👈
     ✍️ adwadwad

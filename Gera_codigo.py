@@ -51,7 +51,7 @@ class Code_generator():
             self.code += ' ' * level * 4 + f"print(\"{node.value}\")\n"
             
         if node.type == 'IF' :
-            if isinstance(node.value, (int, float)) == 1:
+            if isinstance(node.value, (int, float)):
                 self.code += ' ' * level * 4 + f"if ({node.value}):\n"             
             elif len(node.value) == 1:
                 self.code += ' ' * level * 4 + f"if ({node.value}):\n"            
@@ -70,7 +70,7 @@ class Code_generator():
 
 
         if node.type == 'WHILE':
-            if isinstance(node.value, (int, float)) == 1:
+            if isinstance(node.value, (int, float)) or node.value == "True" or node.value == "False":
                 self.code += ' ' * level * 4 + f"while ({node.value}):\n"             
             elif len(node.value) == 1:
                 self.code += ' ' * level * 4 + f"while ({node.value}):\n"            
@@ -114,6 +114,7 @@ class Code_generator():
 
                 self.code += ' ' * level * 4 + f"if ({operacoes2} {node.value[0][1]} {operacoes3}):\n"
                 # Recursão 
+
                 for i in node.value[1]:
                     node_aux = TreeNode(i[0], i[1])
                     self.generate(node_aux, level)
@@ -122,8 +123,13 @@ class Code_generator():
 
         for child in node.children:
             self.generate(child, level+1)
-
-
+        
+        
+    def generate_call(self, tree):
+        #if tree.value[1] != 
+        variaveis = tree.value[1]  
+        variables_str = ", ".join(variaveis)  
+        self.code += f"\n{tree.value[0]}({variables_str})"
 
 
 p = Parser()
@@ -139,6 +145,7 @@ s = Semantico(tree);
 s.walk_tree(tree)
 c = Code_generator(tree)
 c.generate(tree)
+c.generate_call(tree)
 print(c.code)
 
 with open('out.py', 'w', encoding='utf-8') as file:

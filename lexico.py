@@ -91,7 +91,7 @@ class Lexico:
         r'✍️.*'
         pass        
     def p_error(self, p):
-        print("Errou '%s'" % p.value)
+        raise ValueError("Erro léxico '%s'" % p.value)
         
 
     
