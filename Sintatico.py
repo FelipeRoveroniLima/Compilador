@@ -170,7 +170,7 @@ class Parser:
     
     def p_expr_string(self, p):
         'expr : STRING'
-        p[0] = p[1]
+        p[0] = ('STRING', p[1])
         
     def p_expr_true(self, p):
         'expr : TRUE'
@@ -181,7 +181,7 @@ class Parser:
         p[0] = p[1] 
         
 
-                
+
     def p_expr_if(self, p):
         'expr : IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE'
         p[0] = ('IF', p[3], p[6])
@@ -225,7 +225,9 @@ def parse_tuple_to_tree(tup):
         if isinstance(tup[2], tuple):
             node_type, value, children_lst = tup[0], tup[1], tup[2] 
         else:
-            node_type, value, children_lst = tup[0],(tup[1], tup[2]), None    
+            node_type, value, children_lst = tup[0],(tup[1], tup[2]), None
+    elif tup[0] == 'STRING':
+        node_type, value, children_lst = tup[0], tup[1], None    
     elif tup[0] == 'ADD' or tup[0] == 'SUB' or tup[0] == 'MUL' or tup[0] == 'DIV' :
         node_type, value, children_lst = "OP", (tup[0],tup[1], tup[2]), None 
     
@@ -251,46 +253,16 @@ def print_tree(node, level=0):
     for child in node.children:
         print_tree(child, level+1)
 
-"""
-a = ('FUNCTION', 'main', ['x', 'y', 'z'], [('ATRIBUITION', 'x', 1), ('IF', ('COMPARE', '>', 'x', 1), [('PRINTF', 'aaa')]), ('ATRIBUITION', 'aaa', 'b')])
-tree = parse_tuple_to_tree(a)
-print_tree(tree)
-print("\n\n\n")
-result = p.parser.parse("x = (3 * 2) + (4 / (4-2));", lexer=p.lexico.lexico) # 10
-print(result)
-print()
-result = p.parser.parse("x = 1 && 2;", lexer=p.lexico.lexico) # ('LOGICAL_OP', '&&', 1, 2)
-print(result)
-print()
-result = p.parser.parse("x = 3 >= 4;", lexer=p.lexico.lexico) # ('COMPARE', '>=', 3, 4)
-print(result)
-print()
-result = p.parser.parse("if (x > y){a = 1; b = 3;}", lexer=p.lexico.lexico) 
-print(result)
-print()
-result = p.parser.parse("if (x > y){a = 1; b = 3;} else {a = 2;}", lexer=p.lexico.lexico) 
-print(result)
-print()
-result = p.parser.parse("while (x > y){a = 1; b = 1; c = 2; a = a + 1;}", lexer=p.lexico.lexico) 
-print(result)
-print()
-result = p.parser.parse("printf(\"aaa\");", lexer=p.lexico.lexico) 
-print(result)
-print()
-result = p.parser.parse("main(x, y, z){x = 1; printf(\"aaa\"); aaa = b;}", lexer=p.lexico.lexico) 
-print(result)
-print()
-
 p = Parser()
 
-with open('entrada.txt', 'r', encoding='utf-8') as file:
+with open('entrada_emoji.txt', 'r', encoding='utf-8') as file:
     file_content = file.read()
 
 p = Parser()
+
 result = p.parser.parse(file_content, lexer=p.lexico.lexico)
 print(result)
 print()
-
 tree = parse_tuple_to_tree(result[0])
 print_tree(tree)
-"""
+
