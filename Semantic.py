@@ -90,7 +90,7 @@ class Semantico():
             self.verifica_tabela_simbolo(child)
             self.verifica_existencia(child)
             self.walk_tree(child, level+1)
-    
+"""    
 p = Parser()
 with open('entrada.txt', 'r', encoding='utf-8') as file:
     file_content = file.read()
@@ -102,4 +102,4 @@ print_tree(tree)
 
 s = Semantico(tree);
 s.walk_tree(tree)
-
+"""

@@ -1,6 +1,6 @@
 import ply.lex as lex
 import ply.yacc as yacc
-from lexico import Lexico
+from lexico_emoji import Lexico
 import re
 import pprint
 
@@ -280,7 +280,7 @@ print()
 result = p.parser.parse("main(x, y, z){x = 1; printf(\"aaa\"); aaa = b;}", lexer=p.lexico.lexico) 
 print(result)
 print()
-"""
+
 p = Parser()
 
 with open('entrada.txt', 'r', encoding='utf-8') as file:
@@ -293,3 +293,4 @@ print()
 
 tree = parse_tuple_to_tree(result[0])
 print_tree(tree)
+"""

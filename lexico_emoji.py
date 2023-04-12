@@ -11,7 +11,7 @@ class Lexico:
        'TIMES', # *
        'DIVIDE', # /
        'EQUALS', # declarar
-       'EQUALS_EQUALS' # == 
+       'EQUALS_EQUALS', # == 
        'LESS_THAN',
        'LESS_THAN_EQUAL', 
        'GREATER_THAN',
@@ -40,16 +40,16 @@ class Lexico:
     tokens += list(reserved.values())
 
     t_NUMBER = r'\d+(\.\d+)?' 
-    t_PLUS = r'➕'
-    t_MINUS = r'➖'
-    t_TIMES = r'✖️'
-    t_DIVIDE = r'➗'
-    t_EQUALS = r'💨'
-    t_EQUALS_EQUALS = r'💨💨'
-    t_LESS_THAN = r'◀️'
-    t_GREATER_THAN = r'▶️'
-    t_LESS_THAN_EQUAL = r'◀️💨'
-    t_GREATER_THAN_EQUAL = r'▶️💨'
+    t_PLUS = r'\+'
+    t_MINUS = r'-'
+    t_TIMES = r'\*'
+    t_DIVIDE = r'/'
+    t_EQUALS = r'💨' 
+    t_EQUALS_EQUALS = r'=='
+    t_LESS_THAN = r'<'
+    t_GREATER_THAN = r'>'
+    t_LESS_THAN_EQUAL = r'<='
+    t_GREATER_THAN_EQUAL = r'>='
     t_AND = r'&&'
     t_OR = r'\|\|'
     t_NOT = r'👎'

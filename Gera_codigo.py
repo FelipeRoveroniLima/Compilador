@@ -8,8 +8,9 @@ class Code_generator():
         self.code = ""
         self.tabela_simbolo = {}
         
-    def tuple_to_string(self, t):
-        if isinstance(t, int):
+    def tuple_to_string(self, t):                                                                                                                                                                                                                                                                                                                        
+        print(t)
+        if isinstance(t, (int,float)):
             return str(t)
         elif isinstance(t, str):
             return t
@@ -28,7 +29,8 @@ class Code_generator():
                 op_str = " / "
             return left_str + op_str + right_str
     def generate(self, node, level=0):
-        if node.type in ["FUNCTION", "WHILE", "IF", "ELSE"]:
+        
+        if node.type == 'FUNCTION':
             if len(node.value) > 1:   
                 variaveis = node.value[1]  
                 variables_str = ", ".join(variaveis)  
@@ -37,7 +39,7 @@ class Code_generator():
                 self.code += f"def {node.value[0]} ():\n"
                 
         if node.type == "ATRIBUITION":
-            print("aa")
+            #print("aa")
             if node.children == []:   
                 self.code += ' ' * level * 4 + f"{node.value[0]} = {node.value[1]}\n"
             else:
@@ -47,10 +49,76 @@ class Code_generator():
 
         if node.type == "PRINTF":
             self.code += ' ' * level * 4 + f"print(\"{node.value}\")\n"
+            
+        if node.type == 'IF' :
+            if isinstance(node.value, (int, float)) == 1:
+                self.code += ' ' * level * 4 + f"if ({node.value}):\n"             
+            elif len(node.value) == 1:
+                self.code += ' ' * level * 4 + f"if ({node.value}):\n"            
+            elif len(node.value) == 4: 
+                if isinstance(node.value[3], tuple):
+                    operacoes3 = self.tuple_to_string(node.value[3])
+                else:
+                    operacoes3 =  node.value[3]
 
-        # if
-        # while
-        # else
+                if isinstance(node.value[2], tuple):
+                    operacoes2 = self.tuple_to_string(node.value[2])    
+                else:
+                    operacoes2 = node.value[2]                    
+
+                self.code += ' ' * level * 4 + f"if ({operacoes2} {node.value[1]} {operacoes3}):\n"
+
+
+        if node.type == 'WHILE':
+            if isinstance(node.value, (int, float)) == 1:
+                self.code += ' ' * level * 4 + f"while ({node.value}):\n"             
+            elif len(node.value) == 1:
+                self.code += ' ' * level * 4 + f"while ({node.value}):\n"            
+            elif len(node.value) == 4: 
+                if isinstance(node.value[3], tuple):
+                    operacoes3 = self.tuple_to_string(node.value[3])
+                else:
+                    operacoes3 =  node.value[3]
+
+                if isinstance(node.value[2], tuple):
+                    operacoes2 = self.tuple_to_string(node.value[2])    
+                else:
+                    operacoes2 = node.value[2]                    
+
+                self.code += ' ' * level * 4 + f"while ({operacoes2} {node.value[1]} {operacoes3}):\n"
+        
+                
+        # NÃO FUNCIONA
+        
+        if node.type == 'IF_ELSE':
+            for i in node.value[1]:
+                node_aux = TreeNode(i[0], i[1])
+                aux = self.generate(node_aux, level)
+                
+                
+                
+            if isinstance(node.value[0], (int, float)) == 1:
+                self.code += ' ' * level * 4 + f"if ({node.value}):\n"             
+            elif len(node.value[0]) == 1:
+                self.code += ' ' * level * 4 + f"if ({node.value}):\n"            
+            elif len(node.value[0]) == 4: 
+                if isinstance(node.value[0][3], tuple):
+                    operacoes3 = self.tuple_to_string(node.value[0][3])
+                else:
+                    operacoes3 =  node.value[0][3]
+
+                if isinstance(node.value[0][2], tuple):
+                    operacoes2 = self.tuple_to_string(node.value[0][2])    
+                else:
+                    operacoes2 = node.value[0][2]                    
+
+                self.code += ' ' * level * 4 + f"if ({operacoes2} {node.value[0][1]} {operacoes3}):\n"
+                # Recursão 
+                for i in node.value[1]:
+                    node_aux = TreeNode(i[0], i[1])
+                    self.generate(node_aux, level)
+
+
 
         for child in node.children:
             self.generate(child, level+1)
@@ -59,7 +127,7 @@ class Code_generator():
 
 
 p = Parser()
-with open('entrada.txt', 'r', encoding='utf-8') as file:
+with open('entrada_emoji.txt', 'r', encoding='utf-8') as file:
     file_content = file.read()
 
 p = Parser()
@@ -73,14 +141,3 @@ c = Code_generator(tree)
 c.generate(tree)
 print(c.code)
 
-"""
-FUNCTION: ('main', ['x', 'y'])
-    ATRIBUITION: ('x', 0)
-    ATRIBUITION: x
-        SUB: (('ADD', 3, 'x'), 1)
-    IF: x
-        PRINTF: aaaaaa
-    WHILE: 1
-        IF: ('COMPARE', '<', 'x', 1)
-            PRINTF: bbbbb
-"""
