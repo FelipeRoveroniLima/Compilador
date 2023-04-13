@@ -7,7 +7,7 @@ class Semantico():
         
     def resolve_conta(self, node):
         if isinstance(node, TreeNode):            
-            expression = (node.type, node.value[0], node.value[1])
+            expression = (node.value[0], node.value[1], node.value[2])
         else:
             expression = node
         if isinstance(expression, (int, float)):
@@ -31,7 +31,9 @@ class Semantico():
                     self.tabela_simbolo.update({node.value[0]: [node.value[1], type(node.value[1])]})
             else:
                 if node.value in self.tabela_simbolo:
-                    self.tabela_simbolo[node.value[0]] = node.children[0]
+                    valor_att = self.resolve_conta(node.children[0])
+
+                    self.tabela_simbolo[node.value[0]] = [valor_att, type(valor_att)]
                 else:
                     valor_att = self.resolve_conta(node.children[0])
                     self.tabela_simbolo.update({node.value[0]: [valor_att, type(valor_att)]})
