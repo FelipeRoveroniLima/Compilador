@@ -26,7 +26,6 @@ class Semantico():
         if node.type == "ATRIBUITION":
             if node.children == []:
                 if node.value in self.tabela_simbolo:
-                    print("ta aqui ja", node.value)
                     self.tabela_simbolo[node.value[0]] = [node.value[1], type(node.value[1])]
                 else:
                     self.tabela_simbolo.update({node.value[0]: [node.value[1], type(node.value[1])]})
@@ -50,8 +49,7 @@ class Semantico():
                     # Verifica se esta fazendo operação com boolean
                     elif type(node.value[0]) == bool or type(node.value[1]) ==  bool:
                         raise ValueError("Erro semantico em ", node.value)
-                        
-                        
+                                 
     def verifica_existencia(self, node):
         if node.type in {"IF"}:
             if isinstance(node.value, str) and node.value not in ("True", "False"):
@@ -81,12 +79,8 @@ class Semantico():
                     if not node.value[3] in self.tabela_simbolo:
                         raise ValueError(f"Variavel não declarada {node.value[3]}") 
 
-
-        # Fazer pro print
-        # Else talvez, mas é mais complicado
     def walk_tree(self, node, level=0):
         print(self.tabela_simbolo)
-        #print(' ' * level * 4 + f'{node.type}: {node.value}')
         for child in node.children:
             self.verifica_tipo(child)
             self.verifica_tabela_simbolo(child)
@@ -104,4 +98,3 @@ print_tree(tree)
 
 s = Semantico(tree);
 s.walk_tree(tree)
-

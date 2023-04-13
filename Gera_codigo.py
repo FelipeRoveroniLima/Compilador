@@ -38,7 +38,6 @@ class Code_generator():
                 self.code += f"def {node.value[0]} ():\n"
                 
         if node.type == "ATRIBUITION":
-            #print("aa")
             if node.children == []:   
                 self.code += ' ' * level * 4 + f"{node.value[0]} = {node.value[1]}\n"
             else:
@@ -71,7 +70,6 @@ class Code_generator():
 
                 self.code += ' ' * level * 4 + f"if ({operacoes2} {node.value[1]} {operacoes3}):\n"
 
-
         if node.type == 'WHILE':
             if isinstance(node.value, (int, float)) or node.value == "True" or node.value == "False":
                 self.code += ' ' * level * 4 + f"while ({node.value}):\n"             
@@ -90,15 +88,10 @@ class Code_generator():
 
                 self.code += ' ' * level * 4 + f"while ({operacoes2} {node.value[1]} {operacoes3}):\n"
         
-                
-        # NÃO FUNCIONA
-        
         if node.type == 'IF_ELSE':
             for i in node.value[1]:
                 node_aux = TreeNode(i[0], i[1])
                 aux = self.generate(node_aux, level)
-                
-                
                 
             if isinstance(node.value[0], (int, float)) == 1:
                 self.code += ' ' * level * 4 + f"if ({node.value}):\n"             
@@ -122,11 +115,8 @@ class Code_generator():
                     node_aux = TreeNode(i[0], i[1])
                     self.generate(node_aux, level)
 
-
-
         for child in node.children:
             self.generate(child, level+1)
-        
         
     def generate_call(self, tree):
         #if tree.value[1] != 
