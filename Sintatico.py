@@ -290,7 +290,6 @@ print()
 p = Parser()
 
 with open('entrada_emoji.txt', 'r', encoding='utf-8') as file:
-with open('entrada_emoji.txt', 'r', encoding='utf-8') as file:
     file_content = file.read()
 
 p = Parser()
