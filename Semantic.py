@@ -80,6 +80,8 @@ class Semantico():
                     # Verifica se existe na tabela simbolo
                     if not node.value[3] in self.tabela_simbolo:
                         raise ValueError(f"Variavel não declarada {node.value[3]}") 
+
+
         # Fazer pro print
         # Else talvez, mas é mais complicado
     def walk_tree(self, node, level=0):
@@ -90,9 +92,9 @@ class Semantico():
             self.verifica_tabela_simbolo(child)
             self.verifica_existencia(child)
             self.walk_tree(child, level+1)
-"""    
+    
 p = Parser()
-with open('entrada.txt', 'r', encoding='utf-8') as file:
+with open('entrada_emoji.txt', 'r', encoding='utf-8') as file:
     file_content = file.read()
 
 p = Parser()
@@ -102,4 +104,4 @@ print_tree(tree)
 
 s = Semantico(tree);
 s.walk_tree(tree)
-"""
+

@@ -174,7 +174,7 @@ class Parser:
     
     def p_expr_string(self, p):
         'expr : STRING'
-        p[0] = p[1]
+        p[0] = ('STRING', p[1])
         
     def p_expr_true(self, p):
         'expr : TRUE'
@@ -185,7 +185,7 @@ class Parser:
         p[0] = p[1] 
         
 
-                
+
     def p_expr_if(self, p):
         'expr : IF LEFT_PAREN expr RIGHT_PAREN LEFT_BRACE program RIGHT_BRACE'
         p[0] = ('IF', p[3], p[6])
@@ -229,7 +229,9 @@ def parse_tuple_to_tree(tup):
         if isinstance(tup[2], tuple):
             node_type, value, children_lst = tup[0], tup[1], tup[2] 
         else:
-            node_type, value, children_lst = tup[0],(tup[1], tup[2]), None    
+            node_type, value, children_lst = tup[0],(tup[1], tup[2]), None
+    elif tup[0] == 'STRING':
+        node_type, value, children_lst = tup[0], tup[1], None    
     elif tup[0] == 'ADD' or tup[0] == 'SUB' or tup[0] == 'MUL' or tup[0] == 'DIV' :
         node_type, value, children_lst = "OP", (tup[0],tup[1], tup[2]), None 
     
@@ -288,12 +290,13 @@ print()
 p = Parser()
 
 with open('entrada_emoji.txt', 'r', encoding='utf-8') as file:
+with open('entrada_emoji.txt', 'r', encoding='utf-8') as file:
     file_content = file.read()
 
 p = Parser()
+
 result = p.parser.parse(file_content, lexer=p.lexico.lexico)
 print(result)
 print()
-
 tree = parse_tuple_to_tree(result[0])
 print_tree(tree)

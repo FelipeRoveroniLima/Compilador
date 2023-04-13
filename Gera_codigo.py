@@ -6,7 +6,6 @@ class Code_generator():
     def __init__(self, tree):
         self.tree = tree
         self.code = ""
-        self.tabela_simbolo = {}
         
     def tuple_to_string(self, t):                                                                                                                                                                                                                                                                                                                        
         print(t)
@@ -48,7 +47,11 @@ class Code_generator():
                 self.code += ' ' * level * 4 + f"{node.value[0]} = {operacoes}\n"
 
         if node.type == "PRINTF":
-            self.code += ' ' * level * 4 + f"print(\"{node.value}\")\n"
+            if isinstance(node.value, tuple):
+                type, value = node.value
+                self.code += ' ' * level * 4 + f"print(\"{value}\")\n"
+            else:
+                self.code += ' ' * level * 4 + f"print({node.value})\n"
             
         if node.type == 'IF' :
             if isinstance(node.value, (int, float)):
